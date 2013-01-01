@@ -67,10 +67,10 @@ public class ThrustWriter {
 
         int pulseWidth = 1500;
 
-        if (xNewton > 2.5) {
+        if (xNewton > 5) {
             double pulseWidthFloat = 11.8658 * x + 1437;
             pulseWidth = (int) pulseWidthFloat;
-        } else if (xNewton < -2.5) {
+        } else if (xNewton < -5) {
             double pulseWidthFloat = 10.18 * x + 1558;
             pulseWidth = (int) pulseWidthFloat;
         } else {

@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 
-
 /**
  *
  * @author Albert
@@ -63,7 +62,7 @@ public class Application extends Thread {
     private double[] remoteCommand;
 
     public Application(Server server) {
-        
+
         xNorth = 0.0f;
         yEast = 0.0f;
         yaw = 0.0f;
@@ -156,10 +155,10 @@ public class Application extends Thread {
 
     private void idle() {
         dynamicPositioning.stopWriter();
-        thrustWriter.setThrustForAll(new double[]{0d,0d,0d,0d});
+        thrustWriter.setThrustForAll(new double[]{0d, 0d, 0d, 0d});
         thrustWriter.writeThrust();
         updateBasicFields();
-       // System.out.println("Idle");
+        // System.out.println("Idle");
     }
 
     private void dynamicPositioning() {
@@ -225,10 +224,10 @@ public class Application extends Thread {
             comPortWind = "COM6";
             comPortThrust = "COM7";
         } else {
-            comPortGPS = "ttyACM2";
-            comPortIMU = "ttyACM0";
-            comPortWind = "ttyACM4";
-            comPortThrust = "ttyACM1";
+            comPortGPS = "ttyACM0";
+            comPortIMU = "ttyACM1";
+            comPortWind = "ttyACM3";
+            comPortThrust = "ttyACM2";
         }
         int baudRateGPS = 115200;
 
@@ -274,7 +273,6 @@ public class Application extends Thread {
 
     public static void main(String[] args) throws Exception {
         ServerSocket ssocket = new ServerSocket(2345);
-
         while (true) {
             Server server = new Server(ssocket);
             server.acceptConnection();//denne metoden blokker
@@ -285,7 +283,7 @@ public class Application extends Thread {
         }
     }
 
-    private String getDataLine() {
+private String getDataLine() {
         float[][] a = dynamicPositioning.getAllControllerTunings();
         return "Latitude: " + latitudeBody + " Longitude: "
                 + longitudeBody + " xNorth: " + xNorth + " Sway: " + yEast
