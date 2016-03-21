@@ -56,6 +56,17 @@ public class SerialConnection {
 
         }
     }
+    
+        public void writeThrustMillis(int thrustMillis1, int thrustMillis2, int thrustMillis3, int thrustMillis4) {
+        String thrustString;
+        OutputStream os = comPort.getOutputStream();
+        try {
+            thrustString = "" + thrustMillis1 + ":" + thrustMillis2 + ":"+ thrustMillis3 + ":" + thrustMillis4;
+            os.write(thrustString.getBytes());
+        } catch (IOException ex) {
+
+        }
+    }
 
     public void connectAndListen(Identifier ID) {
         connect(ID);
