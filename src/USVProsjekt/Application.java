@@ -31,7 +31,7 @@ public class Application implements Runnable {
 
     private float surge;
     private float sway;
-    private float yaw, heading,headingReference;
+    private float yaw, heading, headingReference;
 
     private float speed;
     private float direction;
@@ -49,6 +49,8 @@ public class Application implements Runnable {
     private Regulator pidSurge;
     private Regulator pidSway;
     private Regulator pidHeading;
+
+    private RotationMatrix Rz;
 
     public Application(Socket csocket) {
         surge = 0.0f;
@@ -93,8 +95,7 @@ public class Application implements Runnable {
                         idle();
                         break;
                     case 1:
-                        //30 er referanse heading(eksempel), tenkte kanskje  
-                        //brukeren får velge ønsket heading i GUI?
+                        //ønsket heading fra gui
                         dynamicPositioning(headingReference);
                         break;
                     case 2:
@@ -140,12 +141,18 @@ public class Application implements Runnable {
         updateAllFields();
         printStream.println(getDataLine());
         gps.lockReferencePosition();
-
+        
         //computes output from actualpoint and referencepoint then returns 
-        // forces and moments in SNAME notation
+        // forces and moments in SNAME notation(tau)
         float X = pidSurge.computeOutput(surge, 0);
         float Y = pidSway.computeOutput(sway, 0);
         float N = pidHeading.computeOutput(heading, referenceHeading);
+        
+        Rz = new RotationMatrix(heading);
+        //Rz*Tau
+        double[] XYNtransformed = Rz.multiplyRzwithV(X, Y, N);
+        
+        //Thrusterallokering med XYNtransformed
     }
 
     private void remoteOperation(String[] lineData) {

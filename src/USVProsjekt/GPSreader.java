@@ -100,7 +100,7 @@ public class GPSreader extends Thread {
     }
 
     private void setReference() {
-        while (!dynamicPositioning) {
+        while (!dynamicPositioning && !stop) {
             String line = serialConnection.getSerialLine();
             String[] lineData = line.split("\r\n");
             if (lineData[0].startsWith("$") && lineData[1].startsWith("$")) {
