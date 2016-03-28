@@ -7,7 +7,6 @@ package USVProsjekt;
 public class Regulator {
 
     //IO Variables
-    private float inputVariable;
     private float outputVariable;
 
     //Gains
