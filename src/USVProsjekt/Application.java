@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Timer;
 
 /**
  *
@@ -45,12 +46,10 @@ public class Application implements Runnable {
     private BufferedReader inFromServer;
     private PrintStream printStream;
     private int guiCommand;
-
-    private Regulator pidSurge;
-    private Regulator pidSway;
-    private Regulator pidHeading;
-
-    private RotationMatrix Rz;
+    
+    boolean dpStarted;
+    private DynamicPositioning dp;
+    Timer timer;
 
     public Application(){//Socket csocket) {
         surge = 0.0f;
@@ -68,12 +67,20 @@ public class Application implements Runnable {
         longitudeReference = 0.0f;
         //this.csocket = csocket;
         guiCommand = 0;
-
-        initialisePIDs();
+        
+        timer = new Timer();
+        
+        
+        
     }
 
     @Override
     public void run() {
+        try{
+Thread.sleep(5000);}catch(InterruptedException ie){// midlertidig for å låse lon/lat ref
+    
+}
+
 
         //try {
 
@@ -97,14 +104,27 @@ public class Application implements Runnable {
                         idle();
                         break;
                     case 1:
-                        //ønsket heading fra gui
-                        dynamicPositioning(headingReference);
+                        updateAllFields();
+                        //dynamicPositioning(headingReference);
+                        gps.lockReferencePosition();
+                        
+                        dp.setProcessVariables(surge, sway, heading);
+                        if(!dpStarted){
+                            int startTime =0;
+                            int periodTime =50;
+                            dp.setReferenceHeading(heading);
+                            timer.scheduleAtFixedRate(dp, startTime, periodTime);
+                            dpStarted=true;
+                        }
+                       //System.out.println(gps.getXposition() + " " + gps.getYposition());
+
                         break;
                     case 2:
                         //remoteOperation(lineData);
                         break;
 
                 }
+                
 
             }
             //printStream.close();
@@ -119,19 +139,6 @@ public class Application implements Runnable {
 
     }
 
-    private void initialisePIDs() {
-        //one regulator per degree of freedom
-        pidSurge = new Regulator();
-        pidSway = new Regulator();
-        pidHeading = new Regulator();
-
-        // temporary tunings
-        pidSurge.setTunings(1f, 0f, 0f);
-        pidSway.setTunings(1f, 0f, 0f);
-        pidHeading.setTunings(1f, 0f, 0f);
-
-    }
-
     private void idle() {
         updateBasicFields();
         //printStream.println(getDataLine());
@@ -139,22 +146,9 @@ public class Application implements Runnable {
         System.out.println("idle");
     }
 
-    private void dynamicPositioning(float referenceHeading) {
-        updateAllFields();
+    private void dynamicPositioning() {
+        
         //printStream.println(getDataLine());
-        gps.lockReferencePosition();
-        
-        //computes output from actualpoint and referencepoint then returns 
-        // forces and moments in SNAME notation(tau)
-        float X = pidSurge.computeOutput(surge, 0);
-        float Y = pidSway.computeOutput(sway, 0);
-        float N = pidHeading.computeOutput(heading, referenceHeading);
-        
-        Rz = new RotationMatrix(heading);
-        //Rz*Tau
-        double[] XYNtransformed = Rz.multiplyRzwithV(X, Y, N);
-        
-        //Thrusterallokering med XYNtransformed
     }
 
     private void remoteOperation(String[] lineData) {
@@ -210,7 +204,7 @@ public class Application implements Runnable {
             comPortWind = "COM6";
             comPortThrust = "COM7";
         }
-        int baudRateGPS = 38400;
+        int baudRateGPS = 115200;
 
         int baudRateIMU = 57600;
 
@@ -228,8 +222,8 @@ public class Application implements Runnable {
         serialWind = new SerialConnection(comPortWind,
                 baudRateWind);
 
-        serialThrust = new SerialConnection(comPortWind,
-                baudRateWind);
+        serialThrust = new SerialConnection(comPortThrust,
+                baudRateThrust);
 
         // Create and start threads
         gps = new GPSreader(serialGPS, Identifier.GPS);
@@ -246,8 +240,9 @@ public class Application implements Runnable {
         windReader.connectToSerialPortAndDisplayWindInfo();
         windReader.setName("Wind Reader Thread");
         windReader.start();
-//
-//        thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
+
+        thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
+        dp = new DynamicPositioning(thrustWriter);
     }
 
     public static void main(String[] args) throws Exception {

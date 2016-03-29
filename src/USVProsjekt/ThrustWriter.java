@@ -31,11 +31,13 @@ public class ThrustWriter extends Thread {
         pulseWidth4 = 1500;
         
         this.serialConnection = serialConnection;
+        
         this.ID = ID;
+        this.serialConnection.connect(this.ID);
     }
 
     public void writeThrust() {
-        serialConnection.writeThrustMillis(pulseWidth1, pulseWidth2, pulseWidth3, pulseWidth4);
+        serialConnection.writeThrustMicros(pulseWidth1, pulseWidth2, pulseWidth3, pulseWidth4);
     }
 
     public void setThrust(int thrusterNumber, double newton) {
@@ -52,11 +54,11 @@ public class ThrustWriter extends Thread {
         }
     }
 
-    public void setThrustForAll(double newton1, double newton2, double newton3, double newton4) {
-        pulseWidth1 = newtonToMillis(newton1);
-        pulseWidth2 = newtonToMillis(newton2);
-        pulseWidth3 = newtonToMillis(newton3);
-        pulseWidth4 = newtonToMillis(newton4);
+    public void setThrustForAll(double[] newton) {
+        pulseWidth1 = newtonToMillis(newton[0]);
+        pulseWidth2 = newtonToMillis(newton[1]);
+        pulseWidth3 = newtonToMillis(newton[2]);
+        pulseWidth4 = newtonToMillis(newton[3]);
     }
 
     public int newtonToMillis(double xNewton) {
