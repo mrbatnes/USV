@@ -4,7 +4,7 @@ package USVProsjekt;
  *
  * @author Albert
  */
-public class Regulator {
+public class Regulator{
 
     //IO Variables
     private float outputVariable;
@@ -27,20 +27,25 @@ public class Regulator {
         Kd = 0.0f;
 
     }
-/**
- * Computes the output (mangler tidsbestemt kjøring)
- * @param newInput
- * @param referenceVariable
- * @return 
- */
+
+    /**
+     * Computes the output
+     *
+     * @param newInput
+     * @param referenceVariable
+     * @return
+     */
+
     public float computeOutput(float newInput, float referenceVariable) {
-        float error = referenceVariable - newInput;
-        errorSum += error;
-        float dErr = (error - lastError);
-        //Compute PID Output
-        outputVariable = Kp * error + Ki * errorSum + Kd * dErr;
-        lastError = error;
-        return outputVariable;
+
+            float error = referenceVariable - newInput;
+            errorSum += error;
+            float dErr = (error - lastError);
+            //Compute PID Output
+            outputVariable = Kp * error + Ki * errorSum + Kd * dErr;
+            lastError = error;
+            return outputVariable;
+
     }
 
     public void setTunings(float Kp, float Ki, float Kd) {
