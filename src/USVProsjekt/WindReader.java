@@ -51,8 +51,7 @@ public class WindReader extends Thread {
             windSpeed = Float.parseFloat(lineData[2]);
             windDirection = Float.parseFloat(lineData[5]);
             temperature = Float.parseFloat(lineData[7]);
-            airPressurehPa = Float.parseFloat(lineData[9]);
-            
+            airPressurehPa = Float.parseFloat(lineData[9]);            
         }
     }
 
