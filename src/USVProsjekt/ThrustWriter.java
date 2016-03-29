@@ -50,7 +50,7 @@ public class ThrustWriter extends Thread {
         }
     }
 
-    public synchronized void setThrustForAll(double newton1, double newton2, double newton3, double newton4) {
+    public void setThrustForAll(double newton1, double newton2, double newton3, double newton4) {
         pulseWidth1 = newtonToMillis(newton1);
         pulseWidth2 = newtonToMillis(newton2);
         pulseWidth3 = newtonToMillis(newton3);
