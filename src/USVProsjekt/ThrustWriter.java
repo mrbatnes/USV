@@ -40,26 +40,26 @@ public class ThrustWriter extends Thread {
 
     public void setThrust(int thrusterNumber, double newton) {
         if (thrusterNumber == thruster_1) {
-            pulseWidth1 = newtonToMillis(newton);
+            pulseWidth1 = newtonToPulseWidth(newton);
         } else if (thrusterNumber == thruster_2) {
-            pulseWidth2 = newtonToMillis(newton);
+            pulseWidth2 = newtonToPulseWidth(newton);
         } else if (thrusterNumber == thruster_3) {
-            pulseWidth3 = newtonToMillis(newton);
+            pulseWidth3 = newtonToPulseWidth(newton);
         } else if (thrusterNumber == thruster_4) {
-            pulseWidth4 = newtonToMillis(newton);
+            pulseWidth4 = newtonToPulseWidth(newton);
         } else{
             System.out.println("ThrustWriter:setThrust This thruster does not exist.");
         }
     }
 
     public void setThrustForAll(double newton1, double newton2, double newton3, double newton4) {
-        pulseWidth1 = newtonToMillis(newton1);
-        pulseWidth2 = newtonToMillis(newton2);
-        pulseWidth3 = newtonToMillis(newton3);
-        pulseWidth4 = newtonToMillis(newton4);
+        pulseWidth1 = newtonToPulseWidth(newton1);
+        pulseWidth2 = newtonToPulseWidth(newton2);
+        pulseWidth3 = newtonToPulseWidth(newton3);
+        pulseWidth4 = newtonToPulseWidth(newton4);
     }
 
-    public int newtonToMillis(double xNewton) {
+    public int newtonToPulseWidth(double xNewton) {
         double x = xNewton;
 
         int pulseWidth = 1500;
