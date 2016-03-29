@@ -32,11 +32,11 @@ public class ThrustWriter extends Thread {
         this.serialConnection = serialConnection;
     }
 
-    public synchronized void writeThrust() {
+    public void writeThrust() {
         serialConnection.writeThrustMillis(pulseWidth1, pulseWidth2, pulseWidth3, pulseWidth4);
     }
 
-    public synchronized void setThrust(int thrusterNumber, double newton) {
+    public void setThrust(int thrusterNumber, double newton) {
         if (thrusterNumber == thruster_1) {
             pulseWidth1 = newtonToMillis(newton);
         } else if (thrusterNumber == thruster_2) {
