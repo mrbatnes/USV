@@ -52,7 +52,7 @@ public class Application implements Runnable {
 
     private RotationMatrix Rz;
 
-    public Application(Socket csocket) {
+    public Application(){//Socket csocket) {
         surge = 0.0f;
         sway = 0.0f;
         yaw = 0.0f;
@@ -66,7 +66,7 @@ public class Application implements Runnable {
         longitudeBody = 0.0f;
         latitudeReference = 0.0f;
         longitudeReference = 0.0f;
-        this.csocket = csocket;
+        //this.csocket = csocket;
         guiCommand = 0;
 
         initialisePIDs();
@@ -75,20 +75,22 @@ public class Application implements Runnable {
     @Override
     public void run() {
 
-        try {
+        //try {
 
-            printStream = new PrintStream(csocket.getOutputStream(), true);
+            //printStream = new PrintStream(csocket.getOutputStream(), true);
             BufferedReader r;
 
             while (guiCommand != 3) {
-                r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
-                String line = r.readLine();
-                String[] lineData = null;
-                if (!line.isEmpty()) {
-                    lineData = line.split(" ");
-                    guiCommand = Integer.parseInt(lineData[0]);
-                    headingReference = Float.parseFloat(lineData[1]);
-                }
+               // r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
+                //String line = r.readLine();
+                //String[] lineData = null;
+                //if (!line.isEmpty()) {
+                   // lineData = line.split(" ");
+                    //guiCommand = Integer.parseInt(lineData[0]);
+                    guiCommand =1;
+                    //headingReference = Float.parseFloat(lineData[1]);
+                    headingReference = 20f;
+               // }
                 switch (guiCommand) {
 
                     case 0:
@@ -99,21 +101,21 @@ public class Application implements Runnable {
                         dynamicPositioning(headingReference);
                         break;
                     case 2:
-                        remoteOperation(lineData);
+                        //remoteOperation(lineData);
                         break;
 
                 }
 
             }
-            printStream.close();
-            csocket.close();
+            //printStream.close();
+            //csocket.close();
             stopThreads();
             System.out.println("RUN EXIT");
 
-        } catch (IOException ex) {
+       // } catch (IOException ex) {
             System.out.println("exception appl");
 
-        }
+        //}
 
     }
 
@@ -132,14 +134,14 @@ public class Application implements Runnable {
 
     private void idle() {
         updateBasicFields();
-        printStream.println(getDataLine());
+        //printStream.println(getDataLine());
         gps.setReferencePositionOff();
         System.out.println("idle");
     }
 
     private void dynamicPositioning(float referenceHeading) {
         updateAllFields();
-        printStream.println(getDataLine());
+        //printStream.println(getDataLine());
         gps.lockReferencePosition();
         
         //computes output from actualpoint and referencepoint then returns 
@@ -249,16 +251,16 @@ public class Application implements Runnable {
     }
 
     public static void main(String[] args) throws Exception {
-        ServerSocket ssocket = new ServerSocket(2345);
-        System.out.println("listening");
-        while (true) {
-            Socket socket = ssocket.accept();
-            System.out.println("Connected via TCP");
-            Application app = new Application(socket);
+        //ServerSocket ssocket = new ServerSocket(2345);
+        //System.out.println("listening");
+        //while (true) {
+         //   Socket socket = ssocket.accept();
+          //  System.out.println("Connected via TCP");
+            Application app = new Application();//socket);
             app.initializeApplication();
             new Thread(app).start();
 
-        }
+       // }
     }
 
     private String getDataLine() {
