@@ -57,7 +57,7 @@ public class SerialConnection {
         }
     }
     
-        public void writeThrustMillis(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
+        public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
         String thrustString;
         OutputStream os = comPort.getOutputStream();
         try {
