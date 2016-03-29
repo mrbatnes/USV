@@ -17,8 +17,9 @@ public class ThrustWriter extends Thread {
     private int pulseWidth4;
 
     private SerialConnection serialConnection;
+    private Identifier ID;
 
-    public ThrustWriter(SerialConnection serialConnection) {
+    public ThrustWriter(SerialConnection serialConnection, Identifier ID) {
         thruster_1 = 1;
         thruster_2 = 2;
         thruster_3 = 3;
@@ -30,6 +31,7 @@ public class ThrustWriter extends Thread {
         pulseWidth4 = 1500;
         
         this.serialConnection = serialConnection;
+        this.ID = ID;
     }
 
     public void writeThrust() {
