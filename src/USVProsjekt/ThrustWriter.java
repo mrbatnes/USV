@@ -4,7 +4,7 @@ package USVProsjekt;
  *
  * @author root
  */
-public class ThrustWriter extends Thread {
+public class ThrustWriter{
 
     private int thruster_1;
     private int thruster_2;
