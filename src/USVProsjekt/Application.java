@@ -74,12 +74,6 @@ public class Application implements Runnable {
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ie) {// midlertidig for å låse lon/lat ref
-
-        }
-
         while (guiCommand != 3) {
             guiCommand = server.getGuiCommand();
             headingReference = server.getHeadingReference();
@@ -110,6 +104,7 @@ public class Application implements Runnable {
                     break;
 
             }
+            server.setDataFields(getDataLine());
 
         }
             //printStream.close();

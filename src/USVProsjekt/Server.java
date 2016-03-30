@@ -11,8 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
@@ -25,19 +24,20 @@ public class Server extends Thread {
     private PrintStream printStream;
     private ServerSocket ssocket;
     private int guiCommand;
+    private String data;
     private float headingReference;
     private double[] remoteCommand;
 
     public Server() throws IOException {
         ssocket = new ServerSocket(2345);
-        remoteCommand = new double[4];
+        remoteCommand = new double[3];
     }
 
     public synchronized int getGuiCommand() {
         return guiCommand;
     }
 
-    public synchronized void setGuiCommand(int guiCommand) {
+    private synchronized void setGuiCommand(int guiCommand) {
         this.guiCommand = guiCommand;
     }
 
@@ -45,16 +45,18 @@ public class Server extends Thread {
         return headingReference;
     }
 
-    public synchronized void setHeadingReference(float headingReference) {
+    private synchronized void setHeadingReference(float headingReference) {
         this.headingReference = headingReference;
     }
-    
-    public synchronized void setRemoteCommand(String[] lineData) {
-        
+
+    private synchronized void setRemoteCommand(String[] lineData) {
+        for(int i = 0; i < 3; i++) {
+            remoteCommand[i] = Double.parseDouble(lineData[i+3]);
+        }
     }
-    
+
     public synchronized double[] getRemoteCommand() {
-        
+
         return remoteCommand;
     }
 
@@ -63,8 +65,8 @@ public class Server extends Thread {
         try {
             csocket = ssocket.accept();
 
-            while (csocket.isConnected()) {
-
+            while (csocket.isConnected() && guiCommand != 3) {
+                
                 printStream = new PrintStream(csocket.getOutputStream(), true);
                 BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
                 String line = r.readLine();
@@ -73,14 +75,25 @@ public class Server extends Thread {
                     lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
                     setHeadingReference(Float.parseFloat(lineData[1]));
+                    if (guiCommand == 2) {
+                        setRemoteCommand(lineData);
+                    }
                 }
-                if (guiCommand == 2 && !(lineData == null)) {
-                    setRemoteCommand(lineData);
-                }
+                
+                printStream.println(getDataFields());
             }
+            csocket.close();
         } catch (IOException ex) {
             //Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
 
         }
+    }
+    
+    public synchronized void setDataFields(String data) {
+        this.data = data;
+    }
+    
+    private synchronized String getDataFields() {
+        return data;
     }
 }
