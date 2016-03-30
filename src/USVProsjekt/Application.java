@@ -7,6 +7,9 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -49,7 +52,8 @@ public class Application implements Runnable {
     
     boolean dpStarted;
     private DynamicPositioning dp;
-    Timer timer;
+    
+    private Timer timer;
 
     public Application(){//Socket csocket) {
         surge = 0.0f;
@@ -68,20 +72,10 @@ public class Application implements Runnable {
         //this.csocket = csocket;
         guiCommand = 0;
         
-        timer = new Timer();
-        
-        
-        
     }
 
     @Override
     public void run() {
-        try{
-Thread.sleep(5000);}catch(InterruptedException ie){// midlertidig for å låse lon/lat ref
-    
-}
-
-
         //try {
 
             //printStream = new PrintStream(csocket.getOutputStream(), true);
@@ -102,25 +96,29 @@ Thread.sleep(5000);}catch(InterruptedException ie){// midlertidig for å låse l
 
                     case 0:
                         idle();
+                        timer.cancel();
+                        dpStarted=false;
                         break;
                     case 1:
                         updateAllFields();
                         //dynamicPositioning(headingReference);
                         gps.lockReferencePosition();
-                        
+                        //printStream.println(getDataLine());
                         dp.setProcessVariables(surge, sway, heading);
                         if(!dpStarted){
                             int startTime =0;
                             int periodTime =50;
-                            dp.setReferenceHeading(heading);
+                            dp.setReferenceHeading(heading); 
+                            timer = new Timer();
                             timer.scheduleAtFixedRate(dp, startTime, periodTime);
                             dpStarted=true;
-                        }
+                        }                       
                        //System.out.println(gps.getXposition() + " " + gps.getYposition());
-
                         break;
                     case 2:
                         //remoteOperation(lineData);
+                        dpStarted=false;
+                        timer.cancel();
                         break;
 
                 }
@@ -144,11 +142,6 @@ Thread.sleep(5000);}catch(InterruptedException ie){// midlertidig for å låse l
         //printStream.println(getDataLine());
         gps.setReferencePositionOff();
         System.out.println("idle");
-    }
-
-    private void dynamicPositioning() {
-        
-        //printStream.println(getDataLine());
     }
 
     private void remoteOperation(String[] lineData) {

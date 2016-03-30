@@ -75,7 +75,6 @@ public class DynamicPositioning extends TimerTask {
             torqueOutput = thrustAlloc.calculateOutput(XYNtransformed);
             thrustWriter.setThrustForAll(torqueOutput);
             //thrustWriter.writeThrust();
-
         } catch (Exception ex) {
             System.out.println("exception dp");
         }
