@@ -53,11 +53,6 @@ public class GPSreader extends Thread {
     public void run() {
         String line;
         String[] lineData;
-        while (initPeriod < 10 && serialConnection.isConnected()) {
-            line = serialConnection.getSerialLine();
-            initPeriod++;
-        }
-
         while (serialConnection.isConnected() && !stop) {
             setReference();
             line = serialConnection.getSerialLine();
@@ -101,6 +96,12 @@ public class GPSreader extends Thread {
 
     private void setReference() {
         while (!dynamicPositioning && !stop) {
+            
+            //init period for å forhindre å parse korrupte data
+            while (initPeriod < 10 && serialConnection.isConnected()) {
+            serialConnection.getSerialLine();
+            initPeriod++;
+        }
             String line = serialConnection.getSerialLine();
             String[] lineData = line.split("\r\n");
             if (lineData[0].startsWith("$") && lineData[1].startsWith("$")) {
@@ -108,7 +109,6 @@ public class GPSreader extends Thread {
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
-
             }
             latReference = (nmea.position.lat * (float) Math.PI / 180.0f);
             lonReference = (nmea.position.lon * (float) Math.PI / 180.0f);

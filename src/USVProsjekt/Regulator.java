@@ -30,7 +30,6 @@ public class Regulator{
 
     /**
      * Computes the output
-     *
      * @param newInput
      * @param referenceVariable
      * @return
@@ -40,9 +39,9 @@ public class Regulator{
 
             float error = referenceVariable - newInput;
             errorSum += error;
-            float dErr = (error - lastError);
+            float dError = (error - lastError);
             //Compute PID Output
-            outputVariable = Kp * error + Ki * errorSum + Kd * dErr;
+            outputVariable = Kp * error + Ki * errorSum + Kd * dError;
             lastError = error;
             return outputVariable;
 

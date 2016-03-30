@@ -1,14 +1,8 @@
 package USVProsjekt;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Timer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -49,7 +43,8 @@ public class Application implements Runnable {
 
     boolean dpStarted;
     private DynamicPositioning dp;
-    Timer timer;
+
+    private Timer timer;
 
     public Application(Server server) {//Socket csocket) {
         surge = 0.0f;
@@ -67,14 +62,15 @@ public class Application implements Runnable {
         longitudeReference = 0.0f;
         //this.csocket = csocket;
         guiCommand = 0;
-        timer = new Timer();
         this.server = server;
 
     }
 
     @Override
     public void run() {
+
         while (guiCommand != 3) {
+
             guiCommand = server.getGuiCommand();
             headingReference = server.getHeadingReference();
 
@@ -82,40 +78,44 @@ public class Application implements Runnable {
 
                 case 0:
                     idle();
+                    timer.cancel();
+                    dpStarted = false;
                     break;
                 case 1:
                     updateAllFields();
                     //dynamicPositioning(headingReference);
                     gps.lockReferencePosition();
-
+                    //printStream.println(getDataLine());
                     dp.setProcessVariables(surge, sway, heading);
                     if (!dpStarted) {
                         int startTime = 0;
                         int periodTime = 50;
                         dp.setReferenceHeading(heading);
+                        timer = new Timer();
                         timer.scheduleAtFixedRate(dp, startTime, periodTime);
                         dpStarted = true;
                     }
                     //System.out.println(gps.getXposition() + " " + gps.getYposition());
-
                     break;
                 case 2:
                     //remoteOperation(lineData);
+                    dpStarted = false;
+                    timer.cancel();
                     break;
 
             }
-            server.setDataFields(getDataLine());
 
         }
-            //printStream.close();
-        //csocket.close();
+        server.setDataFields(getDataLine());
         stopThreads();
-        System.out.println("RUN EXIT");
+
+        System.out.println(
+                "RUN EXIT");
 
         // } catch (IOException ex) {
-        System.out.println("exception appl");
+        System.out.println(
+                "exception appl");
 
-        //}
     }
 
     private void idle() {
