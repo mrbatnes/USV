@@ -19,7 +19,7 @@ public class AllokeringTest {
 
     public static void main(String[] args) throws Exception {
         ThrustAllocator t = new ThrustAllocator(-1.5, 1.2, -0.5, 0.5);
-        double[] a1 = new double[]{1., 1., 1.5,};
+        double[] a1 = new double[]{1., 1., 0,};
         double[] a2 = new double[]{3., 2.5, 0.5};
         double[] a3 = new double[]{5., 5., 0.};
         double[] a4 = new double[]{100., 200., 5.};

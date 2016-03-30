@@ -28,7 +28,7 @@ public class DynamicPositioning extends TimerTask {
 
     private RotationMatrix Rz;
     private double[] torqueOutput;
-    
+
     private ThrustWriter thrustWriter;
 
     public DynamicPositioning(ThrustWriter tw) {
@@ -62,7 +62,7 @@ public class DynamicPositioning extends TimerTask {
 
     @Override
     public void run() {
-        
+
         try {
             outputSurge = pidSurge.computeOutput(inputSurge, 0);
             outputSway = pidSway.computeOutput(inputSway, 0);
@@ -77,6 +77,30 @@ public class DynamicPositioning extends TimerTask {
             //thrustWriter.writeThrust();
         } catch (Exception ex) {
             System.out.println("exception dp");
+        }
+
+    }
+
+    /**
+     * Surge
+     *
+     * @return
+     */
+    public float[][] getAllControllerTunings() {
+        return new float[][]{
+            pidSurge.getTunings(),
+            pidSurge.getTunings(),
+            pidSurge.getTunings()
+        };
+    }
+
+    public void setNewControllerGain(int gainChanged, float newControllerGain) {
+        if (gainChanged < 4) {
+            pidSurge.setGain(gainChanged,newControllerGain);
+        } else if (gainChanged > 3 && gainChanged < 7) {
+            pidSway.setGain(gainChanged,newControllerGain);
+        } else {
+            pidHeading.setGain(gainChanged,newControllerGain);
         }
     }
 

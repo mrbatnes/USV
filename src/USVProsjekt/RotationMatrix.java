@@ -14,7 +14,8 @@ public class RotationMatrix {
     private double[][] raw;
     ArrayRealVector vector;
 
-    public RotationMatrix(float headingRadians) {
+    public RotationMatrix(float headingDegrees) {
+        float headingRadians = headingDegrees*(float)Math.PI/180.0f;
         raw = new double[][]{
             {c(headingRadians), -s(headingRadians), 0},
             {s(headingRadians), c(headingRadians), 0},

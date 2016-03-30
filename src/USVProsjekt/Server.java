@@ -27,6 +27,8 @@ public class Server extends Thread {
     private String data;
     private float headingReference;
     private double[] remoteCommand;
+    private float controllerGain;
+    private int id;
 
     public Server() throws IOException {
         ssocket = new ServerSocket(2345);
@@ -48,6 +50,16 @@ public class Server extends Thread {
     private synchronized void setHeadingReference(float headingReference) {
         this.headingReference = headingReference;
     }
+    public synchronized float getControllerGain() {
+        return controllerGain;
+    }
+    public synchronized void setControllerGain(int id,float controllerGain) {
+        this.id=id;
+        this.controllerGain= controllerGain;
+    }
+    public synchronized int getGainChanged(){
+        return id;
+    }
 
     private synchronized void setRemoteCommand(String[] lineData) {
         for(int i = 0; i < 3; i++) {
@@ -66,7 +78,6 @@ public class Server extends Thread {
             csocket = ssocket.accept();
 
             while (csocket.isConnected() && guiCommand != 3) {
-                
                 printStream = new PrintStream(csocket.getOutputStream(), true);
                 BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
                 String line = r.readLine();
@@ -75,6 +86,7 @@ public class Server extends Thread {
                     lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
                     setHeadingReference(Float.parseFloat(lineData[1]));
+                    setControllerGain(Integer.parseInt(lineData[666]), Integer.parseInt(lineData[666]));
                     if (guiCommand == 2) {
                         setRemoteCommand(lineData);
                     }

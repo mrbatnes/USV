@@ -42,9 +42,11 @@ public class Application implements Runnable {
     private Server server;
 
     boolean dpStarted;
-    private DynamicPositioning dp;
+    private DynamicPositioning dynamicPositioning;
 
     private Timer timer;
+    private int gainChanged;
+    private float newControllerGain;
 
     public Application(Server server) {//Socket csocket) {
         surge = 0.0f;
@@ -73,49 +75,34 @@ public class Application implements Runnable {
 
             guiCommand = server.getGuiCommand();
             headingReference = server.getHeadingReference();
-
+            gainChanged = server.getGainChanged();
+            newControllerGain = server.getControllerGain();
             switch (guiCommand) {
-
                 case 0:
-                    idle();
-                    timer.cancel();
-                    dpStarted = false;
+                    //idle();
                     break;
                 case 1:
                     updateAllFields();
-                    //dynamicPositioning(headingReference);
-                    gps.lockReferencePosition();
-                    //printStream.println(getDataLine());
-                    dp.setProcessVariables(surge, sway, heading);
-                    if (!dpStarted) {
-                        int startTime = 0;
-                        int periodTime = 50;
-                        dp.setReferenceHeading(heading);
-                        timer = new Timer();
-                        timer.scheduleAtFixedRate(dp, startTime, periodTime);
-                        dpStarted = true;
-                    }
-                    //System.out.println(gps.getXposition() + " " + gps.getYposition());
+                    dynamicPositioning();
                     break;
                 case 2:
-                    //remoteOperation(lineData);
-                    dpStarted = false;
-                    timer.cancel();
+                    //remoteOperation();
                     break;
-
             }
 
+            //stopper Timertasken og gjør klar til neste dp periode
+            if (guiCommand != 1 && dpStarted) {
+                timer.cancel();
+                dpStarted = false;
+            }
+            if(gainChanged !=0){
+                dynamicPositioning.setNewControllerGain(gainChanged,newControllerGain);
+            }
         }
         server.setDataFields(getDataLine());
         stopThreads();
 
-        System.out.println(
-                "RUN EXIT");
-
-        // } catch (IOException ex) {
-        System.out.println(
-                "exception appl");
-
+        System.out.println("RUN EXIT");
     }
 
     private void idle() {
@@ -126,16 +113,20 @@ public class Application implements Runnable {
     }
 
     private void dynamicPositioning() {
-
-        //printStream.println(getDataLine());
+        gps.lockReferencePosition();
+        dynamicPositioning.setProcessVariables(surge, sway, heading);
+        if (!dpStarted) {
+            int startTime = 0;
+            int periodTime = 200;
+            dynamicPositioning.setReferenceHeading(headingReference);
+            timer = new Timer();
+            timer.scheduleAtFixedRate(dynamicPositioning, startTime, periodTime);
+            dpStarted = true;
+        }
     }
 
-    private void remoteOperation(String[] lineData) {
-        printStream.println("remote op");
+    private void remoteOperation() {
         System.out.println("remote op");
-//        float x = Float.parseFloat(lineData[2]);
-//        float y = Float.parseFloat(lineData[4]);
-//        float yaw = Float.parseFloat(lineData[6]);
 
     }
 
@@ -221,7 +212,7 @@ public class Application implements Runnable {
         windReader.start();
 
         thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
-        dp = new DynamicPositioning(thrustWriter);
+        dynamicPositioning = new DynamicPositioning(thrustWriter);
     }
 
     public static void main(String[] args) throws Exception {
@@ -230,6 +221,12 @@ public class Application implements Runnable {
         //while (true) {
         //   Socket socket = ssocket.accept();
         //  System.out.println("Connected via TCP");
+
+        RotationMatrix Rz = new RotationMatrix(20);
+        double[] d = Rz.multiplyRzwithV(1, 1, 0);
+        for (int i = 0; i < d.length; i++) {
+            System.out.println(i + " " + d[i]);
+        }
         Server server = new Server();
         Application app = new Application(server);
         server.start();
@@ -240,13 +237,17 @@ public class Application implements Runnable {
     }
 
     private String getDataLine() {
+        float[][] a = dynamicPositioning.getAllControllerTunings();
         return "Latitude: " + latitudeBody + " Longitude: "
                 + longitudeBody + " Surge: " + sway + " Sway: " + surge
                 + " Heading: " + heading + " Speed: " + speed + " Direction: "
                 + direction + " WindSpeed: " + windSpeed
                 + " WindDirection: " + windDirection
                 + " Temperature: " + temperature + " LatRef: "
-                + latitudeReference + " LonRef: " + longitudeReference;
+                + latitudeReference + " LonRef: " + longitudeReference + " " 
+                + a[0][0] + " " + a[0][1] + " " + a[0][2] + " " 
+                + a[1][0] + " " + a[1][1] + " " + a[1][2] + " " 
+                + a[2][0] + " " + a[2][1] + " " + a[2][2];
     }
 
     /**
@@ -256,6 +257,7 @@ public class Application implements Runnable {
         gps.stopThread();
         imu.stopThread();
         windReader.stopThread();
+        thrustWriter.closeSerialConn();
     }
 
 }

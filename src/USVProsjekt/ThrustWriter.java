@@ -88,4 +88,8 @@ public class ThrustWriter{
         return pulseWidth;
     }
 
+    void closeSerialConn() {
+       serialConnection.close();
+    }
+
 }
