@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -41,17 +43,15 @@ public class Application implements Runnable {
     private float windDirection;
     private float temperature;
 
-    private Socket csocket;
-
-    private BufferedReader inFromServer;
     private PrintStream printStream;
     private int guiCommand;
-    
+    private Server server;
+
     boolean dpStarted;
     private DynamicPositioning dp;
     Timer timer;
 
-    public Application(){//Socket csocket) {
+    public Application(Server server) {//Socket csocket) {
         surge = 0.0f;
         sway = 0.0f;
         yaw = 0.0f;
@@ -67,76 +67,60 @@ public class Application implements Runnable {
         longitudeReference = 0.0f;
         //this.csocket = csocket;
         guiCommand = 0;
-        
         timer = new Timer();
-        
-        
-        
+        this.server = server;
+
     }
 
     @Override
     public void run() {
-        try{
-Thread.sleep(5000);}catch(InterruptedException ie){// midlertidig for å låse lon/lat ref
-    
-}
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException ie) {// midlertidig for å låse lon/lat ref
 
+        }
 
-        //try {
+        while (guiCommand != 3) {
+            guiCommand = server.getGuiCommand();
+            headingReference = server.getHeadingReference();
 
-            //printStream = new PrintStream(csocket.getOutputStream(), true);
-            BufferedReader r;
+            switch (guiCommand) {
 
-            while (guiCommand != 3) {
-               // r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
-                //String line = r.readLine();
-                //String[] lineData = null;
-                //if (!line.isEmpty()) {
-                   // lineData = line.split(" ");
-                    //guiCommand = Integer.parseInt(lineData[0]);
-                    guiCommand =1;
-                    //headingReference = Float.parseFloat(lineData[1]);
-                    headingReference = 20f;
-               // }
-                switch (guiCommand) {
+                case 0:
+                    idle();
+                    break;
+                case 1:
+                    updateAllFields();
+                    //dynamicPositioning(headingReference);
+                    gps.lockReferencePosition();
 
-                    case 0:
-                        idle();
-                        break;
-                    case 1:
-                        updateAllFields();
-                        //dynamicPositioning(headingReference);
-                        gps.lockReferencePosition();
-                        
-                        dp.setProcessVariables(surge, sway, heading);
-                        if(!dpStarted){
-                            int startTime =0;
-                            int periodTime =50;
-                            dp.setReferenceHeading(heading);
-                            timer.scheduleAtFixedRate(dp, startTime, periodTime);
-                            dpStarted=true;
-                        }
-                       //System.out.println(gps.getXposition() + " " + gps.getYposition());
+                    dp.setProcessVariables(surge, sway, heading);
+                    if (!dpStarted) {
+                        int startTime = 0;
+                        int periodTime = 50;
+                        dp.setReferenceHeading(heading);
+                        timer.scheduleAtFixedRate(dp, startTime, periodTime);
+                        dpStarted = true;
+                    }
+                    //System.out.println(gps.getXposition() + " " + gps.getYposition());
 
-                        break;
-                    case 2:
-                        //remoteOperation(lineData);
-                        break;
-
-                }
-                
+                    break;
+                case 2:
+                    //remoteOperation(lineData);
+                    break;
 
             }
-            //printStream.close();
-            //csocket.close();
-            stopThreads();
-            System.out.println("RUN EXIT");
 
-       // } catch (IOException ex) {
-            System.out.println("exception appl");
+        }
+            //printStream.close();
+        //csocket.close();
+        stopThreads();
+        System.out.println("RUN EXIT");
+
+        // } catch (IOException ex) {
+        System.out.println("exception appl");
 
         //}
-
     }
 
     private void idle() {
@@ -147,7 +131,7 @@ Thread.sleep(5000);}catch(InterruptedException ie){// midlertidig for å låse l
     }
 
     private void dynamicPositioning() {
-        
+
         //printStream.println(getDataLine());
     }
 
@@ -249,13 +233,15 @@ Thread.sleep(5000);}catch(InterruptedException ie){// midlertidig for å låse l
         //ServerSocket ssocket = new ServerSocket(2345);
         //System.out.println("listening");
         //while (true) {
-         //   Socket socket = ssocket.accept();
-          //  System.out.println("Connected via TCP");
-            Application app = new Application();//socket);
-            app.initializeApplication();
-            new Thread(app).start();
+        //   Socket socket = ssocket.accept();
+        //  System.out.println("Connected via TCP");
+        Server server = new Server();
+        Application app = new Application(server);
+        server.start();
+        app.initializeApplication();
+        new Thread(app).start();
 
-       // }
+        // }
     }
 
     private String getDataLine() {

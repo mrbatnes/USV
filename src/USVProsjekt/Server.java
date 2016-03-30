@@ -26,10 +26,11 @@ public class Server extends Thread {
     private ServerSocket ssocket;
     private int guiCommand;
     private float headingReference;
+    private double[] remoteCommand;
 
     public Server() throws IOException {
         ssocket = new ServerSocket(2345);
-        csocket = ssocket.accept();
+        remoteCommand = new double[4];
     }
 
     public synchronized int getGuiCommand() {
@@ -47,21 +48,38 @@ public class Server extends Thread {
     public synchronized void setHeadingReference(float headingReference) {
         this.headingReference = headingReference;
     }
+    
+    public synchronized void setRemoteCommand(String[] lineData) {
+        
+    }
+    
+    public synchronized double[] getRemoteCommand() {
+        
+        return remoteCommand;
+    }
 
     @Override
     public void run() {
         try {
-            printStream = new PrintStream(csocket.getOutputStream(), true);
-            BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
-            String line = r.readLine();
-            String[] lineData = null;
-            if (!line.isEmpty()) {
-                lineData = line.split(" ");
-                setGuiCommand(Integer.parseInt(lineData[0]));
-                setHeadingReference(Float.parseFloat(lineData[1]));
+            csocket = ssocket.accept();
+
+            while (csocket.isConnected()) {
+
+                printStream = new PrintStream(csocket.getOutputStream(), true);
+                BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
+                String line = r.readLine();
+                String[] lineData = null;
+                if (!line.isEmpty()) {
+                    lineData = line.split(" ");
+                    setGuiCommand(Integer.parseInt(lineData[0]));
+                    setHeadingReference(Float.parseFloat(lineData[1]));
+                }
+                if (guiCommand == 2 && !(lineData == null)) {
+                    setRemoteCommand(lineData);
+                }
             }
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
 
         }
     }
