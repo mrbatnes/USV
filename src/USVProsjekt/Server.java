@@ -6,18 +6,63 @@
 package USVProsjekt;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author vegard
  */
-public class Server extends Thread{
-    
+public class Server extends Thread {
+
     private Socket csocket;
     private BufferedReader inFromServer;
     private PrintStream printStream;
-    
-    
+    private ServerSocket ssocket;
+    private int guiCommand;
+    private float headingReference;
+
+    public Server() throws IOException {
+        ssocket = new ServerSocket(2345);
+        csocket = ssocket.accept();
+    }
+
+    public synchronized int getGuiCommand() {
+        return guiCommand;
+    }
+
+    public synchronized void setGuiCommand(int guiCommand) {
+        this.guiCommand = guiCommand;
+    }
+
+    public synchronized float getHeadingReference() {
+        return headingReference;
+    }
+
+    public synchronized void setHeadingReference(float headingReference) {
+        this.headingReference = headingReference;
+    }
+
+    @Override
+    public void run() {
+        try {
+            printStream = new PrintStream(csocket.getOutputStream(), true);
+            BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
+            String line = r.readLine();
+            String[] lineData = null;
+            if (!line.isEmpty()) {
+                lineData = line.split(" ");
+                setGuiCommand(Integer.parseInt(lineData[0]));
+                setHeadingReference(Float.parseFloat(lineData[1]));
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+
+        }
+    }
 }
