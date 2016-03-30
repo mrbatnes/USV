@@ -27,7 +27,7 @@ public class AllokeringTest {
 
         double[] result1 = t.calculateOutput(a1);
         System.out.println("Result 1: " + result1[0] + " " + result1[1] + " " + result1[2] + " " + result1[3]);
-
+        System.out.println(result1[6]);
         double[] result2 = t.calculateOutput(a2);
         System.out.println("Result 2: " + result2[0] + " " + result2[1] + " " + result2[2] + " " + result2[3]);
 

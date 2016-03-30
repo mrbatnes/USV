@@ -28,8 +28,10 @@ public class DynamicPositioning extends TimerTask {
 
     private RotationMatrix Rz;
     private double[] torqueOutput;
+    
+    private ThrustWriter thrustWriter;
 
-    public DynamicPositioning() {
+    public DynamicPositioning(ThrustWriter tw) {
         pidSurge = new Regulator();
         pidSway = new Regulator();
         pidHeading = new Regulator();
@@ -44,7 +46,8 @@ public class DynamicPositioning extends TimerTask {
 
         referenceHeading = 0.0f;
         thrustAlloc = new ThrustAllocator(-1.5, 1.2, -0.5, 0.5);
-        torqueOutput = new double[3];
+        torqueOutput = new double[4];
+        thrustWriter = tw;
     }
 
     public void setProcessVariables(float surge, float sway, float heading) {
@@ -59,6 +62,7 @@ public class DynamicPositioning extends TimerTask {
 
     @Override
     public void run() {
+        
         try {
             outputSurge = pidSurge.computeOutput(inputSurge, 0);
             outputSway = pidSway.computeOutput(inputSway, 0);
@@ -69,8 +73,11 @@ public class DynamicPositioning extends TimerTask {
             //Rz*Tau
             double[] XYNtransformed = Rz.multiplyRzwithV(outputSurge, outputSway, outputHeading);
             torqueOutput = thrustAlloc.calculateOutput(XYNtransformed);
-        } catch (Exception ex) {
+            thrustWriter.setThrustForAll(torqueOutput);
+            //thrustWriter.writeThrust();
 
+        } catch (Exception ex) {
+            System.out.println("exception dp");
         }
     }
 

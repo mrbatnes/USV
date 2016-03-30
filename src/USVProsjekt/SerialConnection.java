@@ -46,22 +46,12 @@ public class SerialConnection {
         }
     }
 
-    public void writeThrustNewton(float thrust, int thrusterNumber, Identifier ID) {
+    public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
         String thrustString;
         OutputStream os = comPort.getOutputStream();
         try {
-            thrustString = ""+thrusterNumber + " " + thrust;
-            os.write(thrustString.getBytes());
-        } catch (IOException ex) {
+            thrustString = "" + thrustMicros1 + ":" + thrustMicros2 + ":" + thrustMicros3 + ":" + thrustMicros4 + ":";
 
-        }
-    }
-    
-        public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
-        String thrustString;
-        OutputStream os = comPort.getOutputStream();
-        try {
-            thrustString = "" + thrustMicros1 + ":" + thrustMicros2 + ":"+ thrustMicros3 + ":" + thrustMicros4;
             os.write(thrustString.getBytes());
         } catch (IOException ex) {
 
@@ -86,7 +76,7 @@ public class SerialConnection {
                 try {
                     if (ID.equals(Identifier.GPS)) {
 
-                        Thread.sleep(120);
+                        Thread.sleep(90);
                         newData = new byte[comPort.bytesAvailable()];
 
                     } else if (ID.equals(Identifier.WIND)) {

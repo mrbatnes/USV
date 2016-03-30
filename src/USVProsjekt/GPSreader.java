@@ -60,7 +60,6 @@ public class GPSreader extends Thread {
 
         while (serialConnection.isConnected() && !stop) {
             setReference();
-
             line = serialConnection.getSerialLine();
             lineData = line.split("\r\n");
             String NMEA1 = lineData[0];
@@ -77,6 +76,7 @@ public class GPSreader extends Thread {
 
             xNorth = xyNorthEast[0];//Float.parseFloat(df.format(xyNorthEast[0]));
             yEast = xyNorthEast[1];//Float.parseFloat(df.format(xyNorthEast[1]));
+            System.out.println(nmea.position.toString());
         }
         System.out.println("Connection lost/closed on Thread: "
                 + this.getName());
@@ -108,6 +108,7 @@ public class GPSreader extends Thread {
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
+
             }
             latReference = (nmea.position.lat * (float) Math.PI / 180.0f);
             lonReference = (nmea.position.lon * (float) Math.PI / 180.0f);

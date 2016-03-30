@@ -101,7 +101,7 @@ public class ThrustAllocator {
             System.out.println("FAIL");
         }
         long time2 = System.currentTimeMillis()-time1;
-        System.out.println("Tidsbruk = " + time2);
+        //System.out.println("Tidsbruk = " + time2);
         return opt.getOptimizationResponse().getSolution();
 
     }

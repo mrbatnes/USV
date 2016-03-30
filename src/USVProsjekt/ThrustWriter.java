@@ -31,7 +31,9 @@ public class ThrustWriter extends Thread {
         pulseWidth4 = 1500;
         
         this.serialConnection = serialConnection;
+        
         this.ID = ID;
+        this.serialConnection.connect(this.ID);
     }
 
     public void writeThrust() {
@@ -52,11 +54,14 @@ public class ThrustWriter extends Thread {
         }
     }
 
-    public void setThrustForAll(double newton1, double newton2, double newton3, double newton4) {
-        pulseWidth1 = newtonToPulseWidth(newton1);
-        pulseWidth2 = newtonToPulseWidth(newton2);
-        pulseWidth3 = newtonToPulseWidth(newton3);
-        pulseWidth4 = newtonToPulseWidth(newton4);
+
+    public void setThrustForAll(double[] newton) {
+        pulseWidth1 = newtonToPulseWidth(newton[0]);
+        pulseWidth2 = newtonToPulseWidth(newton[1]);
+        pulseWidth3 = newtonToPulseWidth(newton[2]);
+        pulseWidth4 = newtonToPulseWidth(newton[3]);
+        
+
     }
 
     public int newtonToPulseWidth(double xNewton) {
