@@ -1,7 +1,11 @@
 package USVProsjekt;
 
 import USVProsjekt.NMEAparser.GPSPosition;
-import java.text.DecimalFormat;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Requires an Adafruit Ultimate GPS device connected to an Arduino Uno.
@@ -9,7 +13,7 @@ import java.text.DecimalFormat;
  * @author Bachelor USV
  */
 public class GPSreader extends Thread {
-    
+
     private NMEAparser nmea;
     private NEDtransform gpsProc;
 
@@ -28,6 +32,8 @@ public class GPSreader extends Thread {
     private boolean dynamicPositioning;
     private boolean stop;
 
+    private PrintWriter writer;
+
     /**
      *
      *
@@ -36,6 +42,7 @@ public class GPSreader extends Thread {
      */
     public GPSreader(SerialConnection serialConnection, Identifier ID) {
         this.serialConnection = serialConnection;
+
         nmea = new NMEAparser();
         initPeriod = 0;
         gpsProc = new NEDtransform();
@@ -47,6 +54,13 @@ public class GPSreader extends Thread {
         yEast = 0.0f;
         this.ID = ID;
         stop = false;
+        try {
+            writer = new PrintWriter("GPS_Data_NMEA.txt", "UTF-8");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(GPSreader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(GPSreader.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -62,20 +76,21 @@ public class GPSreader extends Thread {
             nmea.parse(NMEA1);
             nmea.parse(NMEA2);
             latBody = (float) ((nmea.position.lat) * (Math.PI) / 180.0f);
-            //latBody = 62.472039 * Math.PI / 180.0;
             lonBody = (float) (nmea.position.lon * Math.PI / 180.0f);
-            //lonBody = 6.234220* Math.PI / 180.0;
             float[] xyNorthEast = gpsProc.getFlatEarthCoordinates(latBody,
                     lonBody, latReference, lonReference);
-            //DecimalFormat df = new DecimalFormat("0.00");
 
-            xNorth = xyNorthEast[0];//Float.parseFloat(df.format(xyNorthEast[0]));
-            yEast = xyNorthEast[1];//Float.parseFloat(df.format(xyNorthEast[1]));
-            System.out.println(nmea.position.toString());
+            xNorth = xyNorthEast[0];
+            yEast = xyNorthEast[1];
+
+            writer.println(NMEA1);
+            writer.println(NMEA2);
+            writer.println("");
         }
         System.out.println("Connection lost/closed on Thread: "
                 + this.getName());
         serialConnection.close();
+        writer.close();
     }
 
     public void connectToSerialPortAndDisplayGPSInfo() {
@@ -96,12 +111,12 @@ public class GPSreader extends Thread {
 
     private void setReference() {
         while (!dynamicPositioning && !stop) {
-            
+            writer.close();
             //init period for å forhindre å parse korrupte data
             while (initPeriod < 10 && serialConnection.isConnected()) {
-            serialConnection.getSerialLine();
-            initPeriod++;
-        }
+                serialConnection.getSerialLine();
+                initPeriod++;
+            }
             String line = serialConnection.getSerialLine();
             String[] lineData = line.split("\r\n");
             if (lineData[0].startsWith("$") && lineData[1].startsWith("$")) {
@@ -140,7 +155,7 @@ public class GPSreader extends Thread {
     }
 
     void setReferencePositionOff() {
-        dynamicPositioning=false;
+        dynamicPositioning = false;
     }
 
 }

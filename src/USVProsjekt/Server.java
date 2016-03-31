@@ -12,7 +12,6 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-
 /**
  *
  * @author vegard
@@ -29,6 +28,8 @@ public class Server extends Thread {
     private double[] remoteCommand;
     private float controllerGain;
     private int id;
+    private int northIncRequest;
+    private int eastIncRequest;
 
     public Server() throws IOException {
         ssocket = new ServerSocket(2345);
@@ -50,20 +51,38 @@ public class Server extends Thread {
     private synchronized void setHeadingReference(float headingReference) {
         this.headingReference = headingReference;
     }
+
     public synchronized float getControllerGain() {
         return controllerGain;
     }
-    public synchronized void setControllerGain(int id,float controllerGain) {
-        this.id=id;
-        this.controllerGain= controllerGain;
+
+    public synchronized void setControllerGain(int id, float controllerGain) {
+        this.id = id;
+        this.controllerGain = controllerGain;
     }
-    public synchronized int getGainChanged(){
+
+    public synchronized int getGainChanged() {
         return id;
     }
 
+    public synchronized int getNorthIncDecRequest() {
+        return northIncRequest;
+    }
+
+    public synchronized int getEastIncDecRequest() {
+        return eastIncRequest;
+    }
+    public synchronized void setNorthIncDecRequest(int request) {
+        northIncRequest = request;
+    }
+
+    public synchronized void setEastIncDecRequest(int request) {
+        eastIncRequest=request;
+    }
+
     private synchronized void setRemoteCommand(String[] lineData) {
-        for(int i = 0; i < 3; i++) {
-            remoteCommand[i] = Double.parseDouble(lineData[i+3]);
+        for (int i = 0; i < 3; i++) {
+            remoteCommand[i] = Double.parseDouble(lineData[i + 3]);
         }
     }
 
@@ -85,13 +104,15 @@ public class Server extends Thread {
                 if (!line.isEmpty()) {
                     lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
-                    setHeadingReference(Float.parseFloat(lineData[1]));
-                    setControllerGain(Integer.parseInt(lineData[666]), Integer.parseInt(lineData[666]));
+                    setHeadingReference(Float.parseFloat(lineData[3]));
+                    setControllerGain(Integer.parseInt(lineData[2]), Integer.parseInt(lineData[4]));
+                    setNorthIncDecRequest(Integer.parseInt(lineData[5]));
+                    setEastIncDecRequest(Integer.parseInt(lineData[6]));
+                    
                     if (guiCommand == 2) {
                         setRemoteCommand(lineData);
                     }
                 }
-                
                 printStream.println(getDataFields());
             }
             csocket.close();
@@ -100,12 +121,13 @@ public class Server extends Thread {
 
         }
     }
-    
+
     public synchronized void setDataFields(String data) {
         this.data = data;
     }
-    
+
     private synchronized String getDataFields() {
         return data;
     }
+
 }

@@ -10,71 +10,91 @@ import java.util.logging.Logger;
  */
 public class DynamicPositioning extends TimerTask {
 
-    private Regulator pidSurge;
-    private Regulator pidSway;
-    private Regulator pidHeading;
+    private PIDController xNorthPID;
+    private PIDController yEastPID;
+    private PIDController headingPID;
 
-    private float outputSurge;
-    private float outputSway;
-    private float outputHeading;
+    private float outputX;
+    private float outputY;
+    private float outputN;
 
-    private float inputSurge;
-    private float inputSway;
-    private float inputHeading;
+    private float xNorthInput;
+    private float yEastInput;
+    private float headingInput;
 
-    private float referenceHeading;
+    private float headingReference;
 
-    private ThrustAllocator thrustAlloc;
+    private ThrustAllocator thrustAllocator;
 
     private RotationMatrix Rz;
-    private double[] torqueOutput;
+    private double[] forceOutputNewton;
 
     private ThrustWriter thrustWriter;
+    private float xNorthReference;
+    private float yEastReference;
 
-    public DynamicPositioning(ThrustWriter tw) {
-        pidSurge = new Regulator();
-        pidSway = new Regulator();
-        pidHeading = new Regulator();
+    public DynamicPositioning(ThrustWriter thrustWriter) {
+        xNorthPID = new PIDController();
+        yEastPID = new PIDController();
+        headingPID = new PIDController();
 
-        pidSurge.setTunings(1f, 0f, 0f);
-        pidSway.setTunings(1f, 0f, 0f);
-        pidHeading.setTunings(1f, 0f, 0f);
+        outputX = 0.0f;
+        outputY = 0.0f;
+        outputN = 0.0f;
 
-        outputSurge = 0.0f;
-        outputSway = 0.0f;
-        outputHeading = 0.0f;
-
-        referenceHeading = 0.0f;
-        thrustAlloc = new ThrustAllocator(-1.5, 1.2, -0.5, 0.5);
-        torqueOutput = new double[4];
-        thrustWriter = tw;
+        headingReference = 0.0f;
+        thrustAllocator = new ThrustAllocator(-1.5, 1.2, -0.5, 0.5);
+        forceOutputNewton = new double[4];
+        this.thrustWriter = thrustWriter;
     }
 
     public void setProcessVariables(float surge, float sway, float heading) {
-        inputSurge = surge;
-        inputSway = sway;
-        inputHeading = heading;
+        xNorthInput = surge;
+        yEastInput = sway;
+        headingInput = heading;
+    }
+
+    public void changeReference(int north, int east) {
+        if (north == 1) {
+            xNorthReference = xNorthReference + 0.5f;
+        }
+        else if(north==-1){
+            xNorthReference = xNorthReference - 0.5f;
+        }
+        if (east == 1) {
+            yEastReference = yEastReference + 0.5f;
+        }
+        else if(east==-1){
+            yEastReference = yEastReference - 0.5f;
+        }
+    }
+
+    public void setReferenceNorth(float xNorth) {
+        xNorthReference = xNorth;
+    }
+
+    public void setReferenceEast(float yEast) {
+        yEastReference = yEast;
     }
 
     public void setReferenceHeading(float heading) {
-        referenceHeading = heading;
+        headingReference = heading;
     }
 
     @Override
     public void run() {
 
-        try {
-            outputSurge = pidSurge.computeOutput(inputSurge, 0);
-            outputSway = pidSway.computeOutput(inputSway, 0);
-            outputHeading = pidHeading.computeOutput(inputHeading, referenceHeading);
+        try {//XYN from SNAME notation
+            outputX = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);
+            outputY = yEastPID.computeOutput(yEastInput, yEastReference, false);
+            outputN = headingPID.computeOutput(headingInput, headingReference, true);
 
-            Rz = new RotationMatrix(inputHeading);
-
+            Rz = new RotationMatrix(headingInput);
             //Rz*Tau
-            double[] XYNtransformed = Rz.multiplyRzwithV(outputSurge, outputSway, outputHeading);
-            torqueOutput = thrustAlloc.calculateOutput(XYNtransformed);
-            thrustWriter.setThrustForAll(torqueOutput);
-            //thrustWriter.writeThrust();
+            double[] XYNtransformed = Rz.multiplyRzwithV(outputX, outputY, outputN);
+            forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed);
+            thrustWriter.setThrustForAll(forceOutputNewton);
+            thrustWriter.writeThrust();
         } catch (Exception ex) {
             System.out.println("exception dp");
         }
@@ -82,27 +102,30 @@ public class DynamicPositioning extends TimerTask {
     }
 
     /**
-     * Surge
-     *
      * @return
      */
     public float[][] getAllControllerTunings() {
         return new float[][]{
-            pidSurge.getTunings(),
-            pidSurge.getTunings(),
-            pidSurge.getTunings()
+            xNorthPID.getTunings(),
+            yEastPID.getTunings(),
+            headingPID.getTunings()
         };
     }
 
     public void setNewControllerGain(int gainChanged, float newControllerGain) {
         if (gainChanged < 4) {
-            pidSurge.setGain(gainChanged,newControllerGain);
+            xNorthPID.setGain(gainChanged, newControllerGain);
         } else if (gainChanged > 3 && gainChanged < 7) {
-            pidSway.setGain(gainChanged,newControllerGain);
+            yEastPID.setGain(gainChanged, newControllerGain);
         } else {
-            pidHeading.setGain(gainChanged,newControllerGain);
+            headingPID.setGain(gainChanged, newControllerGain);
         }
     }
 
+    public void resetControllerErrors() {
+        xNorthPID.resetErrors();
+        yEastPID.resetErrors();
+        headingPID.resetErrors();
+    }
 
 }

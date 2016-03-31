@@ -26,8 +26,8 @@ public class Application implements Runnable {
     private float latitudeReference;
     private float longitudeReference;
 
-    private float surge;
-    private float sway;
+    private float xNorth;
+    private float yEast;
     private float yaw, heading, headingReference;
 
     private float speed;
@@ -47,10 +47,12 @@ public class Application implements Runnable {
     private Timer timer;
     private int gainChanged;
     private float newControllerGain;
+    private int northInc;
+    private int eastInc;
 
-    public Application(Server server) {//Socket csocket) {
-        surge = 0.0f;
-        sway = 0.0f;
+    public Application(Server server) {
+        xNorth = 0.0f;
+        yEast = 0.0f;
         yaw = 0.0f;
         heading = 0.0f;
         speed = 0.0f;
@@ -62,21 +64,49 @@ public class Application implements Runnable {
         longitudeBody = 0.0f;
         latitudeReference = 0.0f;
         longitudeReference = 0.0f;
-        //this.csocket = csocket;
+
         guiCommand = 0;
+        headingReference = 0;
+        newControllerGain = 0;
+        gainChanged = 0;
+        northInc = 0;
+        eastInc = 0;
+
         this.server = server;
 
     }
 
     @Override
     public void run() {
-
         while (guiCommand != 3) {
-
+            //************************************************
+            //Stores command values from the Client
             guiCommand = server.getGuiCommand();
             headingReference = server.getHeadingReference();
+
             gainChanged = server.getGainChanged();
             newControllerGain = server.getControllerGain();
+
+            northInc = server.getNorthIncDecRequest();
+            eastInc = server.getEastIncDecRequest();
+
+            //*************************************************
+            //Executes secondary tasks based on client commands
+            //Stops the timer and resets flag
+            if (guiCommand != 1 && dpStarted) {
+                timer.cancel();
+                dpStarted = false;
+            }
+            //Edits the gains if change is detected
+            if (gainChanged != 0) {
+                dynamicPositioning.setNewControllerGain(gainChanged, newControllerGain);
+            }
+            //changes the references if one or both parameters is != 0
+            if (northInc != 0 || eastInc != 0) {
+                dynamicPositioning.changeReference(northInc, eastInc);
+            }
+            //************************************************
+            //Executes primary tasks based on clients commands
             switch (guiCommand) {
                 case 0:
                     //idle();
@@ -89,38 +119,28 @@ public class Application implements Runnable {
                     //remoteOperation();
                     break;
             }
-
-            //stopper Timertasken og gjør klar til neste dp periode
-            if (guiCommand != 1 && dpStarted) {
-                timer.cancel();
-                dpStarted = false;
-            }
-            if(gainChanged !=0){
-                dynamicPositioning.setNewControllerGain(gainChanged,newControllerGain);
-            }
         }
         server.setDataFields(getDataLine());
         stopThreads();
-
-        System.out.println("RUN EXIT");
+        System.out.println("Run()-method in Application Class finished");
     }
 
     private void idle() {
         updateBasicFields();
-        //printStream.println(getDataLine());
         gps.setReferencePositionOff();
-        System.out.println("idle");
+        System.out.println("Idle");
     }
 
     private void dynamicPositioning() {
         gps.lockReferencePosition();
-        dynamicPositioning.setProcessVariables(surge, sway, heading);
+        dynamicPositioning.setProcessVariables(xNorth, yEast, heading);
         if (!dpStarted) {
+            dynamicPositioning.resetControllerErrors();//reset the errors before starting
             int startTime = 0;
             int periodTime = 200;
             dynamicPositioning.setReferenceHeading(headingReference);
             timer = new Timer();
-            timer.scheduleAtFixedRate(dynamicPositioning, startTime, periodTime);
+            timer.scheduleAtFixedRate(dynamicPositioning, startTime, periodTime); //start controllers on a fixed interval
             dpStarted = true;
         }
     }
@@ -141,8 +161,8 @@ public class Application implements Runnable {
         direction = gps.getGPSPosition().dir;
         latitudeReference = 0;
         longitudeReference = 0;
-        surge = 0;
-        sway = 0;
+        xNorth = 0;
+        yEast = 0;
         yaw = 0;
     }
 
@@ -150,8 +170,8 @@ public class Application implements Runnable {
         updateBasicFields();
         latitudeReference = gps.getLatRef();
         longitudeReference = gps.getLonRef();
-        surge = gps.getXposition();
-        sway = gps.getYposition();
+        xNorth = gps.getXposition();
+        yEast = gps.getYposition();
         yaw = imu.getYawValue();
 
     }
@@ -221,16 +241,10 @@ public class Application implements Runnable {
         //while (true) {
         //   Socket socket = ssocket.accept();
         //  System.out.println("Connected via TCP");
-
-        RotationMatrix Rz = new RotationMatrix(20);
-        double[] d = Rz.multiplyRzwithV(1, 1, 0);
-        for (int i = 0; i < d.length; i++) {
-            System.out.println(i + " " + d[i]);
-        }
         Server server = new Server();
         Application app = new Application(server);
-        server.start();
         app.initializeApplication();
+        server.start();
         new Thread(app).start();
 
         // }
@@ -239,14 +253,14 @@ public class Application implements Runnable {
     private String getDataLine() {
         float[][] a = dynamicPositioning.getAllControllerTunings();
         return "Latitude: " + latitudeBody + " Longitude: "
-                + longitudeBody + " Surge: " + sway + " Sway: " + surge
+                + longitudeBody + " xNorth: " + xNorth + " Sway: " + yEast
                 + " Heading: " + heading + " Speed: " + speed + " Direction: "
                 + direction + " WindSpeed: " + windSpeed
                 + " WindDirection: " + windDirection
                 + " Temperature: " + temperature + " LatRef: "
-                + latitudeReference + " LonRef: " + longitudeReference + " " 
-                + a[0][0] + " " + a[0][1] + " " + a[0][2] + " " 
-                + a[1][0] + " " + a[1][1] + " " + a[1][2] + " " 
+                + latitudeReference + " LonRef: " + longitudeReference + " "
+                + a[0][0] + " " + a[0][1] + " " + a[0][2] + " "
+                + a[1][0] + " " + a[1][1] + " " + a[1][2] + " "
                 + a[2][0] + " " + a[2][1] + " " + a[2][2];
     }
 
