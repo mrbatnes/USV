@@ -100,7 +100,7 @@ public class Server extends Thread {
             while (csocket.isConnected()) {
                 printStream = new PrintStream(csocket.getOutputStream(), true);
                 BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
-                String line = r.readLine();
+                String line = r.readLine();//
                 String[] lineData = null;
                // System.out.println(line);
                 if (!line.isEmpty()) {
