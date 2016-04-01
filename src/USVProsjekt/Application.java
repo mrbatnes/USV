@@ -78,7 +78,7 @@ public class Application implements Runnable {
 
     @Override
     public void run() {
-        while (guiCommand != 3) {
+        while (true) {
             //************************************************
             //Stores command values from the Client
             guiCommand = server.getGuiCommand();
@@ -119,10 +119,12 @@ public class Application implements Runnable {
                     //remoteOperation();
                     break;
             }
+            server.setDataFields(getDataLine());
+
         }
-        server.setDataFields(getDataLine());
-        stopThreads();
-        System.out.println("Run()-method in Application Class finished");
+        
+        //stopThreads();
+        //System.out.println("Run()-method in Application Class finished");
     }
 
     private void idle() {

@@ -94,7 +94,7 @@ public class DynamicPositioning extends TimerTask {
             double[] XYNtransformed = Rz.multiplyRzwithV(outputX, outputY, outputN);
             forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed);
             thrustWriter.setThrustForAll(forceOutputNewton);
-            thrustWriter.writeThrust();
+            //thrustWriter.writeThrust();
         } catch (Exception ex) {
             System.out.println("exception dp");
         }
@@ -113,6 +113,7 @@ public class DynamicPositioning extends TimerTask {
     }
 
     public void setNewControllerGain(int gainChanged, float newControllerGain) {
+        System.out.println("gainChanged: " + gainChanged);
         if (gainChanged < 4) {
             xNorthPID.setGain(gainChanged, newControllerGain);
         } else if (gainChanged > 3 && gainChanged < 7) {

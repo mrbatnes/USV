@@ -94,20 +94,22 @@ public class Server extends Thread {
     @Override
     public void run() {
         try {
+            System.out.println("SERVER BLOCKING");
             csocket = ssocket.accept();
-
-            while (csocket.isConnected() && guiCommand != 3) {
+            System.out.println("SERVER ACCEPT");
+            while (csocket.isConnected()) {
                 printStream = new PrintStream(csocket.getOutputStream(), true);
                 BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
                 String line = r.readLine();
                 String[] lineData = null;
+               // System.out.println(line);
                 if (!line.isEmpty()) {
                     lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
-                    setHeadingReference(Float.parseFloat(lineData[3]));
-                    setControllerGain(Integer.parseInt(lineData[2]), Integer.parseInt(lineData[4]));
-                    setNorthIncDecRequest(Integer.parseInt(lineData[5]));
-                    setEastIncDecRequest(Integer.parseInt(lineData[6]));
+                    setHeadingReference(Float.parseFloat(lineData[2]));
+                    setControllerGain(Integer.parseInt(lineData[1]), Float.parseFloat(lineData[3]));
+                    setNorthIncDecRequest(Integer.parseInt(lineData[4]));
+                    setEastIncDecRequest(Integer.parseInt(lineData[5]));
                     
                     if (guiCommand == 2) {
                         setRemoteCommand(lineData);
