@@ -30,14 +30,20 @@ public class Server extends Thread {
     private int id;
     private int northIncRequest;
     private int eastIncRequest;
+    private boolean gainChanged;
 
     public Server() throws IOException {
         ssocket = new ServerSocket(2345);
         remoteCommand = new double[3];
+        gainChanged = false;
     }
 
     public synchronized int getGuiCommand() {
         return guiCommand;
+    }
+
+    public synchronized boolean isGainChanged() {
+        return gainChanged;
     }
 
     private synchronized void setGuiCommand(int guiCommand) {
@@ -53,12 +59,16 @@ public class Server extends Thread {
     }
 
     public synchronized float getControllerGain() {
+        gainChanged = false;
         return controllerGain;
     }
 
     public synchronized void setControllerGain(int id, float controllerGain) {
-        this.id = id;
-        this.controllerGain = controllerGain;
+        if (id != 0) {
+            gainChanged = true;
+            this.id = id;
+            this.controllerGain = controllerGain;
+        }
     }
 
     public synchronized int getGainChanged() {
@@ -72,12 +82,13 @@ public class Server extends Thread {
     public synchronized int getEastIncDecRequest() {
         return eastIncRequest;
     }
+
     public synchronized void setNorthIncDecRequest(int request) {
         northIncRequest = request;
     }
 
     public synchronized void setEastIncDecRequest(int request) {
-        eastIncRequest=request;
+        eastIncRequest = request;
     }
 
     private synchronized void setRemoteCommand(String[] lineData) {
@@ -102,15 +113,16 @@ public class Server extends Thread {
                 BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
                 String line = r.readLine();//
                 String[] lineData = null;
-               // System.out.println(line);
+                // System.out.println(line);
                 if (!line.isEmpty()) {
+                    System.out.println("Server received data");
                     lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
                     setHeadingReference(Float.parseFloat(lineData[2]));
                     setControllerGain(Integer.parseInt(lineData[1]), Float.parseFloat(lineData[3]));
                     setNorthIncDecRequest(Integer.parseInt(lineData[4]));
                     setEastIncDecRequest(Integer.parseInt(lineData[5]));
-                    
+
                     if (guiCommand == 2) {
                         setRemoteCommand(lineData);
                     }

@@ -57,14 +57,12 @@ public class DynamicPositioning extends TimerTask {
     public void changeReference(int north, int east) {
         if (north == 1) {
             xNorthReference = xNorthReference + 0.5f;
-        }
-        else if(north==-1){
+        } else if (north == -1) {
             xNorthReference = xNorthReference - 0.5f;
         }
         if (east == 1) {
             yEastReference = yEastReference + 0.5f;
-        }
-        else if(east==-1){
+        } else if (east == -1) {
             yEastReference = yEastReference - 0.5f;
         }
     }
@@ -83,7 +81,6 @@ public class DynamicPositioning extends TimerTask {
 
     @Override
     public void run() {
-
         try {//XYN from SNAME notation
             outputX = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);
             outputY = yEastPID.computeOutput(yEastInput, yEastReference, false);

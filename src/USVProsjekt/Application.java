@@ -83,10 +83,11 @@ public class Application implements Runnable {
             //Stores command values from the Client
             guiCommand = server.getGuiCommand();
             headingReference = server.getHeadingReference();
-
-            gainChanged = server.getGainChanged();
-            newControllerGain = server.getControllerGain();
-
+            if (server.isGainChanged()) {
+                gainChanged = server.getGainChanged();
+                newControllerGain = server.getControllerGain();
+            }
+            else gainChanged = 0;
             northInc = server.getNorthIncDecRequest();
             eastInc = server.getEastIncDecRequest();
 
@@ -122,7 +123,7 @@ public class Application implements Runnable {
             server.setDataFields(getDataLine());
 
         }
-        
+
         //stopThreads();
         //System.out.println("Run()-method in Application Class finished");
     }
