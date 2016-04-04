@@ -37,7 +37,6 @@ public class Application implements Runnable {
     private float windDirection;
     private float temperature;
 
-    private PrintStream printStream;
     private int guiCommand;
     private Server server;
 

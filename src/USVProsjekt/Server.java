@@ -19,7 +19,6 @@ import java.net.Socket;
 public class Server extends Thread {
 
     private Socket csocket;
-    private BufferedReader inFromServer;
     private PrintStream printStream;
     private ServerSocket ssocket;
     private int guiCommand;
@@ -105,9 +104,9 @@ public class Server extends Thread {
     @Override
     public void run() {
         try {
-            System.out.println("SERVER BLOCKING");
+            System.out.println("SERVER Listening");
             csocket = ssocket.accept();
-            System.out.println("SERVER ACCEPT");
+            System.out.println("SERVER ACCEPTED");
             while (csocket.isConnected()) {
                 printStream = new PrintStream(csocket.getOutputStream(), true);
                 BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));

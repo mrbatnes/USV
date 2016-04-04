@@ -65,7 +65,7 @@ public class ThrustWriter{
     }
 
     public int newtonToPulseWidth(double xNewton) {
-        double x = xNewton;
+        double x = xNewton/9.81;
 
         int pulseWidth = 1500;
 

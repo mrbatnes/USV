@@ -3,8 +3,11 @@ package USVProsjekt;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 
 /**
  *
@@ -47,14 +50,17 @@ public class SerialConnection {
     }
 
     public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
-        String thrustString;
-        OutputStream os = comPort.getOutputStream();
+        //skriver til arduino
+        String writeString = "" + thrustMicros1 + ":" + thrustMicros2 + ":" + thrustMicros3 + ":" + thrustMicros4 + ":";
+        PrintWriter output = new PrintWriter(comPort.getOutputStream());
+        output.write(writeString);
+        output.flush();
+        
+        //Leser tilbake dataene fra arduino
         try {
-            thrustString = "" + thrustMicros1 + ":" + thrustMicros2 + ":" + thrustMicros3 + ":" + thrustMicros4 + ":";
-
-            os.write(thrustString.getBytes());
-        } catch (IOException ex) {
-
+            BufferedReader dis = new BufferedReader(new InputStreamReader(comPort.getInputStream(), "UTF-8"));
+            System.out.println(dis.readLine());
+        } catch (IOException e) {
         }
     }
 
