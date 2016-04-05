@@ -51,13 +51,13 @@ public class IMUreader extends Thread {
     }
 
     private float getHeadingFromYawValue(float yaw) {
-        if (yaw > 90) {
+        if (yaw >= 90 && yaw <=180) {
             return yaw - 90;
         }
-        if (yaw < -90) {
+        if (yaw >= -180 && yaw <=0) {
             return yaw + 270;
         }
-        if (yaw < 90 && yaw >= 0) {
+        if (yaw > 0 && yaw < 180) {
             return yaw + 270;
         }
         if (yaw < 0 && yaw >= -90) {
@@ -84,8 +84,8 @@ public class IMUreader extends Thread {
                 String yString = lineData[1];
                 String zString = lineData[2];
                 float yw = Float.parseFloat(xString);
-                float pch = Float.parseFloat(yString);
-                float rll = Float.parseFloat(zString);
+                float pch =  0.0f;
+                float rll = 0.0f;
                 return new float[]{yw, pch, rll};
             }
         }

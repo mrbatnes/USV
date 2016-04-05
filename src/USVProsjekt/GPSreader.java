@@ -79,10 +79,9 @@ public class GPSreader extends Thread {
             lonBody = (float) (nmea.position.lon * Math.PI / 180.0f);
             float[] xyNorthEast = gpsProc.getFlatEarthCoordinates(latBody,
                     lonBody, latReference, lonReference);
-
-            xNorth = xyNorthEast[0];
-            yEast = xyNorthEast[1];
-
+            xNorth=xyNorthEast[0];
+            yEast=xyNorthEast[1];
+            
             writer.println(NMEA1);
             writer.println(NMEA2);
             writer.println("");
@@ -142,7 +141,7 @@ public class GPSreader extends Thread {
         return yEast;
     }
 
-    float getLatRef() {
+    public float getLatRef() {
         return (float) (latReference * (180.0f / Math.PI));
     }
 

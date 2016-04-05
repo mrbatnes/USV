@@ -30,11 +30,15 @@ public class Server extends Thread {
     private int northIncRequest;
     private int eastIncRequest;
     private boolean gainChanged;
+    private boolean available;
+    private boolean stop;
 
     public Server() throws IOException {
         ssocket = new ServerSocket(2345);
         remoteCommand = new double[3];
         gainChanged = false;
+        stop = false;
+
     }
 
     public synchronized int getGuiCommand() {
@@ -104,17 +108,18 @@ public class Server extends Thread {
     @Override
     public void run() {
         try {
-            System.out.println("SERVER Listening");
+            System.out.println("SERVER LISTENING");
             csocket = ssocket.accept();
             System.out.println("SERVER ACCEPTED");
-            while (csocket.isConnected()) {
-                printStream = new PrintStream(csocket.getOutputStream(), true);
+            printStream = new PrintStream(csocket.getOutputStream(), true);
+            
+            while (csocket.isConnected() && !stop) {
                 BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
                 String line = r.readLine();//
                 String[] lineData = null;
                 // System.out.println(line);
                 if (!line.isEmpty()) {
-                    System.out.println("Server received data");
+                    //System.out.println("Server received data");
                     lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
                     setHeadingReference(Float.parseFloat(lineData[2]));
@@ -128,6 +133,7 @@ public class Server extends Thread {
                 }
                 printStream.println(getDataFields());
             }
+            printStream.close();
             csocket.close();
         } catch (IOException ex) {
             //Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -136,11 +142,31 @@ public class Server extends Thread {
     }
 
     public synchronized void setDataFields(String data) {
+        //hindret for mye inkrementering ved ett klikk i GUI
+        while (available) {
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+            }
+        }
+        notifyAll();
+        available = true;
         this.data = data;
     }
 
     private synchronized String getDataFields() {
+        while (!available) {
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+            }
+        }
+        notifyAll();
+        available = false;
         return data;
     }
 
+    public void stopThread() {
+        stop = true;
+    }
 }

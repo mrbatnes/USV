@@ -60,8 +60,6 @@ public class ThrustWriter{
         pulseWidth2 = newtonToPulseWidth(newton[1]);
         pulseWidth3 = newtonToPulseWidth(newton[2]);
         pulseWidth4 = newtonToPulseWidth(newton[3]);
-        
-
     }
 
     public int newtonToPulseWidth(double xNewton) {

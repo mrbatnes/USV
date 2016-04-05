@@ -1,8 +1,6 @@
 package USVProsjekt;
 
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -52,19 +50,6 @@ public class DynamicPositioning extends TimerTask {
         xNorthInput = surge;
         yEastInput = sway;
         headingInput = heading;
-    }
-
-    public void changeReference(int north, int east) {
-        if (north == 1) {
-            xNorthReference = xNorthReference + 0.5f;
-        } else if (north == -1) {
-            xNorthReference = xNorthReference - 0.5f;
-        }
-        if (east == 1) {
-            yEastReference = yEastReference + 0.5f;
-        } else if (east == -1) {
-            yEastReference = yEastReference - 0.5f;
-        }
     }
 
     public void setReferenceNorth(float xNorth) {

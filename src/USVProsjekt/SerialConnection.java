@@ -6,7 +6,6 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 
 /**
@@ -58,8 +57,8 @@ public class SerialConnection {
         
         //Leser tilbake dataene fra arduino
         try {
-            BufferedReader dis = new BufferedReader(new InputStreamReader(comPort.getInputStream(), "UTF-8"));
-            System.out.println(dis.readLine());
+            BufferedReader br = new BufferedReader(new InputStreamReader(comPort.getInputStream(), "UTF-8"));
+            System.out.println(br.readLine());
         } catch (IOException e) {
         }
     }
@@ -80,25 +79,22 @@ public class SerialConnection {
                 }
                 byte[] newData = null;
                 try {
-                    if (ID.equals(Identifier.GPS)) {
-
-                        Thread.sleep(90);
-                        newData = new byte[comPort.bytesAvailable()];
-
-                    } else if (ID.equals(Identifier.WIND)) {
-
-                        Thread.sleep(120);
-                        newData = new byte[comPort.bytesAvailable()];
-
-                    } else {
-
-                        //IMU
-                        Thread.sleep(30);
-                        newData = new byte[comPort.bytesAvailable()];
-
+                    switch (ID) {
+                        case GPS:
+                            Thread.sleep(90);
+                            newData = new byte[comPort.bytesAvailable()];
+                            break;
+                        case WIND:
+                            Thread.sleep(120);
+                            newData = new byte[comPort.bytesAvailable()];
+                            break;
+                        case IMU:
+                            //IMU
+                            Thread.sleep(30);
+                            newData = new byte[comPort.bytesAvailable()];
+                            break;
                     }
                 } catch (InterruptedException ex) {
-
                 }
                 comPort.readBytes(newData, newData.length);
                 setSerialLine(new String(newData));

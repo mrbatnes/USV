@@ -1,7 +1,5 @@
 package USVProsjekt;
 
-import java.io.BufferedReader;
-import java.io.PrintStream;
 import java.util.Timer;
 
 /**
@@ -9,6 +7,8 @@ import java.util.Timer;
  * @author Albert
  */
 public class Application implements Runnable {
+
+    private static boolean appStarted;
 
     private SerialConnection serialGPS;
     private SerialConnection serialIMU;
@@ -48,6 +48,8 @@ public class Application implements Runnable {
     private float newControllerGain;
     private int northInc;
     private int eastInc;
+    private float incrementAmountX;
+    private float incrementAmountY;
 
     public Application(Server server) {
         xNorth = 0.0f;
@@ -85,8 +87,9 @@ public class Application implements Runnable {
             if (server.isGainChanged()) {
                 gainChanged = server.getGainChanged();
                 newControllerGain = server.getControllerGain();
+            } else {
+                gainChanged = 0;
             }
-            else gainChanged = 0;
             northInc = server.getNorthIncDecRequest();
             eastInc = server.getEastIncDecRequest();
 
@@ -103,13 +106,13 @@ public class Application implements Runnable {
             }
             //changes the references if one or both parameters is != 0
             if (northInc != 0 || eastInc != 0) {
-                dynamicPositioning.changeReference(northInc, eastInc);
+                setIncrementAmount(northInc, eastInc);
             }
             //************************************************
             //Executes primary tasks based on clients commands
             switch (guiCommand) {
                 case 0:
-                    //idle();
+                    idle();
                     break;
                 case 1:
                     updateAllFields();
@@ -172,8 +175,8 @@ public class Application implements Runnable {
         updateBasicFields();
         latitudeReference = gps.getLatRef();
         longitudeReference = gps.getLonRef();
-        xNorth = gps.getXposition();
-        yEast = gps.getYposition();
+        xNorth = gps.getXposition() + incrementAmountX;
+        yEast = gps.getYposition()+incrementAmountY;
         yaw = imu.getYawValue();
 
     }
@@ -241,13 +244,13 @@ public class Application implements Runnable {
         //ServerSocket ssocket = new ServerSocket(2345);
         //System.out.println("listening");
         //while (true) {
-        //   Socket socket = ssocket.accept();
-        //  System.out.println("Connected via TCP");
-        Server server = new Server();
-        Application app = new Application(server);
-        app.initializeApplication();
-        server.start();
-        new Thread(app).start();
+            //   Socket socket = ssocket.accept();
+            //  System.out.println("Connected via TCP");
+            Server server = new Server();
+            Application app = new Application(server);
+            app.initializeApplication();
+            server.start();
+            new Thread(app).start();
 
         // }
     }
@@ -274,6 +277,14 @@ public class Application implements Runnable {
         imu.stopThread();
         windReader.stopThread();
         thrustWriter.closeSerialConn();
+        server.stopThread();
     }
+
+    private void setIncrementAmount(int northInc, int eastInc) {
+        incrementAmountX-=northInc/2.0f;
+        incrementAmountY-=eastInc/2.0f;
+    }
+
+
 
 }
