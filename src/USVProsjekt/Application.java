@@ -7,9 +7,6 @@ import java.util.Timer;
  * @author Albert
  */
 public class Application implements Runnable {
-
-    private static boolean appStarted;
-
     private SerialConnection serialGPS;
     private SerialConnection serialIMU;
     private SerialConnection serialWind;
@@ -22,7 +19,6 @@ public class Application implements Runnable {
 
     private float latitudeBody;
     private float longitudeBody;
-
     private float latitudeReference;
     private float longitudeReference;
 
@@ -40,8 +36,9 @@ public class Application implements Runnable {
     private int guiCommand;
     private Server server;
 
-    boolean dpStarted;
+    private boolean dpStarted;
     private DynamicPositioning dynamicPositioning;
+    private RemoteOperation remoteOperation;
 
     private Timer timer;
     private int gainChanged;
@@ -50,6 +47,7 @@ public class Application implements Runnable {
     private int eastInc;
     private float incrementAmountX;
     private float incrementAmountY;
+    private double[] remoteCommand;
 
     public Application(Server server) {
         xNorth = 0.0f;
@@ -67,14 +65,16 @@ public class Application implements Runnable {
         longitudeReference = 0.0f;
 
         guiCommand = 0;
+
         headingReference = 0;
         newControllerGain = 0;
         gainChanged = 0;
         northInc = 0;
         eastInc = 0;
 
-        this.server = server;
+        remoteCommand = new double[3];
 
+        this.server = server;
     }
 
     @Override
@@ -92,12 +92,14 @@ public class Application implements Runnable {
             }
             northInc = server.getNorthIncDecRequest();
             eastInc = server.getEastIncDecRequest();
-
+            remoteCommand = server.getRemoteCommand();
+            
             //*************************************************
             //Executes secondary tasks based on client commands
             //Stops the timer and resets flag
             if (guiCommand != 1 && dpStarted) {
                 timer.cancel();
+                gps.setReferencePositionOff();
                 dpStarted = false;
             }
             //Edits the gains if change is detected
@@ -108,6 +110,7 @@ public class Application implements Runnable {
             if (northInc != 0 || eastInc != 0) {
                 setIncrementAmount(northInc, eastInc);
             }
+            
             //************************************************
             //Executes primary tasks based on clients commands
             switch (guiCommand) {
@@ -115,11 +118,10 @@ public class Application implements Runnable {
                     idle();
                     break;
                 case 1:
-                    updateAllFields();
                     dynamicPositioning();
                     break;
                 case 2:
-                    //remoteOperation();
+                    remoteOperation();
                     break;
             }
             server.setDataFields(getDataLine());
@@ -132,11 +134,11 @@ public class Application implements Runnable {
 
     private void idle() {
         updateBasicFields();
-        gps.setReferencePositionOff();
         System.out.println("Idle");
     }
 
     private void dynamicPositioning() {
+        updateAllFields();
         gps.lockReferencePosition();
         dynamicPositioning.setProcessVariables(xNorth, yEast, heading);
         if (!dpStarted) {
@@ -151,8 +153,10 @@ public class Application implements Runnable {
     }
 
     private void remoteOperation() {
-        System.out.println("remote op");
-
+        updateBasicFields();
+        remoteOperation.remoteOperate(remoteCommand);
+        System.out.println("X: " + remoteCommand[0] + ""
+                + " Y: " + remoteCommand[1] + " Heading: " + remoteCommand[2]);
     }
 
     private void updateBasicFields() {
@@ -176,7 +180,7 @@ public class Application implements Runnable {
         latitudeReference = gps.getLatRef();
         longitudeReference = gps.getLonRef();
         xNorth = gps.getXposition() + incrementAmountX;
-        yEast = gps.getYposition()+incrementAmountY;
+        yEast = gps.getYposition() + incrementAmountY;
         yaw = imu.getYawValue();
 
     }
@@ -238,19 +242,20 @@ public class Application implements Runnable {
 
         thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
         dynamicPositioning = new DynamicPositioning(thrustWriter);
+        remoteOperation = new RemoteOperation(thrustWriter);
     }
 
     public static void main(String[] args) throws Exception {
         //ServerSocket ssocket = new ServerSocket(2345);
         //System.out.println("listening");
         //while (true) {
-            //   Socket socket = ssocket.accept();
-            //  System.out.println("Connected via TCP");
-            Server server = new Server();
-            Application app = new Application(server);
-            app.initializeApplication();
-            server.start();
-            new Thread(app).start();
+        //   Socket socket = ssocket.accept();
+        //  System.out.println("Connected via TCP");
+        Server server = new Server();
+        Application app = new Application(server);
+        app.initializeApplication();
+        server.start();
+        new Thread(app).start();
 
         // }
     }
@@ -281,10 +286,8 @@ public class Application implements Runnable {
     }
 
     private void setIncrementAmount(int northInc, int eastInc) {
-        incrementAmountX-=northInc/2.0f;
-        incrementAmountY-=eastInc/2.0f;
+        incrementAmountX -= northInc / 2.0f;
+        incrementAmountY -= eastInc / 2.0f;
     }
-
-
 
 }

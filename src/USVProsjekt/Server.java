@@ -112,24 +112,25 @@ public class Server extends Thread {
             csocket = ssocket.accept();
             System.out.println("SERVER ACCEPTED");
             printStream = new PrintStream(csocket.getOutputStream(), true);
-            
+
             while (csocket.isConnected() && !stop) {
                 BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
                 String line = r.readLine();//
-                String[] lineData = null;
+                String[] lineData;
                 // System.out.println(line);
                 if (!line.isEmpty()) {
                     //System.out.println("Server received data");
                     lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
-                    setHeadingReference(Float.parseFloat(lineData[2]));
-                    setControllerGain(Integer.parseInt(lineData[1]), Float.parseFloat(lineData[3]));
-                    setNorthIncDecRequest(Integer.parseInt(lineData[4]));
-                    setEastIncDecRequest(Integer.parseInt(lineData[5]));
-
                     if (guiCommand == 2) {
                         setRemoteCommand(lineData);
+                    } else {
+                        setHeadingReference(Float.parseFloat(lineData[2]));
+                        setControllerGain(Integer.parseInt(lineData[1]), Float.parseFloat(lineData[3]));
+                        setNorthIncDecRequest(Integer.parseInt(lineData[4]));
+                        setEastIncDecRequest(Integer.parseInt(lineData[5]));
                     }
+
                 }
                 printStream.println(getDataFields());
             }
