@@ -56,7 +56,7 @@ public class ThrustAllocator {
         {0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.}, {0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.},
         {0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.}, {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.}});
 
-        p = new ArrayRealVector(new double[]{0., 0., 0., -35., -35., -35., -35., 35., 35., 35., 35.});
+        p = new ArrayRealVector(new double[]{0., 0., 0., -29., -29., -29., -29., 34., 34., 34., 34.});
 
         objectiveFunction = new PDQuadraticMultivariateRealFunction(Phi, null, 0);
         inequalities = new ConvexMultivariateRealFunction[8];
