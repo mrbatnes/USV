@@ -1,5 +1,10 @@
 package USVProsjekt;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Date;
 import java.util.TimerTask;
 
 /**
@@ -30,6 +35,7 @@ public class DynamicPositioning extends TimerTask {
     private ThrustWriter thrustWriter;
     private float xNorthReference;
     private float yEastReference;
+    private PrintWriter nedWriter;
 
     public DynamicPositioning(ThrustWriter thrustWriter) {
         xNorthPID = new PIDController();
@@ -67,9 +73,11 @@ public class DynamicPositioning extends TimerTask {
     @Override
     public void run() {
         try {//XYN from SNAME notation
+
             outputX = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);
             outputY = yEastPID.computeOutput(yEastInput, yEastReference, false);
             outputN = headingPID.computeOutput(headingInput, headingReference, true);
+            nedWriter.println(xNorthInput + " " + yEastInput + " " + headingInput);
 
             Rz = new RotationMatrix(headingInput);
             //Rz*Tau
@@ -80,7 +88,6 @@ public class DynamicPositioning extends TimerTask {
         } catch (Exception ex) {
             System.out.println("exception dp");
         }
-
     }
 
     /**
@@ -92,6 +99,23 @@ public class DynamicPositioning extends TimerTask {
             yEastPID.getTunings(),
             headingPID.getTunings()
         };
+    }
+
+    public void stopWriter() {
+        if (nedWriter != null) {
+            nedWriter.close();
+        }
+    }
+
+    public void startWriter() {
+        File log = new File("NED_Data.txt");
+
+        try {
+            log.createNewFile();
+            nedWriter = new PrintWriter(new FileWriter(log, true));
+            nedWriter.println(new Date().toString());
+        } catch (IOException ex) {
+        }
     }
 
     public void setNewControllerGain(int gainChanged, float newControllerGain) {

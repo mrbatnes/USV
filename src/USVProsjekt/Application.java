@@ -1,6 +1,16 @@
 package USVProsjekt;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.Timestamp;
+import java.util.Date;
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -93,7 +103,7 @@ public class Application implements Runnable {
             northInc = server.getNorthIncDecRequest();
             eastInc = server.getEastIncDecRequest();
             remoteCommand = server.getRemoteCommand();
-            
+
             //*************************************************
             //Executes secondary tasks based on client commands
             //Stops the timer and resets flag
@@ -110,7 +120,7 @@ public class Application implements Runnable {
             if (northInc != 0 || eastInc != 0) {
                 setIncrementAmount(northInc, eastInc);
             }
-            
+
             //************************************************
             //Executes primary tasks based on clients commands
             switch (guiCommand) {
@@ -133,6 +143,7 @@ public class Application implements Runnable {
     }
 
     private void idle() {
+        dynamicPositioning.stopWriter();
         updateBasicFields();
         System.out.println("Idle");
     }
@@ -142,6 +153,7 @@ public class Application implements Runnable {
         gps.lockReferencePosition();
         dynamicPositioning.setProcessVariables(xNorth, yEast, heading);
         if (!dpStarted) {
+            dynamicPositioning.startWriter();
             dynamicPositioning.resetControllerErrors();//reset the errors before starting
             int startTime = 0;
             int periodTime = 200;
@@ -149,10 +161,11 @@ public class Application implements Runnable {
             timer = new Timer();
             timer.scheduleAtFixedRate(dynamicPositioning, startTime, periodTime); //start controllers on a fixed interval
             dpStarted = true;
-        }
+        }    
     }
 
     private void remoteOperation() {
+        dynamicPositioning.stopWriter();
         updateBasicFields();
         remoteOperation.remoteOperate(remoteCommand);
         System.out.println("X: " + remoteCommand[0] + ""
