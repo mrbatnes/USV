@@ -1,22 +1,13 @@
 package USVProsjekt;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.security.Timestamp;
-import java.util.Date;
 import java.util.Timer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Albert
  */
 public class Application implements Runnable {
+
     private SerialConnection serialGPS;
     private SerialConnection serialIMU;
     private SerialConnection serialWind;
@@ -161,7 +152,7 @@ public class Application implements Runnable {
             timer = new Timer();
             timer.scheduleAtFixedRate(dynamicPositioning, startTime, periodTime); //start controllers on a fixed interval
             dpStarted = true;
-        }    
+        }
     }
 
     private void remoteOperation() {
@@ -199,22 +190,22 @@ public class Application implements Runnable {
     }
 
     public void initializeApplication() {
-        boolean odroid = false;
+        boolean windows = System.getProperty("os.name").contains("Windows");
         String comPortGPS;
         String comPortIMU;
         String comPortWind;
         String comPortThrust;
         //communication parameters
-        if (odroid) {
-            comPortGPS = "ttyACM0";
-            comPortIMU = "ttyACM1";
-            comPortWind = "ttyACM2";
-            comPortThrust = "ttyACM3";
-        } else {
+        if (windows) {
             comPortGPS = "COM4";
             comPortIMU = "COM5";
             comPortWind = "COM6";
             comPortThrust = "COM7";
+        } else {
+            comPortGPS = "ttyACM0";
+            comPortIMU = "ttyACM1";
+            comPortWind = "ttyACM2";
+            comPortThrust = "ttyACM3";
         }
         int baudRateGPS = 115200;
 
