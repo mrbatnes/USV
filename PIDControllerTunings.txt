@@ -1,0 +1,2 @@
+4.0 5.0 2.0 5.0 0.1 1.0 2.0 3.0 3.0 
+Tunings stored at Thu Apr 14 16:58:23 CEST 2016 by Albert

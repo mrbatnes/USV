@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.TimerTask;
+import org.seventytwomiles.springframework.io.FileUtils;
 
 /**
  *
@@ -52,6 +53,12 @@ public class DynamicPositioning extends TimerTask {
         this.thrustWriter = thrustWriter;
     }
 
+    public void setPreviousGains(float[][] a) {
+        xNorthPID.setTunings(a[0][0], a[0][1], a[0][2]);
+        yEastPID.setTunings(a[1][0], a[1][1], a[1][2]);
+        headingPID.setTunings(a[2][0], a[2][1], a[2][2]);
+    }
+
     public void setProcessVariables(float surge, float sway, float heading) {
         xNorthInput = surge;
         yEastInput = sway;
@@ -73,7 +80,6 @@ public class DynamicPositioning extends TimerTask {
     @Override
     public void run() {
         try {//XYN from SNAME notation
-
             outputX = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);
             outputY = yEastPID.computeOutput(yEastInput, yEastReference, false);
             outputN = headingPID.computeOutput(headingInput, headingReference, true);
@@ -127,6 +133,9 @@ public class DynamicPositioning extends TimerTask {
         } else {
             headingPID.setGain(gainChanged, newControllerGain);
         }
+        
+        
+        
     }
 
     public void resetControllerErrors() {

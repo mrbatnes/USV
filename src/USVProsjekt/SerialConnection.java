@@ -51,9 +51,8 @@ public class SerialConnection {
     public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
         //skriver til arduino
         String writeString = "" + thrustMicros1 + ":" + thrustMicros2 + ":" + thrustMicros3 + ":" + thrustMicros4 + ":";
-        PrintWriter output = new PrintWriter(comPort.getOutputStream());
+        PrintWriter output = new PrintWriter(comPort.getOutputStream(),true);
         output.write(writeString);
-        output.flush();
         
         //Leser tilbake dataene fra arduino
         try {

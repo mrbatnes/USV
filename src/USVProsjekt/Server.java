@@ -33,12 +33,18 @@ public class Server extends Thread {
     private boolean available;
     private boolean stop;
 
-    public Server() throws IOException {
-        ssocket = new ServerSocket(2345);
+    public Server(ServerSocket ssocket) {
+
         remoteCommand = new double[3];
         gainChanged = false;
         stop = false;
+        this.ssocket = ssocket;
+    }
 
+    public void acceptConnection() throws IOException {
+        System.out.println("SERVER LISTENING");
+        csocket = ssocket.accept();
+        System.out.println("SERVER ACCEPTED");
     }
 
     public synchronized int getGuiCommand() {
@@ -108,9 +114,7 @@ public class Server extends Thread {
     @Override
     public void run() {
         try {
-            System.out.println("SERVER LISTENING");
-            csocket = ssocket.accept();
-            System.out.println("SERVER ACCEPTED");
+
             printStream = new PrintStream(csocket.getOutputStream(), true);
 
             while (csocket.isConnected() && !stop) {
@@ -118,7 +122,7 @@ public class Server extends Thread {
                 String line = r.readLine();//
                 String[] lineData;
                 // System.out.println(line);
-                if (!line.isEmpty()) {
+                if (line !=null && !line.isEmpty()) {
                     //System.out.println("Server received data");
                     lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
@@ -169,5 +173,9 @@ public class Server extends Thread {
 
     public void stopThread() {
         stop = true;
+    }
+
+    public boolean isClosed() {
+        return csocket.isClosed();
     }
 }

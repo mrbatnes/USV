@@ -37,7 +37,7 @@ public class ThrustWriter{
     }
 
     public void writeThrust() {
-        serialConnection.writeThrustMicros(pulseWidth1, pulseWidth2, pulseWidth3, pulseWidth4);
+        //serialConnection.writeThrustMicros(pulseWidth1, pulseWidth2, pulseWidth3, pulseWidth4);
     }
 
     public void setThrust(int thrusterNumber, double newton) {
@@ -63,15 +63,15 @@ public class ThrustWriter{
     }
 
     public int newtonToPulseWidth(double xNewton) {
-        double x = xNewton/9.81;
+        double x = xNewton;
 
         int pulseWidth = 1500;
 
-        if (xNewton > 0) {
-            double pulseWidthFloat = -3.907 * x * x + 89.927 * x + 1539.441;
+        if (xNewton > 2.5) {
+            double pulseWidthFloat = 11.8658*x +1437;
             pulseWidth = (int) pulseWidthFloat;
-        } else if (xNewton < 0) {
-            double pulseWidthFloat = 3.132 * x * x * x + 24.457 * x * x + 135.170 * x + 1466.098;
+        } else if (xNewton < 2.5) {
+            double pulseWidthFloat = 10.18*x+1558;
             pulseWidth = (int) pulseWidthFloat;
         } else {
             pulseWidth = 1500;

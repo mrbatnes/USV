@@ -84,7 +84,6 @@ public class PIDController {
             case 2:
             case 5:
             case 8:
-                System.out.println("case 2,5,8");
                 Ki = newControllerGain;
                 break;
             case 3:

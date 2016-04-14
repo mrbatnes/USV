@@ -1,6 +1,15 @@
 package USVProsjekt;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.util.Date;
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.seventytwomiles.springframework.io.FileUtils;
 
 /**
  *
@@ -80,7 +89,8 @@ public class Application implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        readPreviousTuningsFromFile();
+        while (guiCommand != 4) {
             //************************************************
             //Stores command values from the Client
             guiCommand = server.getGuiCommand();
@@ -102,10 +112,17 @@ public class Application implements Runnable {
                 timer.cancel();
                 gps.setReferencePositionOff();
                 dpStarted = false;
+                float[][] a = dynamicPositioning.getAllControllerTunings();
+                storeControllerTunings(a);
+                dynamicPositioning = new DynamicPositioning(thrustWriter);
+                dynamicPositioning.setPreviousGains(a);
+                System.out.println("timer cancelled and flag reset");
             }
             //Edits the gains if change is detected
             if (gainChanged != 0) {
                 dynamicPositioning.setNewControllerGain(gainChanged, newControllerGain);
+                float[][] a = dynamicPositioning.getAllControllerTunings();
+                storeControllerTunings(a);
             }
             //changes the references if one or both parameters is != 0
             if (northInc != 0 || eastInc != 0) {
@@ -115,7 +132,7 @@ public class Application implements Runnable {
             //************************************************
             //Executes primary tasks based on clients commands
             switch (guiCommand) {
-                case 0:
+                default:
                     idle();
                     break;
                 case 1:
@@ -129,8 +146,8 @@ public class Application implements Runnable {
 
         }
 
-        //stopThreads();
-        //System.out.println("Run()-method in Application Class finished");
+        stopThreads();
+        System.out.println("Run()-method in Application Class finished");
     }
 
     private void idle() {
@@ -250,18 +267,15 @@ public class Application implements Runnable {
     }
 
     public static void main(String[] args) throws Exception {
-        //ServerSocket ssocket = new ServerSocket(2345);
-        //System.out.println("listening");
-        //while (true) {
-        //   Socket socket = ssocket.accept();
-        //  System.out.println("Connected via TCP");
-        Server server = new Server();
-        Application app = new Application(server);
-        app.initializeApplication();
-        server.start();
-        new Thread(app).start();
-
-        // }
+        ServerSocket ssocket = new ServerSocket(2345);
+        while (true) {
+            Server server = new Server(ssocket);
+            server.acceptConnection();//denne metoden blokker
+            Application app = new Application(server);
+            app.initializeApplication();
+            server.start();
+            new Thread(app).start();
+        }
     }
 
     private String getDataLine() {
@@ -292,6 +306,37 @@ public class Application implements Runnable {
     private void setIncrementAmount(int northInc, int eastInc) {
         incrementAmountX -= northInc / 2.0f;
         incrementAmountY -= eastInc / 2.0f;
+    }
+
+    private void storeControllerTunings(float[][] a) {
+        File log = new File("PIDControllerTunings.txt");
+        try {
+            System.out.println("PID-tunings files created.");
+            log.createNewFile();
+            PrintWriter out = new PrintWriter(new FileWriter(log, false));
+            
+            out.println(a[0][0] + " " + a[1][0] + " " + a[2][0] + " "
+                    + a[1][0] + " " + a[1][1] + " " + a[2][1] + " "
+                    + a[2][0] + " " + a[1][2] + " " + a[2][2]+" ");
+            out.println("Tunings stored at " + new Date().toString() + " by " + System.getProperty("user.name"));
+            out.close();
+        } catch (IOException e) {
+            System.out.println("COULD NOT LOG!!");
+        }
+    }
+
+    private void readPreviousTuningsFromFile()  {
+        try {
+            String s = FileUtils.readFileToString(new File(System.getProperty("user.dir")+ "\\PIDControllerTunings.txt"),"UTF-8");
+            String d[]=s.split(" ");
+            float a[][] = new float[][]{{Float.parseFloat(d[0]),Float.parseFloat(d[1]),Float.parseFloat(d[2])},
+                {Float.parseFloat(d[3]),Float.parseFloat(d[4]),Float.parseFloat(d[5])},
+                {Float.parseFloat(d[6]),Float.parseFloat(d[7]),Float.parseFloat(d[8])}};
+            dynamicPositioning.setPreviousGains(a);
+        } catch (IOException ex) {
+            
+        }
+
     }
 
 }
