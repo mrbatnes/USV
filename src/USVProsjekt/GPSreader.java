@@ -130,7 +130,7 @@ public class GPSreader extends Thread {
             }
             String line = serialConnection.getSerialLine();
             String[] lineData = line.split("\r\n");
-            if (lineData[0].startsWith("$") && lineData[1].startsWith("$")) {
+            if (lineData[0].startsWith("$") && lineData[1].startsWith("$") && checkEmpty(lineData[0])) {
                 String NMEA1 = lineData[0];
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
@@ -139,6 +139,16 @@ public class GPSreader extends Thread {
             latReference = (nmea.position.lat * (float) Math.PI / 180.0f);
             lonReference = (nmea.position.lon * (float) Math.PI / 180.0f);
         }
+    }
+
+    private boolean checkEmpty(String lineData) {
+        String[] checkData = lineData.split(",");
+        for (int i = 0; i < 6; i++) {
+            if (checkData[i].isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void lockReferencePosition() {
