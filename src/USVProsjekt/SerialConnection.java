@@ -89,7 +89,7 @@ public class SerialConnection {
                             break;
                         case IMU:
                             //IMU
-                            Thread.sleep(30);
+                            Thread.sleep(50);
                             newData = new byte[comPort.bytesAvailable()];
                             break;
                     }

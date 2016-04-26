@@ -39,9 +39,8 @@ public class IMUreader extends Thread {
             line = serialConnection.getSerialLine();
 
             magnData = parseReceivedIMUline(line);
-            yaw = magnData[0];
-            pitch = magnData[1];
-            roll = magnData[2];
+            setYawValue(magnData[0]);
+            //System.out.println(yaw);
 //            System.out.println("Yaw: " + getHeadingFromYawValue(yaw));//+ " | Pitch: "
             // + pitch + " | Roll: " + roll);
         }
@@ -52,25 +51,20 @@ public class IMUreader extends Thread {
 
     private float getHeadingFromYawValue(float yaw) {
         if (yaw >= 90 && yaw <=180) {
+            
+            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA" + (yaw - 90));
             return yaw - 90;
         }
-        if (yaw >= -180 && yaw <=0) {
+        if (yaw >= -180 && yaw <=90) {
+            System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBB" + (yaw + 270));
             return yaw + 270;
         }
-        if (yaw > 0 && yaw < 180) {
-            return yaw + 270;
-        }
-        if (yaw < 0 && yaw >= -90) {
-            return yaw + 270;
-        } else {
+        else {
             return yaw;
         }
     }
-//heading: 0-179.9
-//yaw:     -179.9 -0
-
-//heading: 180-360
-//yaw:     0-180
+    //yaw:     (-179.9) - 0    //yaw:     0 - 180
+    //heading:  0 - 179.9     //heading: 180 - 359.9
     public void connectToSerialPortAndDisplayIMUInfo() {
         serialConnection.connectAndListen(ID);
     }
@@ -81,8 +75,7 @@ public class IMUreader extends Thread {
             String[] lineData = line.split(",");
             if (lineData.length == 3) {
                 String xString = lineData[0].substring(5);
-                String yString = lineData[1];
-                String zString = lineData[2];
+
                 float yw = Float.parseFloat(xString);
                 float pch =  0.0f;
                 float rll = 0.0f;
@@ -92,11 +85,14 @@ public class IMUreader extends Thread {
         return new float[]{0.0f, 0.0f, 0.0f};
     }
 
-    public float getYawValue() {
+    public synchronized float getYawValue() {
         return yaw;
     }
 
-    public float getHeading() {
+    public synchronized void setYawValue(float yaw){
+        this.yaw=yaw;
+    }
+    public synchronized float getHeading() {
         return getHeadingFromYawValue(yaw);
     }
 
