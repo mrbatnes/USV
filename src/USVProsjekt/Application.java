@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.logging.Level;
@@ -60,6 +62,7 @@ public class Application implements Runnable {
     private double[] remoteCommand;
 
     public Application(Server server) {
+        
         xNorth = 0.0f;
         yEast = 0.0f;
         yaw = 0.0f;
@@ -268,6 +271,11 @@ public class Application implements Runnable {
 
     public static void main(String[] args) throws Exception {
         ServerSocket ssocket = new ServerSocket(2345);
+        try {
+            System.out.println(InetAddress.getByName("localhost"));
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
         while (true) {
             Server server = new Server(ssocket);
             server.acceptConnection();//denne metoden blokker
