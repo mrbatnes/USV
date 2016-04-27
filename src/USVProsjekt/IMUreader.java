@@ -37,13 +37,7 @@ public class IMUreader extends Thread {
         }
         while (serialConnection.isConnected() && !stop) {
             line = serialConnection.getSerialLine();
-
-            magnData = parseReceivedIMUline(line);
-            yaw = magnData[0];
-            pitch = magnData[1];
-            roll = magnData[2];
-//            System.out.println("Yaw: " + getHeadingFromYawValue(yaw));//+ " | Pitch: "
-            // + pitch + " | Roll: " + roll);
+            setYawValue(parseReceivedIMUline(line));
         }
         System.out.println("Connection lost/closed on Thread: "
                 + this.getName());
@@ -54,49 +48,40 @@ public class IMUreader extends Thread {
         if (yaw >= 90 && yaw <=180) {
             return yaw - 90;
         }
-        if (yaw >= -180 && yaw <=0) {
+        if (yaw >= -180 && yaw <=90) {
             return yaw + 270;
         }
-        if (yaw > 0 && yaw < 180) {
-            return yaw + 270;
-        }
-        if (yaw < 0 && yaw >= -90) {
-            return yaw + 270;
-        } else {
+        else {
             return yaw;
         }
     }
-//heading: 0-179.9
-//yaw:     -179.9 -0
-
-//heading: 180-360
-//yaw:     0-180
+    //yaw:     (-179.9) - 0    //yaw:     0 - 180
+    //heading:  0 - 179.9     //heading: 180 - 359.9
     public void connectToSerialPortAndDisplayIMUInfo() {
         serialConnection.connectAndListen(ID);
     }
 
-    private float[] parseReceivedIMUline(String line) {
+    private float parseReceivedIMUline(String line) {
+        float yw;
         if (line.startsWith("#")) {
-
             String[] lineData = line.split(",");
-            if (lineData.length == 3) {
+            if (lineData.length >= 3) {
                 String xString = lineData[0].substring(5);
-                String yString = lineData[1];
-                String zString = lineData[2];
-                float yw = Float.parseFloat(xString);
-                float pch =  0.0f;
-                float rll = 0.0f;
-                return new float[]{yw, pch, rll};
+                yw = Float.parseFloat(xString);
+                return yw;
             }
-        }
-        return new float[]{0.0f, 0.0f, 0.0f};
-    }
-
-    public float getYawValue() {
+        }    
         return yaw;
     }
 
-    public float getHeading() {
+    public synchronized float getYawValue() {
+        return yaw;
+    }
+
+    public synchronized void setYawValue(float yaw){
+        this.yaw=yaw;
+    }
+    public synchronized float getHeading() {
         return getHeadingFromYawValue(yaw);
     }
 

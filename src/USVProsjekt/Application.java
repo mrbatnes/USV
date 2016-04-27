@@ -156,7 +156,7 @@ public class Application implements Runnable {
     private void idle() {
         dynamicPositioning.stopWriter();
         updateBasicFields();
-        System.out.println("Idle");
+       // System.out.println("Idle");
     }
 
     private void dynamicPositioning() {

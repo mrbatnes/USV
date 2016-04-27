@@ -17,6 +17,7 @@ public class PIDController {
     //Class variables
     private float errorSum;
     private float lastError;
+    private final float cycleTimeInSeconds;
 
     public PIDController() {
         outputVariable = 0.0f;
@@ -26,7 +27,7 @@ public class PIDController {
         Kp = 1.0f;
         Ki = 0.0f;
         Kd = 0.0f;
-
+        cycleTimeInSeconds = 0.2f;
     }
 
     /**
@@ -43,7 +44,7 @@ public class PIDController {
 
         // If continuous is set to true allow wrap around
         if (continuous) {
-            if (Math.abs(error)> 180) {
+            if (Math.abs(error) > 180) {
                 if (error > 0) {
                     error = error - 360.0f;
                 } else {
@@ -60,14 +61,16 @@ public class PIDController {
         return outputVariable;
 
     }
-    public void resetErrors(){
-        errorSum=0;
-        lastError=0;
+
+    public void resetErrors() {
+        errorSum = 0;
+        lastError = 0;
     }
+
     public void setTunings(float Kp, float Ki, float Kd) {
         this.Kp = Kp;
-        this.Ki = Ki;
-        this.Kd = Kd;
+        this.Ki = Ki * cycleTimeInSeconds;
+        this.Kd = Kd / cycleTimeInSeconds;
     }
 
     public float[] getTunings() {
@@ -84,12 +87,12 @@ public class PIDController {
             case 2:
             case 5:
             case 8:
-                Ki = newControllerGain;
+                Ki = newControllerGain * cycleTimeInSeconds;
                 break;
             case 3:
             case 6:
             case 9:
-                Kd = newControllerGain;
+                Kd = newControllerGain / cycleTimeInSeconds;
                 break;
         }
     }
