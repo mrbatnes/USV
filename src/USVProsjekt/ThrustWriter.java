@@ -37,7 +37,8 @@ public class ThrustWriter{
     }
 
     public void writeThrust() {
-        //serialConnection.writeThrustMicros(pulseWidth1, pulseWidth2, pulseWidth3, pulseWidth4);
+        serialConnection.writeThrustMicros(pulseWidth1, pulseWidth2, pulseWidth3, pulseWidth4);
+
     }
 
     public void setThrust(int thrusterNumber, double newton) {

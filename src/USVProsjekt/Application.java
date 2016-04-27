@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.seventytwomiles.springframework.io.FileUtils;
+
 
 /**
  *
@@ -60,6 +63,7 @@ public class Application implements Runnable {
     private double[] remoteCommand;
 
     public Application(Server server) {
+        
         xNorth = 0.0f;
         yEast = 0.0f;
         yaw = 0.0f;
@@ -219,9 +223,9 @@ public class Application implements Runnable {
             comPortWind = "COM6";
             comPortThrust = "COM7";
         } else {
-            comPortGPS = "ttyACM0";
+            comPortGPS = "ttyACM2";
             comPortIMU = "ttyACM1";
-            comPortWind = "ttyACM2";
+            comPortWind = "ttyACM0";
             comPortThrust = "ttyACM3";
         }
         int baudRateGPS = 115200;
@@ -268,6 +272,11 @@ public class Application implements Runnable {
 
     public static void main(String[] args) throws Exception {
         ServerSocket ssocket = new ServerSocket(2345);
+        try {
+            System.out.println(InetAddress.getByName("192.168.43.110"));
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
         while (true) {
             Server server = new Server(ssocket);
             server.acceptConnection();//denne metoden blokker
@@ -315,9 +324,9 @@ public class Application implements Runnable {
             log.createNewFile();
             PrintWriter out = new PrintWriter(new FileWriter(log, false));
             
-            out.println(a[0][0] + " " + a[1][0] + " " + a[2][0] + " "
-                    + a[1][0] + " " + a[1][1] + " " + a[2][1] + " "
-                    + a[2][0] + " " + a[1][2] + " " + a[2][2]+" ");
+            out.println(a[0][0] + " " + a[0][1] + " " + a[0][2] + " "
+                    + a[1][0] + " " + a[1][1] + " " + a[1][2] + " "
+                    + a[2][0] + " " + a[2][1] + " " + a[2][2]+" ");
             out.println("Tunings stored at " + new Date().toString() + " by " + System.getProperty("user.name"));
             out.close();
         } catch (IOException e) {
@@ -327,14 +336,15 @@ public class Application implements Runnable {
 
     private void readPreviousTuningsFromFile()  {
         try {
-            String s = FileUtils.readFileToString(new File(System.getProperty("user.dir")+ "\\PIDControllerTunings.txt"),"UTF-8");
+            String s = FileUtils.readFileToString(new File(System.getProperty("user.dir")+"\\PIDControllerTunings.txt"),"UTF-8");
+            
             String d[]=s.split(" ");
             float a[][] = new float[][]{{Float.parseFloat(d[0]),Float.parseFloat(d[1]),Float.parseFloat(d[2])},
                 {Float.parseFloat(d[3]),Float.parseFloat(d[4]),Float.parseFloat(d[5])},
                 {Float.parseFloat(d[6]),Float.parseFloat(d[7]),Float.parseFloat(d[8])}};
             dynamicPositioning.setPreviousGains(a);
         } catch (IOException ex) {
-            
+            System.out.println("Exception readfile)");
         }
 
     }

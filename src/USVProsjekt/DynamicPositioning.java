@@ -90,7 +90,7 @@ public class DynamicPositioning extends TimerTask {
             double[] XYNtransformed = Rz.multiplyRzwithV(outputX, outputY, outputN);
             forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed);
             thrustWriter.setThrustForAll(forceOutputNewton);
-            //thrustWriter.writeThrust();
+            thrustWriter.writeThrust();
         } catch (Exception ex) {
             System.out.println("exception dp");
         }
