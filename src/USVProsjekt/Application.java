@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.seventytwomiles.springframework.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 
 /**
@@ -336,7 +336,7 @@ public class Application implements Runnable {
 
     private void readPreviousTuningsFromFile()  {
         try {
-            String s = FileUtils.readFileToString(new File(System.getProperty("user.dir")+"\\PIDControllerTunings.txt"),"UTF-8");
+            String s = FileUtils.readFileToString(new File(System.getProperty("user.dir")+"//PIDControllerTunings.txt"));
             
             String d[]=s.split(" ");
             float a[][] = new float[][]{{Float.parseFloat(d[0]),Float.parseFloat(d[1]),Float.parseFloat(d[2])},
