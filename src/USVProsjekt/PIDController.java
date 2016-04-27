@@ -53,8 +53,8 @@ public class PIDController {
             }
         }
 
-        errorSum += error;
-        float dError = (error - lastError);
+        errorSum += error * cycleTimeInSeconds;
+        float dError = (error - lastError)/cycleTimeInSeconds;
         //Compute PID Output
         outputVariable = Kp * error + Ki * errorSum + Kd * dError;
         lastError = error;
@@ -69,8 +69,8 @@ public class PIDController {
 
     public void setTunings(float Kp, float Ki, float Kd) {
         this.Kp = Kp;
-        this.Ki = Ki * cycleTimeInSeconds;
-        this.Kd = Kd / cycleTimeInSeconds;
+        this.Ki = Ki ;
+        this.Kd = Kd;
     }
 
     public float[] getTunings() {
@@ -87,12 +87,12 @@ public class PIDController {
             case 2:
             case 5:
             case 8:
-                Ki = newControllerGain * cycleTimeInSeconds;
+                Ki = newControllerGain;
                 break;
             case 3:
             case 6:
             case 9:
-                Kd = newControllerGain / cycleTimeInSeconds;
+                Kd = newControllerGain;
                 break;
         }
     }

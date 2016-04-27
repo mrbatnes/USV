@@ -1,2 +1,2 @@
-4.0 5.0 2.0 5.0 0.020000001 0.6 2.0 5.0 15.0 
-Tunings stored at Tue Apr 26 15:23:59 CEST 2016 by Albert
+7.0 2.0 10.0 9.0 1.4 0.0 10.0 2.4 0.0 
+Tunings stored at Thu Apr 28 00:23:30 ACST 2016 by root

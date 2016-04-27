@@ -38,7 +38,7 @@ public class SerialConnection {
         if (comPort.openPort()) {
             comPort.setBaudRate(baudRate);
             comPort.setComPortTimeouts(
-                    SerialPort.TIMEOUT_READ_BLOCKING, 100, 0);
+                    SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
             System.out.println("Successfully connected to " + ID
                     + " via " + comPort.getSystemPortName() + " with Baud Rate:"
                     + " " + comPort.getBaudRate());
@@ -51,14 +51,15 @@ public class SerialConnection {
     public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
         //skriver til arduino
         String writeString = "" + thrustMicros1 + ":" + thrustMicros2 + ":" + thrustMicros3 + ":" + thrustMicros4 + ":";
-        PrintWriter output = new PrintWriter(comPort.getOutputStream(),true);
+        PrintWriter output = new PrintWriter(comPort.getOutputStream());
         output.write(writeString);
-        
+        output.flush();
         //Leser tilbake dataene fra arduino
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(comPort.getInputStream(), "UTF-8"));
-            System.out.println(br.readLine());
+            br.readLine();
         } catch (IOException e) {
+            System.out.println("ioex writeThrustMicros() in SerialConnection");
         }
     }
 
