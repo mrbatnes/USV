@@ -67,7 +67,7 @@ public class ThrustAllocator {
     Beregn output basert på en ønsket kraftvektor
     */
     public double[] calculateOutput(double[] tau) throws Exception {
-        long time1 = System.currentTimeMillis();
+//        long time1 = System.currentTimeMillis();
         // Sett opp p-vektoren med ønskede verdier for tau (kraftvektor)
         p.setEntry(0, tau[0]);
         p.setEntry(1, tau[1]);
@@ -98,9 +98,9 @@ public class ThrustAllocator {
         int returnCode = opt.optimize();
         
         if (returnCode == OptimizationResponse.FAILED) {
-            System.out.println("FAIL");
+            System.out.println("Optimization FAIL");
         }
-        long time2 = System.currentTimeMillis()-time1;
+//        long time2 = System.currentTimeMillis()-time1;
         //System.out.println("Tidsbruk = " + time2);
         return opt.getOptimizationResponse().getSolution();
 
