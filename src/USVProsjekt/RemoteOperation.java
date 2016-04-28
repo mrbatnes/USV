@@ -11,17 +11,17 @@ package USVProsjekt;
  */
 public class RemoteOperation {
 
-    private ThrustAllocator thrustAlloc;
+    private ThrustAllocator thrustAllocator;
     private ThrustWriter thrustWrite;
 
     public RemoteOperation(ThrustWriter thrustWriter) {
-        thrustAlloc = new ThrustAllocator(-1, 1, -0.5, 0.5);
+        thrustAllocator = new ThrustAllocator(-1, 1, -0.5, 0.5);
         this.thrustWrite = thrustWriter;
     }
 
     public void remoteOperate(double[] remoteCommand) {
         try {
-            thrustWrite.setThrustForAll(thrustAlloc.calculateOutput(remoteCommand));
+            thrustWrite.setThrustForAll(thrustAllocator.calculateOutput(remoteCommand));
             thrustWrite.writeThrust();
         } catch (Exception ex) {
             System.out.println("exception ro");

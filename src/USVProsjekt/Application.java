@@ -18,7 +18,7 @@ import org.apache.commons.io.FileUtils;
  *
  * @author Albert
  */
-public class Application implements Runnable {
+public class Application extends Thread {
 
     private SerialConnection serialGPS;
     private SerialConnection serialIMU;
@@ -283,7 +283,7 @@ public class Application implements Runnable {
             Application app = new Application(server);
             app.initializeApplication();
             server.start();
-            new Thread(app).start();
+            app.start();
         }
     }
 
