@@ -7,6 +7,7 @@ package USVProsjekt;
 public class PIDController {
 //
     //IO Variables
+
     private float outputVariable;
 
     //Gains
@@ -19,10 +20,16 @@ public class PIDController {
     private float lastError;
     private final float cycleTimeInSeconds;
 
+    private float maxOutput;
+    private float minOutput;
+
     public PIDController() {
         outputVariable = 0.0f;
         errorSum = 0.0f;
         lastError = 0.0f;
+
+        maxOutput = 2 * 34.0f;//force(surge,sway)
+        minOutput = 2 * -29.0f;//force(surge,sway)
 
         Kp = 1.0f;
         Ki = 0.0f;
@@ -44,6 +51,8 @@ public class PIDController {
 
         // If continuous is set to true allow wrap around
         if (continuous) {
+            maxOutput = 121.0f; //torque(yaw)
+            minOutput = -121.0f; //torque(yaw)
             if (Math.abs(error) > 180) {
                 if (error > 0) {
                     error = error - 360.0f;
@@ -52,11 +61,15 @@ public class PIDController {
                 }
             }
         }
-
-        errorSum += error * cycleTimeInSeconds;
-        float dError = (error - lastError)/cycleTimeInSeconds;
+        if ((errorSum + error * cycleTimeInSeconds) * Ki < maxOutput
+                && (errorSum + error * cycleTimeInSeconds) * Ki > minOutput) {
+            errorSum += error * cycleTimeInSeconds;
+        }
+//        errorSum += error * cycleTimeInSeconds;
+        float dError = (error - lastError) / cycleTimeInSeconds;
         //Compute PID Output
         outputVariable = Kp * error + Ki * errorSum + Kd * dError;
+        limitOutputVariable();
         lastError = error;
         return outputVariable;
 
@@ -69,7 +82,7 @@ public class PIDController {
 
     public void setTunings(float Kp, float Ki, float Kd) {
         this.Kp = Kp;
-        this.Ki = Ki ;
+        this.Ki = Ki;
         this.Kd = Kd;
     }
 
@@ -94,6 +107,14 @@ public class PIDController {
             case 9:
                 Kd = newControllerGain;
                 break;
+        }
+    }
+
+    private void limitOutputVariable() {
+        if (outputVariable > maxOutput) {
+            outputVariable = maxOutput;
+        } else if (outputVariable < minOutput) {
+            outputVariable = minOutput;
         }
     }
 

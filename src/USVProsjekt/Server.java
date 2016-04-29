@@ -124,7 +124,7 @@ public class Server extends Thread {
                 // System.out.println(line);
                 if (line !=null && !line.isEmpty()) {
                     //System.out.println("Server received data");
-                    lineData = line.split(" ");
+                   lineData = line.split(" ");
                     setGuiCommand(Integer.parseInt(lineData[0]));
                     if (guiCommand == 2) {
                         setRemoteCommand(lineData);
@@ -134,7 +134,7 @@ public class Server extends Thread {
                         setNorthIncDecRequest(Integer.parseInt(lineData[4]));
                         setEastIncDecRequest(Integer.parseInt(lineData[5]));
                     }
-
+                    
                 }
                 printStream.println(getDataFields());
             }
