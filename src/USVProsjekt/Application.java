@@ -156,6 +156,8 @@ public class Application extends Thread {
 
     private void idle() {
         dynamicPositioning.stopWriter();
+        thrustWriter.setThrustForAll(new double[]{0d,0d,0d,0d});
+        thrustWriter.writeThrust();
         updateBasicFields();
        // System.out.println("Idle");
     }
@@ -224,9 +226,9 @@ public class Application extends Thread {
             comPortThrust = "COM7";
         } else {
             comPortGPS = "ttyACM2";
-            comPortIMU = "ttyACM1";
-            comPortWind = "ttyACM0";
-            comPortThrust = "ttyACM3";
+            comPortIMU = "ttyACM0";
+            comPortWind = "ttyACM4";
+            comPortThrust = "ttyACM1";
         }
         int baudRateGPS = 115200;
 
@@ -272,11 +274,7 @@ public class Application extends Thread {
 
     public static void main(String[] args) throws Exception {
         ServerSocket ssocket = new ServerSocket(2345);
-        try {
-            System.out.println(InetAddress.getByName("192.168.43.110"));
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
         while (true) {
             Server server = new Server(ssocket);
             server.acceptConnection();//denne metoden blokker

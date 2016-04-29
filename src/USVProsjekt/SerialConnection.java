@@ -50,14 +50,16 @@ public class SerialConnection {
 
     public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
         //skriver til arduino
-        String writeString = "" + thrustMicros1 + ":" + thrustMicros2 + ":" + thrustMicros3 + ":" + thrustMicros4 + ":";
+        String writeString;
+        writeString = "" + thrustMicros1 + ":" + thrustMicros2 + ":" + thrustMicros3 + ":" + thrustMicros4 + ":";
+        
         PrintWriter output = new PrintWriter(comPort.getOutputStream());
         output.write(writeString);
         output.flush();
         //Leser tilbake dataene fra arduino
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(comPort.getInputStream(), "UTF-8"));
-            br.readLine();
+            System.out.println(br.readLine());
         } catch (IOException e) {
             System.out.println("ioex writeThrustMicros() in SerialConnection");
         }

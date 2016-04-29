@@ -32,6 +32,7 @@ public class Server extends Thread {
     private boolean gainChanged;
     private boolean available;
     private boolean stop;
+    private boolean resetRemote;
 
     public Server(ServerSocket ssocket) {
 
@@ -100,7 +101,7 @@ public class Server extends Thread {
         eastIncRequest = request;
     }
 
-    private synchronized void setRemoteCommand(String[] lineData) {
+    private void setRemoteCommand(String[] lineData) {
         for (int i = 0; i < 3; i++) {
             remoteCommand[i] = Double.parseDouble(lineData[i + 3]);
         }
@@ -110,6 +111,7 @@ public class Server extends Thread {
 
         return remoteCommand;
     }
+
 
     @Override
     public void run() {
@@ -140,8 +142,10 @@ public class Server extends Thread {
             }
             printStream.close();
             csocket.close();
+            System.out.println("Server thread run() exit:");
         } catch (IOException ex) {
             //Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("IO ex server");
 
         }
     }
