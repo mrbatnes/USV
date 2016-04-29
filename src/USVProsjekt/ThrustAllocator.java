@@ -30,7 +30,7 @@ public class ThrustAllocator {
     private PDQuadraticMultivariateRealFunction objectiveFunction;
     ConvexMultivariateRealFunction[] inequalities;
     private JOptimizer opt;
-
+    // NOTE: Lx1 er negativ, Lx2 er positiv, Ly1 er negativ, Ly2 er positiv
     public ThrustAllocator(double Lx1, double Lx2, double Ly1, double Ly2) {
         setUp(Lx1, Lx2, Ly1, Ly2);
 
@@ -45,7 +45,7 @@ public class ThrustAllocator {
         {0., 0., 0., 0., 0., 10., 0.}, {0., 0., 0., 0., 0., 0., 10.}};
 
         A1 = new double[][]{{1., 1., 0., 0., -1., 0., 0.}, {0., 0., 1., 1., 0., -1., 0.},
-        {-Ly1, -Ly2, Lx1, Lx2, 0., 0., -1.}};
+        {-Ly1, -Ly2, -Lx1, -Lx2, 0., 0., -1.}};
 
         A2 = new BlockRealMatrix(new double[][]{{-1., 0., 0., 0., 0., 0., 0.}, {0., -1., 0., 0., 0., 0., 0.},
         {0., 0., -1., 0., 0., 0., 0.}, {0., 0., 0., -1., 0., 0., 0.}, {1., 0., 0., 0., 0., 0., 0.},
