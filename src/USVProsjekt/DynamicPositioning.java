@@ -86,7 +86,7 @@ public class DynamicPositioning extends TimerTask {
             nedWriter.println(xNorthInput + " " + yEastInput + " " + headingInput);
 
             Rz = new RotationMatrix(headingInput);
-            //Rz*Tau
+            //Rz'*Tau
             double[] XYNtransformed = Rz.multiplyRzwithV(outputX, outputY, outputN);
             forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed);
             thrustWriter.setThrustForAll(forceOutputNewton);
