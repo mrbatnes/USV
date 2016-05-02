@@ -61,6 +61,7 @@ public class PIDController {
                 }
             }
         }
+        // Integrator anti-windup
         if ((errorSum + error * cycleTimeInSeconds) * Ki < maxOutput
                 && (errorSum + error * cycleTimeInSeconds) * Ki > minOutput) {
             errorSum += error * cycleTimeInSeconds;

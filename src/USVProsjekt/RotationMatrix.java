@@ -27,7 +27,7 @@ public class RotationMatrix {
     {
         vector = new ArrayRealVector(new double[]{u,v,w});
         //Rz*returnVector 3x3  * 3x1 = 3x1
-        RealVector returnVector = Rz.operate(vector);
+        RealVector returnVector = Rz.transpose().operate(vector);
         return returnVector.toArray();
     }
 
