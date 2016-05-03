@@ -5,12 +5,6 @@ package USVProsjekt;
  * @author root
  */
 public class ThrustWriter {
-//
-//    private int thruster_1;
-//    private int thruster_2;
-//    private int thruster_3;
-//    private int thruster_4;
-
     private int pulseWidth1;
     private int pulseWidth2;
     private int pulseWidth3;
@@ -20,11 +14,6 @@ public class ThrustWriter {
     private Identifier ID;
 
     public ThrustWriter(SerialConnection serialConnection, Identifier ID) {
-//        thruster_1 = 1;
-//        thruster_2 = 2;
-//        thruster_3 = 3;
-//        thruster_4 = 4;
-
         pulseWidth1 = 1500;
         pulseWidth2 = 1500;
         pulseWidth3 = 1500;
@@ -42,19 +31,6 @@ public class ThrustWriter {
         }
     }
 
-//    public void setThrust(int thrusterNumber, double newton) {
-//        if (thrusterNumber == thruster_1) {
-//            pulseWidth1 = newtonToPulseWidth(newton);
-//        } else if (thrusterNumber == thruster_2) {
-//            pulseWidth2 = newtonToPulseWidth(newton);
-//        } else if (thrusterNumber == thruster_3) {
-//            pulseWidth3 = newtonToPulseWidth(newton);
-//        } else if (thrusterNumber == thruster_4) {
-//            pulseWidth4 = newtonToPulseWidth(newton);
-//        } else{
-//            System.out.println("ThrustWriter:setThrust This thruster does not exist.");
-//        }
-//    }
     public void setThrustForAll(double[] newton) {
         pulseWidth1 = newtonToPulseWidth(newton[0]);
         pulseWidth2 = newtonToPulseWidth(newton[1]);
@@ -88,6 +64,7 @@ public class ThrustWriter {
 
     void closeSerialConn() {
         serialConnection.close();
+        System.out.println("ThrustWriter: Connection closed");
     }
 
 }

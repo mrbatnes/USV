@@ -121,7 +121,7 @@ public class NMEAparser {
     	sentenceParsers.put("GPVTG", new GPVTG());
     }
     
-	public GPSPosition parse(String line) {
+	public synchronized GPSPosition parse(String line) {
 		if(line.startsWith("$")) {
 			String nmea = line.substring(1);
 			String[] tokens = nmea.split(",");

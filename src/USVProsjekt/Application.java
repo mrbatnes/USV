@@ -60,6 +60,7 @@ public class Application extends Thread {
     private float incrementAmountX;
     private float incrementAmountY;
     private double[] remoteCommand;
+    private int egnos;
 
     public Application(Server server) {
 
@@ -194,6 +195,7 @@ public class Application extends Thread {
         heading = imu.getHeading();
         speed = gps.getGPSPosition().velocity;
         direction = gps.getGPSPosition().dir;
+        egnos = gps.getGPSPosition().quality;
         latitudeReference = 0;
         longitudeReference = 0;
         xNorth = 0;
@@ -283,8 +285,9 @@ public class Application extends Thread {
         }
     }
 
-private String getDataLine() {
+    private String getDataLine() {
         float[][] a = dynamicPositioning.getAllControllerTunings();
+        float[] vector = dynamicPositioning.getPIDOutputVector();
         return "Latitude: " + latitudeBody + " Longitude: "
                 + longitudeBody + " xNorth: " + xNorth + " Sway: " + yEast
                 + " Heading: " + heading + " Speed: " + speed + " Direction: "
@@ -294,7 +297,8 @@ private String getDataLine() {
                 + latitudeReference + " LonRef: " + longitudeReference + " "
                 + a[0][0] + " " + a[0][1] + " " + a[0][2] + " "
                 + a[1][0] + " " + a[1][1] + " " + a[1][2] + " "
-                + a[2][0] + " " + a[2][1] + " " + a[2][2];
+                + a[2][0] + " " + a[2][1] + " " + a[2][2] + " " + " "
+                + egnos + " " + vector[0] + " " + vector[1] + " " + vector[2];
     }
 
     /**
@@ -319,10 +323,10 @@ private String getDataLine() {
             System.out.println("PID-tunings files created.");
             log.createNewFile();
             PrintWriter out = new PrintWriter(new FileWriter(log, false));
-            
+
             out.println(a[0][0] + " " + a[0][1] + " " + a[0][2] + " "
                     + a[1][0] + " " + a[1][1] + " " + a[1][2] + " "
-                    + a[2][0] + " " + a[2][1] + " " + a[2][2]+" ");
+                    + a[2][0] + " " + a[2][1] + " " + a[2][2] + " ");
             out.println("Tunings stored at " + new Date().toString() + " by " + System.getProperty("user.name"));
             out.close();
         } catch (IOException e) {
@@ -330,14 +334,14 @@ private String getDataLine() {
         }
     }
 
-    private void readPreviousTuningsFromFile()  {
+    private void readPreviousTuningsFromFile() {
         try {
-            String s = FileUtils.readFileToString(new File(System.getProperty("user.dir")+"//PIDControllerTunings.txt"));
-            
-            String d[]=s.split(" ");
-            float a[][] = new float[][]{{Float.parseFloat(d[0]),Float.parseFloat(d[1]),Float.parseFloat(d[2])},
-                {Float.parseFloat(d[3]),Float.parseFloat(d[4]),Float.parseFloat(d[5])},
-                {Float.parseFloat(d[6]),Float.parseFloat(d[7]),Float.parseFloat(d[8])}};
+            String s = FileUtils.readFileToString(new File(System.getProperty("user.dir") + "//PIDControllerTunings.txt"));
+
+            String d[] = s.split(" ");
+            float a[][] = new float[][]{{Float.parseFloat(d[0]), Float.parseFloat(d[1]), Float.parseFloat(d[2])},
+            {Float.parseFloat(d[3]), Float.parseFloat(d[4]), Float.parseFloat(d[5])},
+            {Float.parseFloat(d[6]), Float.parseFloat(d[7]), Float.parseFloat(d[8])}};
             dynamicPositioning.setPreviousGains(a);
         } catch (IOException ex) {
             System.out.println("Exception readfile)");

@@ -112,8 +112,7 @@ public class GPSreader extends Thread {
      *
      * @return
      */
-    public GPSPosition getGPSPosition() {
-
+    public synchronized GPSPosition getGPSPosition() {
         return nmea.position;
     }
 
@@ -154,12 +153,15 @@ public class GPSreader extends Thread {
     public void lockReferencePosition() {
         dynamicPositioning = true;
     }
-public synchronized void setXposition(float value) {
-        xNorth=value;
+
+    public synchronized void setXposition(float value) {
+        xNorth = value;
     }
-public synchronized void setYposition(float value) {
-        yEast=value;
+
+    public synchronized void setYposition(float value) {
+        yEast = value;
     }
+
     public synchronized float getXposition() {
         return xNorth;
     }

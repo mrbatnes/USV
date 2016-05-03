@@ -32,7 +32,6 @@ public class Server extends Thread {
     private boolean gainChanged;
     private boolean available;
     private boolean stop;
-    private boolean resetRemote;
 
     public Server(ServerSocket ssocket) {
 

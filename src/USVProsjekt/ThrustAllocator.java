@@ -33,7 +33,9 @@ public class ThrustAllocator {
     // NOTE: Lx1 er negativ, Lx2 er positiv, Ly1 er negativ, Ly2 er positiv
     public ThrustAllocator(double Lx1, double Lx2, double Ly1, double Ly2) {
         setUp(Lx1, Lx2, Ly1, Ly2);
-
+    }
+    public ThrustAllocator(){
+        setUp(-1, 1, -0.5, 0.5);
     }
 
     /*

@@ -15,7 +15,7 @@ public class RemoteOperation {
     private ThrustWriter thrustWrite;
 
     public RemoteOperation(ThrustWriter thrustWriter) {
-        thrustAllocator = new ThrustAllocator(-1, 1, -0.5, 0.5);
+        thrustAllocator = new ThrustAllocator();
         this.thrustWrite = thrustWriter;
     }
 
