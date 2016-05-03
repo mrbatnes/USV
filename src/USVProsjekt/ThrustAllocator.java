@@ -79,21 +79,26 @@ public class ThrustAllocator {
         
 
         for (int i = 0; i < 8; i++) {
-            // f(x) = q*x + r
+            // Hver ulikhet settes opp som et LinearMultivariateRealFunction
             inequalities[i] = new LinearMultivariateRealFunction(A2.getRow(i), -v2.toArray()[i]);
         }
         // Optimaliseringsproblemet
         OptimizationRequest or = new OptimizationRequest();
+        // Sett objektivfunksjonen
         or.setF0(objectiveFunction);
+        
+        // Sett ulikheten
         or.setFi(inequalities);
+        
+        // Sett likheten
         or.setA(A1);
-
         or.setB(p.getSubVector(0, 3).toArray());
 
+        // Sett toleransen på resultatet. Lavere tall = større nøyaktighet
         or.setTolerance(1.E-1);
 
         // Optimalisering
-        
+       
         opt.setOptimizationRequest(or);
         int returnCode = opt.optimize();
         

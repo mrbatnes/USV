@@ -83,7 +83,7 @@ public class DynamicPositioning extends TimerTask {
             outputX = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);
             outputY = yEastPID.computeOutput(yEastInput, yEastReference, false);
             outputN = headingPID.computeOutput(headingInput, headingReference, true);
-            nedWriter.println(xNorthInput + " " + yEastInput + " " + headingInput);
+            nedWriter.println((xNorthReference - xNorthInput) + " " + (yEastReference - yEastInput) + " " + (headingReference - headingInput));
 
             Rz = new RotationMatrix(headingInput);
             //Rz*Tau
