@@ -297,7 +297,7 @@ public class Application extends Thread {
                 + latitudeReference + " LonRef: " + longitudeReference + " "
                 + a[0][0] + " " + a[0][1] + " " + a[0][2] + " "
                 + a[1][0] + " " + a[1][1] + " " + a[1][2] + " "
-                + a[2][0] + " " + a[2][1] + " " + a[2][2] + " " + " "
+                + a[2][0] + " " + a[2][1] + " " + a[2][2] +  " "
                 + egnos + " " + vector[0] + " " + vector[1] + " " + vector[2];
     }
 

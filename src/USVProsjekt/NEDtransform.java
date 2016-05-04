@@ -8,13 +8,16 @@ public class NEDtransform extends Thread {
 
     //World Geodetic System 1984 constants
     //Longest radius of earth's ellipsoid
-    private float semimajorAxis = 6378137.0f;
+    private final double semimajorAxis = 6378137.0;
     //Shortest radius of earth's ellipsoid
-    private float semiminorAxis = 6356752.0f;
-    private float flattening = (semimajorAxis - semiminorAxis) / semimajorAxis;
+    private final double semiminorAxis = 6356752.0;
+    private final double flattening = (semimajorAxis - semiminorAxis) / semimajorAxis;
+    private final double f;
+    private final double R;
 
     public NEDtransform() {
-
+        f = flattening;
+        R=semimajorAxis;
     }
 
     /**
@@ -28,17 +31,14 @@ public class NEDtransform extends Thread {
      */
     public float[] getFlatEarthCoordinates(float latBody, float lonBody,
             float latRef, float lonRef) {
-        float dMy = latBody - latRef;
-        float dL = lonBody - lonRef;
-        float rN = (float) (semimajorAxis / Math.sqrt(1 - (2.0 * flattening
-                - Math.pow(flattening, 2)) * Math.pow(Math.sin(latRef), 2)));
-        float rM = (float) (rN * (1 - (2.0 * flattening
-                - Math.pow(flattening, 2)))
-                / (1 - (2.0 * flattening - Math.pow(flattening, 2))
-                * Math.pow(Math.sin(latRef), 2)));
-        float dN = (float) (dMy / Math.atan(1 / rM));
-        float dE = (float) (dL / Math.atan(1 / (rN * Math.cos(latRef))));
-        return new float[]{dN, dE};
+        double dMy = latBody - latRef;
+        double dL = lonBody - lonRef;
+
+        double rN = (R / (Math.sqrt(1 - (2 * f - f * f) * Math.pow(Math.sin(latRef), 2))));
+        double rM = rN * ((1 - (2 * f - f * f)) / (1 - (2 * f - f * f) * Math.pow(Math.sin(latRef), 2)));
+        double dN = (dMy / Math.atan(1 / rM));
+        double dE = (dL / Math.atan(1 / (rN * Math.cos(latRef))));
+        return new float[]{(float)dN, (float)dE};
     }
 
     /**
@@ -87,7 +87,6 @@ public class NEDtransform extends Thread {
 //        double aa = a * a;
 //        return aa / Math.sqrt(acos * acos + bsin * bsin);
 //    }
-
     /**
      * Converts latitude, longitude and height to ECEF coordinate system
      *
