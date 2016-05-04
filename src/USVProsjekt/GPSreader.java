@@ -78,20 +78,22 @@ public class GPSreader extends Thread {
             }
             line = serialConnection.getSerialLine();
             lineData = line.split("\r\n");
-            String NMEA1 = lineData[0];
-            String NMEA2 = lineData[1];
-            nmea.parse(NMEA1);
-            nmea.parse(NMEA2);
+            if (lineData[0].startsWith("$") && lineData[1].startsWith("$") && checkEmpty(lineData[0])) {
+                String NMEA1 = lineData[0];
+                String NMEA2 = lineData[1];
+                nmea.parse(NMEA1);
+                nmea.parse(NMEA2);
+                
+                nmeaWriter.println(NMEA1);
+                nmeaWriter.println(NMEA2);
+                nmeaWriter.println("");
+            }
             latBody = (float) ((nmea.position.lat) * (Math.PI) / 180.0f);
             lonBody = (float) (nmea.position.lon * Math.PI / 180.0f);
             float[] xyNorthEast = gpsProc.getFlatEarthCoordinates(latBody,
                     lonBody, latReference, lonReference);
             setXposition(xyNorthEast[0]);
             setYposition(xyNorthEast[1]);
-
-            nmeaWriter.println(NMEA1);
-            nmeaWriter.println(NMEA2);
-            nmeaWriter.println("");
         }
         System.out.println("Connection lost/closed on Thread: "
                 + this.getName());
