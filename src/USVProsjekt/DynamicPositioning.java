@@ -26,6 +26,9 @@ public class DynamicPositioning extends TimerTask {
     private float yEastInput;
     private float headingInput;
     
+    private float incrementAmountX;
+    private float incrementAmountY;
+    
     private float headingReference;
     
     private ThrustAllocator thrustAllocator;
@@ -37,12 +40,16 @@ public class DynamicPositioning extends TimerTask {
     private float xNorthReference;
     private float yEastReference;
     private PrintWriter nedWriter;
+    private GPSreader gps;
+    private IMUreader imu;
     
-    public DynamicPositioning(ThrustWriter thrustWriter) {
+    
+    public DynamicPositioning(ThrustWriter thrustWriter, GPSreader gps, IMUreader imu) {
         xNorthPID = new PIDController();
         yEastPID = new PIDController();
         headingPID = new PIDController();
-        
+        this.gps = gps;
+        this.imu = imu;
         outputX = 0.0f;
         outputY = 0.0f;
         outputN = 0.0f;
@@ -58,13 +65,13 @@ public class DynamicPositioning extends TimerTask {
         yEastPID.setTunings(a[1][0], a[1][1], a[1][2]);
         headingPID.setTunings(a[2][0], a[2][1], a[2][2]);
     }
-    
-    public void setProcessVariables(float surge, float sway, float heading) {
-        xNorthInput = surge;
-        yEastInput = sway;
-        headingInput = heading;
-    }
-    
+//    
+//    public void setProcessVariables(float surge, float sway, float heading) {
+//        xNorthInput = surge;
+//        yEastInput = sway;
+//        headingInput = heading;
+//    }
+//    
     public void setReferenceNorth(float xNorth) {
         xNorthReference = xNorth;
     }
@@ -80,9 +87,13 @@ public class DynamicPositioning extends TimerTask {
     @Override
     public void run() {
         try {//XYN from SNAME notation
+            xNorthInput = gps.getXposition() + incrementAmountX;
+            yEastInput = gps.getYposition() + incrementAmountY;
+            headingInput = imu.getHeading();
+            
             float X = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);
             float Y = yEastPID.computeOutput(yEastInput, yEastReference, false);
-            float N = headingPID.computeOutput(headingInput, headingReference, true);
+            float N = headingPID.computeOutput(imu.getHeading(), headingReference, true);
             setPIDOutputVector(X, Y, N);//synchronized
             nedWriter.println((xNorthReference - xNorthInput) + " " + (yEastReference - yEastInput) + " " + (headingReference - headingInput));
             
@@ -151,6 +162,11 @@ public class DynamicPositioning extends TimerTask {
         xNorthPID.resetErrors();
         yEastPID.resetErrors();
         headingPID.resetErrors();
+    }
+    
+    public synchronized void setIncrementAmount(int northInc, int eastInc) {
+        incrementAmountX -= northInc / 2.0f;
+        incrementAmountY -= eastInc / 2.0f;
     }
     
 }

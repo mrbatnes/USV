@@ -118,7 +118,7 @@ public class Application extends Thread {
                 dpStarted = false;
                 float[][] a = dynamicPositioning.getAllControllerTunings();
                 storeControllerTunings(a);
-                dynamicPositioning = new DynamicPositioning(thrustWriter);
+                dynamicPositioning = new DynamicPositioning(thrustWriter,gps,imu);
                 dynamicPositioning.setPreviousGains(a);
                 System.out.println("timer cancelled and flag reset");
             }
@@ -165,7 +165,7 @@ public class Application extends Thread {
     private void dynamicPositioning() {
         updateAllFields();
         gps.lockReferencePosition();
-        dynamicPositioning.setProcessVariables(xNorth, yEast, heading);
+//        dynamicPositioning.setProcessVariables(xNorth, yEast, heading);
         if (!dpStarted) {
             dynamicPositioning.startWriter();
             dynamicPositioning.resetControllerErrors();//reset the errors before starting
@@ -269,7 +269,7 @@ public class Application extends Thread {
         windReader.start();
 
         thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
-        dynamicPositioning = new DynamicPositioning(thrustWriter);
+        dynamicPositioning = new DynamicPositioning(thrustWriter,gps,imu);
         remoteOperation = new RemoteOperation(thrustWriter);
     }
 
@@ -315,6 +315,7 @@ public class Application extends Thread {
     private void setIncrementAmount(int northInc, int eastInc) {
         incrementAmountX -= northInc / 2.0f;
         incrementAmountY -= eastInc / 2.0f;
+        dynamicPositioning.setIncrementAmount(northInc, eastInc);
     }
 
     private void storeControllerTunings(float[][] a) {
