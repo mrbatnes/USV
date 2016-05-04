@@ -35,7 +35,7 @@ public class ThrustAllocator {
         setUp(Lx1, Lx2, Ly1, Ly2);
     }
     public ThrustAllocator(){
-        setUp(-1, 1, -0.5, 0.5);
+        setUp(-0.8, 0.87, -0.2, 0.2);
     }
 
     /*
