@@ -222,7 +222,7 @@ public class Application extends Thread {
             comPortWind = "COM6";
             comPortThrust = "COM7";
         } else {
-            comPortGPS = "ttyACM0";
+            comPortGPS = "ttyACM4";
             comPortIMU = "ttyACM1";
             comPortWind = "ttyACM3";
             comPortThrust = "ttyACM2";
