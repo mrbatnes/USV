@@ -12,18 +12,18 @@ public class NMEAparser {
 	}
 	
 	// utils
-	static float Latitude2Decimal(String lat, String NS) {
-		float med = Float.parseFloat(lat.substring(2))/60.0f;
-		med +=  Float.parseFloat(lat.substring(0, 2));
+	static double Latitude2Decimal(String lat, String NS) {
+		double med = Double.parseDouble(lat.substring(2))/60.0;
+		med +=  Double.parseDouble(lat.substring(0, 2));
 		if(NS.startsWith("S")) {
 			med = -med;
 		}
 		return med;
 	}
 
-	static float Longitude2Decimal(String lon, String WE) {
-		float med = Float.parseFloat(lon.substring(3))/60.0f;
-		med +=  Float.parseFloat(lon.substring(0, 3));
+	static double Longitude2Decimal(String lon, String WE) {
+		double med = Double.parseDouble(lon.substring(3))/60.0;
+		med +=  Double.parseDouble(lon.substring(0, 3));
 		if(WE.startsWith("W")) {
 			med = -med;
 		}
@@ -33,12 +33,12 @@ public class NMEAparser {
 	// parsers 
 	class GPGGA implements SentenceParser {
 		public boolean parse(String [] tokens, GPSPosition position) {
-			position.time = Float.parseFloat(tokens[1]);
+			position.time = Double.parseDouble(tokens[1]);
 			position.lat = Latitude2Decimal(tokens[2], tokens[3]);
 			position.lon = Longitude2Decimal(tokens[4], tokens[5]);
 			position.quality = Integer.parseInt(tokens[6]);
 			position.satNum = Integer.parseInt(tokens[7]);
-			position.altitude = Float.parseFloat(tokens[9]);
+			position.altitude = Double.parseDouble(tokens[9]);
 			return true;
 		}
 	}
@@ -47,32 +47,32 @@ public class NMEAparser {
 		public boolean parse(String [] tokens, GPSPosition position) {
 			position.lat = Latitude2Decimal(tokens[1], tokens[2]);
 			position.lon = Longitude2Decimal(tokens[3], tokens[4]);
-			position.time = Float.parseFloat(tokens[5]);
+			position.time = Double.parseDouble(tokens[5]);
 			return true;
 		}
 	}
 	
 	class GPRMC implements SentenceParser {
 		public boolean parse(String [] tokens, GPSPosition position) {
-			position.time = Float.parseFloat(tokens[1]);
+			position.time = Double.parseDouble(tokens[1]);
 			position.lat = Latitude2Decimal(tokens[3], tokens[4]);
 			position.lon = Longitude2Decimal(tokens[5], tokens[6]);
-			position.velocity = (float)(0.51444*Float.parseFloat(tokens[7]));
-			position.dir = Float.parseFloat(tokens[8]);
+			position.velocity = (0.51444*Double.parseDouble(tokens[7]));
+			position.dir = Double.parseDouble(tokens[8]);
 			return true;
 		}
 	}
 	
 	class GPVTG implements SentenceParser {
 		public boolean parse(String [] tokens, GPSPosition position) {
-			position.dir = Float.parseFloat(tokens[3]);
+			position.dir = Double.parseDouble(tokens[3]);
 			return true;
 		}
 	}
 	
 	class GPRMZ implements SentenceParser {
 		public boolean parse(String [] tokens, GPSPosition position) {
-			position.altitude = Float.parseFloat(tokens[1]);
+			position.altitude = Double.parseDouble(tokens[1]);
 			return true;
 		}
 	}
@@ -86,14 +86,14 @@ public class NMEAparser {
 	}
 	
 	public class GPSPosition {
-		public float time = 0.0f;
-		public float lat = 0.0f;
-		public float lon = 0.0f;
+		public double time = 0.0f;
+		public double lat = 0.0f;
+		public double lon = 0.0f;
 		public boolean fixed = false;
 		public int quality = 0;
-		public float dir = 0.0f;
-		public float altitude = 0.0f;
-		public float velocity = 0.0f;
+		public double dir = 0.0f;
+		public double altitude = 0.0f;
+		public double velocity = 0.0f;
                 public int antenna = 0;
                 public int satNum = 0;
 		
@@ -103,7 +103,7 @@ public class NMEAparser {
 		
                 @Override
 		public String toString() {
-			return String.format("POSITION: lat: %f, lon: %f, time: %f, Q: %d, dir: %f, alt(m): %f, vel(m/s): %f, ant: %d, satNum: %d", lat, lon, time, quality, dir, altitude, velocity, antenna,satNum);
+			return String.format("POSITION: lat: %d, lon: %d, time: %d, Q: %d, dir: %d, alt(m): %d, vel(m/s): %d, ant: %d, satNum: %d", lat, lon, time, quality, dir, altitude, velocity, antenna,satNum);
 		}
 	}
 	

@@ -65,13 +65,7 @@ public class DynamicPositioning extends TimerTask {
         yEastPID.setTunings(a[1][0], a[1][1], a[1][2]);
         headingPID.setTunings(a[2][0], a[2][1], a[2][2]);
     }
-//    
-//    public void setProcessVariables(float surge, float sway, float heading) {
-//        xNorthInput = surge;
-//        yEastInput = sway;
-//        headingInput = heading;
-//    }
-//    
+
     public void setReferenceNorth(float xNorth) {
         xNorthReference = xNorth;
     }
@@ -87,8 +81,8 @@ public class DynamicPositioning extends TimerTask {
     @Override
     public void run() {
         try {//XYN from SNAME notation
-            xNorthInput = gps.getXposition() + incrementAmountX;
-            yEastInput = gps.getYposition() + incrementAmountY;
+            xNorthInput = (float)(gps.getXposition() + incrementAmountX);
+            yEastInput = (float)(gps.getYposition() + incrementAmountY);
             headingInput = imu.getHeading();
             
             float X = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);

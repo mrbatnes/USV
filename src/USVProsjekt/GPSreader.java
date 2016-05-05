@@ -18,13 +18,13 @@ public class GPSreader extends Thread {
     private NMEAparser nmea;
     private NEDtransform gpsProc;
 
-    private float latBody;
-    private float lonBody;
-    private float latReference;
-    private float lonReference;
+    private double latBody;
+    private double lonBody;
+    private double latReference;
+    private double lonReference;
 
-    private float xNorth;
-    private float yEast;
+    private double xNorth;
+    private double yEast;
 
     private Identifier ID;
 
@@ -88,9 +88,9 @@ public class GPSreader extends Thread {
                 nmeaWriter.println(NMEA2);
                 nmeaWriter.println("");
             }
-            latBody = (float) ((nmea.position.lat) * (Math.PI) / 180.0f);
-            lonBody = (float) (nmea.position.lon * Math.PI / 180.0f);
-            float[] xyNorthEast = gpsProc.getFlatEarthCoordinates(latBody,
+            latBody = (nmea.position.lat * (Math.PI) / 180.0);
+            lonBody = (nmea.position.lon * (Math.PI)/ 180.0);
+            double[] xyNorthEast = gpsProc.getFlatEarthCoordinates(latBody,
                     lonBody, latReference, lonReference);
             setXposition(xyNorthEast[0]);
             setYposition(xyNorthEast[1]);
@@ -144,8 +144,8 @@ public class GPSreader extends Thread {
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
             }
-            latReference = (nmea.position.lat * (float) Math.PI / 180.0f);
-            lonReference = (nmea.position.lon * (float) Math.PI / 180.0f);
+            latReference = (nmea.position.lat *  Math.PI / 180.0);
+            lonReference = (nmea.position.lon *  Math.PI / 180.0);
         }
     }
 
@@ -163,28 +163,28 @@ public class GPSreader extends Thread {
         dynamicPositioning = true;
     }
 
-    public synchronized void setXposition(float value) {
+    public synchronized void setXposition(double value) {
         xNorth = value;
     }
 
-    public synchronized void setYposition(float value) {
+    public synchronized void setYposition(double value) {
         yEast = value;
     }
 
-    public synchronized float getXposition() {
+    public synchronized double getXposition() {
         return xNorth;
     }
 
-    public synchronized float getYposition() {
+    public synchronized double getYposition() {
         return yEast;
     }
 
-    public float getLatRef() {
-        return (float) (latReference * (180.0f / Math.PI));
+    public double getLatRef() {
+        return (latReference * (180.0 / Math.PI));
     }
 
-    float getLonRef() {
-        return (float) (lonReference * (180.0f / Math.PI));
+    double getLonRef() {
+        return  (lonReference * (180.0 / Math.PI));
     }
 
     void stopThread() {

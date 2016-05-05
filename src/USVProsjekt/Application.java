@@ -25,21 +25,21 @@ public class Application extends Thread {
     private WindReader windReader;
     private ThrustWriter thrustWriter;
 
-    private float latitudeBody;
-    private float longitudeBody;
-    private float latitudeReference;
-    private float longitudeReference;
+    private double latitudeBody;
+    private double longitudeBody;
+    private double latitudeReference;
+    private double longitudeReference;
 
-    private float xNorth;
-    private float yEast;
+    private double xNorth;
+    private double yEast;
     private float yaw, heading, headingReference;
 
-    private float speed;
-    private float direction;
+    private double speed;
+    private double direction;
 
-    private float windSpeed;
-    private float windDirection;
-    private float temperature;
+    private double windSpeed;
+    private double windDirection;
+    private double temperature;
 
     private int guiCommand;
     private Server server;

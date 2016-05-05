@@ -29,8 +29,8 @@ public class NEDtransform extends Thread {
      * @param lonRef
      * @return
      */
-    public float[] getFlatEarthCoordinates(float latBody, float lonBody,
-            float latRef, float lonRef) {
+    public double[] getFlatEarthCoordinates(double latBody, double lonBody,
+            double latRef, double lonRef) {
         double dMy = latBody - latRef;
         double dL = lonBody - lonRef;
 
@@ -38,7 +38,7 @@ public class NEDtransform extends Thread {
         double rM = rN * ((1 - (2 * f - f * f)) / (1 - (2 * f - f * f) * Math.pow(Math.sin(latRef), 2)));
         double dN = (dMy / Math.atan(1 / rM));
         double dE = (dL / Math.atan(1 / (rN * Math.cos(latRef))));
-        return new float[]{(float)dN, (float)dE};
+        return new double[]{dN,dE};
     }
 
     /**
