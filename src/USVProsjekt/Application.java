@@ -4,13 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Timer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -118,7 +114,7 @@ public class Application extends Thread {
                 dpStarted = false;
                 float[][] a = dynamicPositioning.getAllControllerTunings();
                 storeControllerTunings(a);
-                dynamicPositioning = new DynamicPositioning(thrustWriter,gps,imu);
+                dynamicPositioning = new DynamicPositioning(thrustWriter, gps, imu);
                 dynamicPositioning.setPreviousGains(a);
                 System.out.println("timer cancelled and flag reset");
             }
@@ -166,12 +162,12 @@ public class Application extends Thread {
         updateAllFields();
         gps.lockReferencePosition();
 //        dynamicPositioning.setProcessVariables(xNorth, yEast, heading);
+        dynamicPositioning.setReferenceHeading(headingReference);
         if (!dpStarted) {
             dynamicPositioning.startWriter();
             dynamicPositioning.resetControllerErrors();//reset the errors before starting
             int startTime = 0;
             int periodTime = 200;
-            dynamicPositioning.setReferenceHeading(headingReference);
             timer = new Timer();
             timer.scheduleAtFixedRate(dynamicPositioning, startTime, periodTime); //start controllers on a fixed interval
             dpStarted = true;
@@ -269,7 +265,7 @@ public class Application extends Thread {
         windReader.start();
 
         thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
-        dynamicPositioning = new DynamicPositioning(thrustWriter,gps,imu);
+        dynamicPositioning = new DynamicPositioning(thrustWriter, gps, imu);
         remoteOperation = new RemoteOperation(thrustWriter);
     }
 
@@ -297,7 +293,7 @@ public class Application extends Thread {
                 + latitudeReference + " LonRef: " + longitudeReference + " "
                 + a[0][0] + " " + a[0][1] + " " + a[0][2] + " "
                 + a[1][0] + " " + a[1][1] + " " + a[1][2] + " "
-                + a[2][0] + " " + a[2][1] + " " + a[2][2] +  " "
+                + a[2][0] + " " + a[2][1] + " " + a[2][2] + " "
                 + egnos + " " + vector[0] + " " + vector[1] + " " + vector[2];
     }
 
