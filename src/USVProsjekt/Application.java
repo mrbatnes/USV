@@ -182,8 +182,8 @@ public class Application extends Thread {
         dynamicPositioning.stopWriter();
         updateBasicFields();
         remoteOperation.remoteOperate(remoteCommand);
-        System.out.println("X: " + remoteCommand[0] + ""
-                + " Y: " + remoteCommand[1] + " Heading: " + remoteCommand[2]);
+//        System.out.println("X: " + remoteCommand[0] + ""
+//                + " Y: " + remoteCommand[1] + " Heading: " + remoteCommand[2]);
     }
 
     private void updateBasicFields() {

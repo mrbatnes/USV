@@ -88,7 +88,12 @@ public class GPSreader extends Thread {
                     lonBody, latReference, lonReference);
             setXposition(xyNorthEast[0]);
             setYposition(xyNorthEast[1]);
-
+            System.out.println("----------------------------------------------");
+            System.out.println("X position: " + xyNorthEast[0]);
+            System.out.println("Y position: " + xyNorthEast[1]);
+            System.out.println("----------------------------------------------");
+            
+            
             nmeaWriter.println(NMEA1);
             nmeaWriter.println(NMEA2);
             nmeaWriter.println("");
