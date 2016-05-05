@@ -83,7 +83,7 @@ public class GPSreader extends Thread {
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
-                
+                System.out.println(nmea.position.toString());
                 nmeaWriter.println(NMEA1);
                 nmeaWriter.println(NMEA2);
                 nmeaWriter.println("");
