@@ -1,5 +1,6 @@
 package USVProsjekt;
 
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class DynamicPositioning extends TimerTask {
     private float incrementAmountY;
     
     private float headingReference;
+    private double[] position;
     
     private ThrustAllocator thrustAllocator;
     
@@ -40,20 +42,21 @@ public class DynamicPositioning extends TimerTask {
     private float xNorthReference;
     private float yEastReference;
     private PrintWriter nedWriter;
-    private GPSreader gps;
+    private NorthEastPositionStorageBox northEast;
     private IMUreader imu;
     
     
-    public DynamicPositioning(ThrustWriter thrustWriter, GPSreader gps, IMUreader imu) {
+    
+    public DynamicPositioning(ThrustWriter thrustWriter, NorthEastPositionStorageBox northEast, IMUreader imu) {
         xNorthPID = new PIDController();
         yEastPID = new PIDController();
         headingPID = new PIDController();
-        this.gps = gps;
+        this.northEast = northEast;
         this.imu = imu;
         outputX = 0.0f;
         outputY = 0.0f;
         outputN = 0.0f;
-        
+        position = new double[2];
         headingReference = 0.0f;
         thrustAllocator = new ThrustAllocator();
         forceOutputNewton = new double[4];
@@ -81,8 +84,12 @@ public class DynamicPositioning extends TimerTask {
     @Override
     public void run() {
         try {//XYN from SNAME notation
-            xNorthInput = (float)(gps.getXposition() + incrementAmountX);
-            yEastInput = (float)(gps.getYposition() + incrementAmountY);
+            if (northEast.isNewPosition()) {
+                position = northEast.getPosition();
+            }
+            
+            xNorthInput = (float)(position[0] + incrementAmountX);
+            yEastInput = (float)(position[1] + incrementAmountY);
             headingInput = imu.getHeading();
             
             float X = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);
