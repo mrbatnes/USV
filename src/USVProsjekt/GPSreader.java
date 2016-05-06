@@ -32,6 +32,9 @@ public class GPSreader extends Thread {
     private int initPeriod;
     private boolean dynamicPositioning;
     private boolean stop;
+    
+    private GPSPositionStorageBox gpsStorage;
+    private NorthEastPositionStorageBox northEastStorage;
 
     private PrintWriter nmeaWriter;
 
@@ -42,10 +45,12 @@ public class GPSreader extends Thread {
      *
      * @param serialConnection
      * @param ID
+     * @param northEastStorage
      */
-    public GPSreader(SerialConnection serialConnection, Identifier ID) {
+    public GPSreader(SerialConnection serialConnection, Identifier ID,
+            NorthEastPositionStorageBox northEastStorage) {
         this.serialConnection = serialConnection;
-
+        this.northEastStorage = northEastStorage;
         nmea = new NMEAparser();
         initPeriod = 0;
         gpsProc = new NEDtransform();
@@ -83,17 +88,19 @@ public class GPSreader extends Thread {
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
-                System.out.println(nmea.position.toString());
                 nmeaWriter.println(NMEA1);
                 nmeaWriter.println(NMEA2);
                 nmeaWriter.println("");
+                // Store gps coordinates
+                gpsStorage.setPosition(nmea.position);
             }
             latBody = (nmea.position.lat * (Math.PI) / 180.0);
             lonBody = (nmea.position.lon * (Math.PI)/ 180.0);
             double[] xyNorthEast = gpsProc.getFlatEarthCoordinates(latBody,
                     lonBody, latReference, lonReference);
-            setXposition(xyNorthEast[0]);
-            setYposition(xyNorthEast[1]);
+            // store N-E position relative to reference
+            northEastStorage.setPosition(xyNorthEast);
+
 
             System.out.println("----------------------------------------------");
             System.out.println("X position: " + xyNorthEast[0]);
@@ -115,15 +122,7 @@ public class GPSreader extends Thread {
 
     }
 
-    /**
-     * GPSposition returns useful GPS data like latitude, longitude, speed, fix
-     * etc.
-     *
-     * @return
-     */
-    public synchronized GPSPosition getGPSPosition() {
-        return nmea.position;
-    }
+
 
     private void setReference() {
         while (!dynamicPositioning && !stop) {
@@ -143,6 +142,7 @@ public class GPSreader extends Thread {
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
+                gpsStorage.setPosition(nmea.position);
             }
             latReference = (nmea.position.lat *  Math.PI / 180.0);
             lonReference = (nmea.position.lon *  Math.PI / 180.0);
@@ -163,27 +163,17 @@ public class GPSreader extends Thread {
         dynamicPositioning = true;
     }
 
-    public synchronized void setXposition(double value) {
-        xNorth = value;
-    }
-
-    public synchronized void setYposition(double value) {
-        yEast = value;
-    }
-
-    public synchronized double getXposition() {
-        return xNorth;
-    }
-
-    public synchronized double getYposition() {
-        return yEast;
-    }
 
     public double getLatRef() {
         return (latReference * (180.0 / Math.PI));
     }
+    
+    public void setStorageBox(GPSPositionStorageBox storage) {
+        this.gpsStorage = storage;
+        gpsStorage.setPosition(nmea.position);
+    }
 
-    double getLonRef() {
+    public double getLonRef() {
         return  (lonReference * (180.0 / Math.PI));
     }
 

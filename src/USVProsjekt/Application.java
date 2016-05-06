@@ -1,5 +1,6 @@
 package USVProsjekt;
 
+import USVProsjekt.NMEAparser.GPSPosition;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,6 +25,8 @@ public class Application extends Thread {
     private IMUreader imu;
     private WindReader windReader;
     private ThrustWriter thrustWriter;
+    private GPSPositionStorageBox gpsPositionStorage;
+    private GPSPosition gpsPosition;
 
     private double latitudeBody;
     private double longitudeBody;
@@ -47,6 +50,7 @@ public class Application extends Thread {
     private boolean dpStarted;
     private DynamicPositioning dynamicPositioning;
     private RemoteOperation remoteOperation;
+    private double[] northEastPosition;
 
     private Timer timer;
     private int gainChanged;
@@ -57,6 +61,7 @@ public class Application extends Thread {
     private float incrementAmountY;
     private double[] remoteCommand;
     private int egnos;
+    private NorthEastPositionStorageBox northEastPositionStorage;
 
     public Application(Server server) {
 
@@ -112,9 +117,12 @@ public class Application extends Thread {
                 timer.cancel();
                 gps.setReferencePositionOff();
                 dpStarted = false;
+                incrementAmountX = 0;
+                incrementAmountY = 0;
+                northEastPositionStorage.setPosition(new double[]{0,0});
                 float[][] a = dynamicPositioning.getAllControllerTunings();
                 storeControllerTunings(a);
-                dynamicPositioning = new DynamicPositioning(thrustWriter, gps, imu);
+                dynamicPositioning = new DynamicPositioning(thrustWriter, northEastPositionStorage, imu);
                 dynamicPositioning.setPreviousGains(a);
                 System.out.println("timer cancelled and flag reset");
             }
@@ -183,15 +191,18 @@ public class Application extends Thread {
     }
 
     private void updateBasicFields() {
-        latitudeBody = gps.getGPSPosition().lat;
-        longitudeBody = gps.getGPSPosition().lon;
+        if (gpsPositionStorage.isNewPosition()) {
+            gpsPosition = gpsPositionStorage.getPosition();
+        }
+        latitudeBody = gpsPosition.lat;
+        longitudeBody = gpsPosition.lon;
         windSpeed = windReader.getWindSpeed();
         windDirection = windReader.getWindDirection();
         temperature = windReader.getTemperature();
         heading = imu.getHeading();
-        speed = gps.getGPSPosition().velocity;
-        direction = gps.getGPSPosition().dir;
-        egnos = gps.getGPSPosition().quality;
+        speed = gpsPosition.velocity;
+        direction = gpsPosition.dir;
+        egnos = gpsPosition.quality;
         latitudeReference = 0;
         longitudeReference = 0;
         xNorth = 0;
@@ -201,10 +212,13 @@ public class Application extends Thread {
 
     private void updateAllFields() {
         updateBasicFields();
+        if (northEastPositionStorage.isNewPosition()) {
+            northEastPosition = northEastPositionStorage.getPosition();
+        }
         latitudeReference = gps.getLatRef();
         longitudeReference = gps.getLonRef();
-        xNorth = gps.getXposition() + incrementAmountX;
-        yEast = gps.getYposition() + incrementAmountY;
+        xNorth = northEastPosition[0] + incrementAmountX;
+        yEast = northEastPosition[1] + incrementAmountY;
         yaw = imu.getYawValue();
 
     }
@@ -248,11 +262,19 @@ public class Application extends Thread {
         serialThrust = new SerialConnection(comPortThrust,
                 baudRateThrust);
 
+        northEastPositionStorage = new NorthEastPositionStorageBox();
         // Create and start threads
-        gps = new GPSreader(serialGPS, Identifier.GPS);
+        gps = new GPSreader(serialGPS, Identifier.GPS, northEastPositionStorage);
         gps.connectToSerialPortAndDisplayGPSInfo();
         gps.setName("GPS Reader Thread");
         gps.start();
+
+        gpsPositionStorage = new GPSPositionStorageBox();
+        
+        northEastPosition = northEastPositionStorage.getPosition();
+        // Set gps position storage box, and initialize with values
+        gps.setStorageBox(gpsPositionStorage);
+        gpsPosition = gpsPositionStorage.getPosition();
 
         imu = new IMUreader(serialIMU, Identifier.IMU);
         imu.connectToSerialPortAndDisplayIMUInfo();
@@ -265,7 +287,7 @@ public class Application extends Thread {
         windReader.start();
 
         thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
-        dynamicPositioning = new DynamicPositioning(thrustWriter, gps, imu);
+        dynamicPositioning = new DynamicPositioning(thrustWriter, northEastPositionStorage, imu);
         remoteOperation = new RemoteOperation(thrustWriter);
     }
 
