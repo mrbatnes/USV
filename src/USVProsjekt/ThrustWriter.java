@@ -5,6 +5,7 @@ package USVProsjekt;
  * @author root
  */
 public class ThrustWriter {
+
     private int pulseWidth1;
     private int pulseWidth2;
     private int pulseWidth3;
@@ -39,15 +40,15 @@ public class ThrustWriter {
     }
 
     public int newtonToPulseWidth(double xNewton) {
-        double x = xNewton;
+        double x = xNewton / 9.81; //From Newton to kgF because of regression
 
         int pulseWidth = 1500;
 
-        if (xNewton > 5) {
-            double pulseWidthFloat = 11.8658 * x + 1437;
+        if (xNewton > 2.5) {
+            double pulseWidthFloat = 6.8044878418 * x * x * x - 45.9428509628 * x * x + 183.3806624031 * x + 1528.9249065579;
             pulseWidth = (int) pulseWidthFloat;
-        } else if (xNewton < -5) {
-            double pulseWidthFloat = 10.18 * x + 1558;
+        } else if (xNewton < -2.5) {
+            double pulseWidthFloat = 8.1266850947 * x * x * x + 53.0777818795 * x * x + 206.7802157499 * x + 1466.368281074;
             pulseWidth = (int) pulseWidthFloat;
         } else {
             pulseWidth = 1500;

@@ -32,7 +32,7 @@ public class GPSreader extends Thread {
     private int initPeriod;
     private boolean dynamicPositioning;
     private boolean stop;
-    
+
     private GPSPositionStorageBox gpsStorage;
     private NorthEastPositionStorageBox northEastStorage;
 
@@ -88,25 +88,24 @@ public class GPSreader extends Thread {
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
-                nmeaWriter.println(NMEA1);
-                nmeaWriter.println(NMEA2);
-                nmeaWriter.println("");
+//                nmeaWriter.println(NMEA1);
+//                nmeaWriter.println(NMEA2);
+//                nmeaWriter.println("");
+                latBody = (nmea.position.lat * (Math.PI) / 180.0);
+                lonBody = (nmea.position.lon * (Math.PI) / 180.0);
                 // Store gps coordinates
                 gpsStorage.setPosition(nmea.position);
             }
-            latBody = (nmea.position.lat * (Math.PI) / 180.0);
-            lonBody = (nmea.position.lon * (Math.PI)/ 180.0);
+
             double[] xyNorthEast = gpsProc.getFlatEarthCoordinates(latBody,
                     lonBody, latReference, lonReference);
             // store N-E position relative to reference
             northEastStorage.setPosition(xyNorthEast);
 
-
             System.out.println("----------------------------------------------");
             System.out.println("X position: " + xyNorthEast[0]);
             System.out.println("Y position: " + xyNorthEast[1]);
             System.out.println("----------------------------------------------");
-            
 
         }
         System.out.println("Connection lost/closed on Thread: "
@@ -121,8 +120,6 @@ public class GPSreader extends Thread {
         serialConnection.connectAndListen(ID);
 
     }
-
-
 
     private void setReference() {
         while (!dynamicPositioning && !stop) {
@@ -142,10 +139,11 @@ public class GPSreader extends Thread {
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
+                latReference = (nmea.position.lat * Math.PI / 180.0);
+                lonReference = (nmea.position.lon * Math.PI / 180.0);
                 gpsStorage.setPosition(nmea.position);
             }
-            latReference = (nmea.position.lat *  Math.PI / 180.0);
-            lonReference = (nmea.position.lon *  Math.PI / 180.0);
+
         }
     }
 
@@ -163,18 +161,17 @@ public class GPSreader extends Thread {
         dynamicPositioning = true;
     }
 
-
     public double getLatRef() {
         return (latReference * (180.0 / Math.PI));
     }
-    
+
     public void setStorageBox(GPSPositionStorageBox storage) {
         this.gpsStorage = storage;
         gpsStorage.setPosition(nmea.position);
     }
 
     public double getLonRef() {
-        return  (lonReference * (180.0 / Math.PI));
+        return (lonReference * (180.0 / Math.PI));
     }
 
     void stopThread() {

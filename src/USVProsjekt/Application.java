@@ -264,16 +264,18 @@ public class Application extends Thread {
 
         northEastPositionStorage = new NorthEastPositionStorageBox();
         // Create and start threads
+        gpsPositionStorage = new GPSPositionStorageBox();
         gps = new GPSreader(serialGPS, Identifier.GPS, northEastPositionStorage);
+                // Set gps position storage box, and initialize with values
+        gps.setStorageBox(gpsPositionStorage);
         gps.connectToSerialPortAndDisplayGPSInfo();
         gps.setName("GPS Reader Thread");
         gps.start();
 
-        gpsPositionStorage = new GPSPositionStorageBox();
+        
         
         northEastPosition = northEastPositionStorage.getPosition();
-        // Set gps position storage box, and initialize with values
-        gps.setStorageBox(gpsPositionStorage);
+
         gpsPosition = gpsPositionStorage.getPosition();
 
         imu = new IMUreader(serialIMU, Identifier.IMU);
