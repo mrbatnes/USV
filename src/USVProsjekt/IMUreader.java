@@ -10,6 +10,7 @@ public class IMUreader extends Thread {
     private float yaw;
     private float pitch;
     private float roll;
+    private float yawSpeed;
 
     private Identifier ID;
     private final SerialConnection serialConnection;
@@ -22,6 +23,7 @@ public class IMUreader extends Thread {
         yaw = 0.0f;
         pitch = 0.0f;
         roll = 0.0f;
+        yawSpeed = 0.0f;
         stop = false;
 
     }
@@ -68,14 +70,28 @@ public class IMUreader extends Thread {
             if (lineData.length >= 3) {
                 String xString = lineData[0].substring(5);
                 yw = Float.parseFloat(xString);
+                // Derivering for å finne rotasjonshastighet
+                setYawSpeedValue((yw-yaw)/0.1f);
                 return yw;
             }
-        }    
+        }
+        setYawSpeedValue(0.0f);
         return yaw;
     }
+    
+    
+    
 
     public synchronized float getYawValue() {
         return yaw;
+    }
+    
+    public synchronized float getYawSpeedValue() {
+        return yawSpeed;
+    }
+    
+    private synchronized void setYawSpeedValue(float yawSpeed) {
+        this.yawSpeed = yawSpeed;
     }
 
     public synchronized void setYawValue(float yaw){
