@@ -88,9 +88,9 @@ public class GPSreader extends Thread {
                 String NMEA2 = lineData[1];
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
-//                nmeaWriter.println(NMEA1);
-//                nmeaWriter.println(NMEA2);
-//                nmeaWriter.println("");
+                nmeaWriter.println(NMEA1);
+                nmeaWriter.println(NMEA2);
+                nmeaWriter.println(" ");
                 latBody = (nmea.position.lat * (Math.PI) / 180.0);
                 lonBody = (nmea.position.lon * (Math.PI) / 180.0);
                 // Store gps coordinates
