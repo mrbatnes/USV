@@ -43,7 +43,7 @@ All text above must be included in any redistribution
 #define PMTK_API_SET_FIX_CTL_1HZ  "$PMTK300,1000,0,0,0,0*1C"
 #define PMTK_API_SET_FIX_CTL_5HZ  "$PMTK300,200,0,0,0,0*2F"
 // Can't fix position faster than 5 times a second!
-
+#define PMTK_SET_NAV_SPEED_THRESHOLD_ZERO "$PMTK386,0*3F" // Set nav speed threshold to zero
 
 #define PMTK_SET_BAUD_57600 "$PMTK251,57600*2C"
 #define PMTK_SET_BAUD_9600 "$PMTK251,9600*17"
