@@ -17,7 +17,7 @@ void setup() {
   //GPS.sendCommand(PGCMD_NOANTENNA); //turn off antenna update nuisance data
   GPS.sendCommand(PGCMD_NOANTENNA);
   GPS.sendCommand(PMTK_SET_NMEA_UPDATE_5HZ); //set update rate to 5Hz
-  GPS.sendCommand(PMTK_SET_NAV_SPEED_THRESHOLD_ZERO); //Nav speed threshold is zero
+  GPS.sendCommand("$PMTK386,0*3F"); //Nav speed threshold is zero
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA); //Request RMC and GGA Sentences only
   GPS.sendCommand(PMTK_API_SET_FIX_CTL_5HZ);
   GPS.sendCommand(PMTK_ENABLE_SBAS);
