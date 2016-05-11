@@ -16,7 +16,7 @@ public class PIDController {
     private float Kd;
 
     //Class variables
-    private float errorSum;
+    private float integralTerm;
     private float lastError;
     private final float cycleTimeInSeconds;
 
@@ -25,7 +25,7 @@ public class PIDController {
 
     public PIDController() {
         outputVariable = 0.0f;
-        errorSum = 0.0f;
+        integralTerm = 0.0f;
         lastError = 0.0f;
 
         maxOutput = 2 * 34.0f;//force(surge,sway)
@@ -62,14 +62,14 @@ public class PIDController {
             }
         }
         // Integrator anti-windup
-        if ((errorSum + error * cycleTimeInSeconds) * Ki < maxOutput
-                && (errorSum + error * cycleTimeInSeconds) * Ki > minOutput) {
-            errorSum += error * cycleTimeInSeconds;
+        if ((integralTerm + error * cycleTimeInSeconds* Ki)  < maxOutput
+                && (integralTerm + error * cycleTimeInSeconds* Ki)  > minOutput) {
+            integralTerm += Ki *error * cycleTimeInSeconds;
         }
 //        errorSum += error * cycleTimeInSeconds;
         float dError = (error - lastError) / cycleTimeInSeconds;
         //Compute PID Output
-        outputVariable = Kp * error + Ki * errorSum + Kd * dError;
+        outputVariable = Kp * error +  integralTerm + Kd * dError;
         limitOutputVariable();
         lastError = error;
         return outputVariable;
@@ -77,7 +77,7 @@ public class PIDController {
     }
 
     public void resetErrors() {
-        errorSum = 0;
+        integralTerm = 0;
         lastError = 0;
     }
 
