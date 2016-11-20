@@ -226,7 +226,7 @@ public class ThrustAllocator {
 
         // set tolleranse på resultat. lavere tall = større nøyaktighet
         or.setTolerance(1.E-1);
-
+        
         // optimalisering
         opt.setOptimizationRequest(or);
         int returnCode = opt.optimize();
