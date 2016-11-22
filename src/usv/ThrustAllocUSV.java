@@ -240,30 +240,4 @@ public class ThrustAllocUSV {
 
 
     }
-
-    private static double[][] zeros(int rows, int columns) {
-        return new double[rows][columns];
-    }
-
-    private static double[][] ones(int rows, int columns) {
-        double[][] result = new double[rows][columns];
-
-        for (double[] result1 : result) {
-            for (int j = 0; j < result1.length; j++) {
-                result1[j] = 1d;
-            }
-        }
-        return result;
-    }
-
-        private static double[][] minusOnes(int rows, int columns) {
-        double[][] result = new double[rows][columns];
-
-        for (double[] result1 : result) {
-            for (int j = 0; j < result1.length; j++) {
-                result1[j] = -1d;
-            }
-        }
-        return result;
-    }
 }
