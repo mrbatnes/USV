@@ -23,7 +23,7 @@ import java.util.Arrays;
  *
  * @author lars-harald
  */
-public class ThrustAllocator {
+public class ThrustAllocUSV {
     /*
     alpha = arctan(uy/ux)
     Tmin = 0
@@ -99,7 +99,7 @@ public class ThrustAllocator {
 
     private double r; // inner radius of approximation thurster region
 
-    public ThrustAllocator() {
+    public ThrustAllocUSV() {
         //    x1   y1    x2     y2    x3    y3  slack   q weight
         setup(0d, 1.5d, -.5d, -.5d, .5d, -.5d, 0.001d, 100d);
     }
