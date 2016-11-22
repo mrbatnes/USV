@@ -1,0 +1,2 @@
+50.0 0.0 0.0 50.0 0.0 0.0 1.0 0.0 0.0 
+Tunings stored at Tue Jan 01 11:56:53 ACDT 2013 by root
