@@ -5,8 +5,6 @@
  */
 package USVProsjekt;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.linear.*;
 
