@@ -146,7 +146,7 @@ public class ThrustAllocUSV {
 
         // thuster force region linearization start******************************
 
-            //TODO: measure max thruster force
+
             double R = 10d; // thruster max force
             double epsilon = R/100; // max percent error = 1%
 
