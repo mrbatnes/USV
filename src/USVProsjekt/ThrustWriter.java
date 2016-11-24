@@ -9,7 +9,8 @@ public class ThrustWriter {
     private int pulseWidth1;
     private int pulseWidth2;
     private int pulseWidth3;
-    private int pulseWidth4;
+    
+    private double[][] forcePWMList;
 
     private SerialConnection serialConnection;
     private Identifier ID;
@@ -18,17 +19,21 @@ public class ThrustWriter {
         pulseWidth1 = 1500;
         pulseWidth2 = 1500;
         pulseWidth3 = 1500;
-        pulseWidth4 = 1500;
 
         this.serialConnection = serialConnection;
 
         this.ID = ID;
         this.serialConnection.connect(this.ID);
+        for(int x = 1000; x < 2000; x++){
+            forcePWMList[0][x-1000] = x;
+            double calac = ((1 / 4849f) * x * x) - (0.62f * x) + 466.03f;
+            forcePWMList[1][x-1000] = calac;
+        }
     }
 
     public void writeThrust() {
         if (serialConnection.isConnected()) {
-            serialConnection.writeThrustMicros(pulseWidth1, pulseWidth2, pulseWidth3, pulseWidth4);
+            serialConnection.writeThrustMicros(pulseWidth1, pulseWidth2, pulseWidth3);
         }
     }
 
@@ -36,30 +41,26 @@ public class ThrustWriter {
         pulseWidth1 = newtonToPulseWidth(newton[0]);
         pulseWidth2 = newtonToPulseWidth(newton[1]);
         pulseWidth3 = newtonToPulseWidth(newton[2]);
-        pulseWidth4 = newtonToPulseWidth(newton[3]);
     }
 
     public int newtonToPulseWidth(double xNewton) {
-        double x = xNewton / 9.81; //From Newton to kgF because of regression
+        double x = xNewton;
 
-        int pulseWidth = 1500;
+        int pulseWidth;
 
-        if (xNewton > 0.0f) {
-            double pulseWidthFloat = 6.8044878418 * x * x * x - 45.9428509628 * x * x + 183.3806624031 * x + 1528.9249065579;
-            pulseWidth = (int) pulseWidthFloat;
-        } else if (xNewton <= 0.0f) {
-
-            double pulseWidthFloat = 8.1266850947 * x * x * x + 53.0777818795 * x * x + 206.7802157499 * x + 1466.368281074;
-            pulseWidth = (int) pulseWidthFloat;
-        } else {
+        if (xNewton != 0.0f) {
+            double calac = ((1/4849f) * x * x) - (0.62f * x) + 466.03f; 
+            pulseWidth = (int) calac;
+        }
+        else{
             pulseWidth = 1500;
         }
 
-        if (pulseWidth < 1100) {
-            pulseWidth = 1100;
+        if (pulseWidth < 1000) {
+            pulseWidth = 1000;
         }
-        if (pulseWidth > 1900) {
-            pulseWidth = 1900;
+        if (pulseWidth > 2000) {
+            pulseWidth = 2000;
         }
         return pulseWidth;
     }
@@ -67,6 +68,19 @@ public class ThrustWriter {
     void closeSerialConn() {
         serialConnection.close();
         System.out.println("ThrustWriter: Connection closed");
+    }
+    
+    private int getPWMVal(double F){
+        int index = 0;
+        double lastDif = 10000f; 
+        for(int x = 0; x < forcePWMList[1].length; x++){
+            double dif = (F-forcePWMList[1][x]) * (F-forcePWMList[1][x]);
+            if(dif < lastDif){
+                index = x;
+                lastDif = dif;
+            }
+        }
+        return (int) forcePWMList[0][index];
     }
 
 }

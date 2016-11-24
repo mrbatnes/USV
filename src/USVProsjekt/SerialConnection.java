@@ -48,11 +48,12 @@ public class SerialConnection {
         }
     }
 
-    public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3, int thrustMicros4) {
+    public void writeThrustMicros(int thrustMicros1, int thrustMicros2, int thrustMicros3) {
+        int[] thrust = {thrustMicros1, thrustMicros2, thrustMicros3};
         //skriver til arduino
         String writeString;
-        writeString = "" + thrustMicros1 + ":" + thrustMicros2 + ":" + thrustMicros3 + ":" + thrustMicros4 + ":";
-        
+        writeString = getWriteString(thrust, Identifier.THRUSTERS);
+
         PrintWriter output = new PrintWriter(comPort.getOutputStream());
         output.write(writeString);
         output.flush();
@@ -63,6 +64,43 @@ public class SerialConnection {
         } catch (IOException e) {
             System.out.println("ioex writeThrustMicros() in SerialConnection");
         }
+    }
+
+    void writeRotationPos(int rotation1, int rotation2, int rotation3) {
+        int[] rotations = {rotation1, rotation2, rotation3};
+        String writeString;
+        writeString = getWriteString(rotations, Identifier.ROTATION);
+    }
+
+    private String getWriteString(int[] in, Identifier ID) {
+        String[] values = new String[in.length];
+        switch (ID){
+            case THRUSTERS:
+                for (int x = 0; x < values.length; x++) {
+                    if(in[x] < 1000){
+                        in[x] = 1000;
+                    }
+                    else if(in[x] > 2000){
+                        in[x] = 2000;
+                    }
+                    values[x] = "" + in[x];
+                }
+                break;
+            case ROTATION:
+               
+            for (int x = 0; x < values.length; x++) {
+                in[x] += 180;
+                if (in[x] < 10) {
+                    values[x] = "00" + in[x];
+                } else if (in[x] < 100) {
+                    values[x] = "0" + in[x];
+                } else {
+                    values[x] = "" + in[x];
+                }
+            }
+                break;
+        }
+        return "$A" + values[0] + "B" + values[1] + "C" + values[2] + "%";
     }
 
     public void connectAndListen(Identifier ID) {

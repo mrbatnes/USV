@@ -20,11 +20,13 @@ public class Application extends Thread {
     private SerialConnection serialIMU;
     private SerialConnection serialWind;
     private SerialConnection serialThrust;
+    private SerialConnection serialRotation;
 
     private GPSreader gps;
     private IMUreader imu;
     private WindReader windReader;
     private ThrustWriter thrustWriter;
+    private RotationWriter rotationWriter;
     private GPSPositionStorageBox gpsPositionStorage;
     private GPSPosition gpsPosition;
 
@@ -163,6 +165,8 @@ public class Application extends Thread {
         dynamicPositioning.stopWriter();
         thrustWriter.setThrustForAll(new double[]{0d, 0d, 0d, 0d});
         thrustWriter.writeThrust();
+        rotationWriter.setRotationForAll(new int[]{0, 0, 0});
+        rotationWriter.writeRotation();
         updateBasicFields();
         // System.out.println("Idle");
     }
@@ -231,17 +235,20 @@ public class Application extends Thread {
         String comPortIMU;
         String comPortWind;
         String comPortThrust;
+        String comPortRotation;
         //communication parameters
         if (windows) {
             comPortGPS = "COM4";
             comPortIMU = "COM5";
             comPortWind = "COM6";
             comPortThrust = "COM7";
+            comPortRotation = "COM8";
         } else {
             comPortGPS = "ttyACM0";
             comPortIMU = "ttyACM1";
             comPortWind = "ttyACM3";
             comPortThrust = "ttyACM2";
+            comPortRotation = "ttyACM3";
         }
         int baudRateGPS = 115200;
 
@@ -250,6 +257,8 @@ public class Application extends Thread {
         int baudRateWind = 57600;
 
         int baudRateThrust = 115200;
+        
+        int baudRateRotation = 115200;
 
         //One serial connection for each sensor/port
         serialGPS = new SerialConnection(comPortGPS,
@@ -263,6 +272,9 @@ public class Application extends Thread {
 
         serialThrust = new SerialConnection(comPortThrust,
                 baudRateThrust);
+        
+        serialRotation = new SerialConnection(comPortRotation, 
+                baudRateRotation);
 
         northEastPositionStorage = new NorthEastPositionStorageBox();
         // Create and start threads
@@ -291,6 +303,7 @@ public class Application extends Thread {
         windReader.start();
 
         thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
+        rotationWriter = new RotationWriter(serialRotation, Identifier.ROTATION);
         dynamicPositioning = new DynamicPositioning(thrustWriter, northEastPositionStorage, imu);
         remoteOperation = new RemoteOperation(thrustWriter);
     }
@@ -332,6 +345,7 @@ public class Application extends Thread {
         imu.stopThread();
         windReader.stopThread();
         thrustWriter.closeSerialConn();
+        rotationWriter.closeSerialConn();
         server.stopThread();
     }
 
