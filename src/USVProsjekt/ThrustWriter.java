@@ -24,9 +24,11 @@ public class ThrustWriter {
 
         this.ID = ID;
         this.serialConnection.connect(this.ID);
+        
+        forcePWMList = new double[2][1000];
         for(int x = 1000; x < 2000; x++){
             forcePWMList[0][x-1000] = x;
-            double calac = ((1 / 4849f) * x * x) - (0.62f * x) + 466.03f;
+            double calac = ((x * x) / 3992900f) * x - ((x/885f) * x) + 1.74f * x - 912.7f;
             forcePWMList[1][x-1000] = calac;
         }
     }
@@ -49,8 +51,7 @@ public class ThrustWriter {
         int pulseWidth;
 
         if (xNewton != 0.0f) {
-            double calac = ((1/4849f) * x * x) - (0.62f * x) + 466.03f; 
-            pulseWidth = (int) calac;
+            pulseWidth = getPWMVal(x);
         }
         else{
             pulseWidth = 1500;
