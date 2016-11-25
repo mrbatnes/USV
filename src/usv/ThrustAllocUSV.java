@@ -17,13 +17,16 @@ import com.joptimizer.functions.FunctionsUtils;
 import com.joptimizer.functions.LinearMultivariateRealFunction;
 import com.joptimizer.functions.PDQuadraticMultivariateRealFunction;
 import com.joptimizer.optimizers.LPOptimizationRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  *
  * @author lars-harald
  */
 public class ThrustAllocUSV {
+
     /*
     alpha = arctan(uy/ux)
     Tmin = 0
@@ -81,8 +84,10 @@ public class ThrustAllocUSV {
 
     = Au <= b
 
-    */
-
+     */
+    private static double PI = Math.PI;
+    private double thrusterMaxForce = 50; // Newton
+    private double epsilon = thrusterMaxForce / 100d; // 1% error
     private double[][] B;
     private double[][] W;
     private double[][] Q;
@@ -97,7 +102,10 @@ public class ThrustAllocUSV {
     private ConvexMultivariateRealFunction[] inequalities;
     private JOptimizer opt;
 
-    private double r; // inner radius of approximation thurster region
+    // illigal thruster angles contercloskwise start-end pairs
+    private double[] constrainVectorM1 = new double[0];//{rad(-20d), rad(-10d), rad(10d), rad(20d)};
+    private double[] constrainVectorM2 = new double[0];//{rad(85d), rad(95d)};
+    private double[] constrainVectorM3 = new double[0];//{rad(-95), rad(-85)};
 
     public ThrustAllocUSV() {
         //    x1   y1    x2     y2    x3    y3  slack   q weight
@@ -108,8 +116,8 @@ public class ThrustAllocUSV {
 
         // position matrix
         B = new double[][]{
-            {1d,  0d,   1d,   0d,   1d,   0d},
-            {0d, -1d,   0d,  -1d,   0d,  -1d},
+            {1d, 0d, 1d, 0d, 1d, 0d},
+            {0d, -1d, 0d, -1d, 0d, -1d},
             {-Lx1, -Ly1, -Lx2, -Ly2, -Lx3, -Ly3}};
 
         // power weight matrix
@@ -124,17 +132,17 @@ public class ThrustAllocUSV {
 
         // slack variable cost matrix (Q >> W > 0)
         Q = new double[][]{
-            {q,    0d,   0d,   0d,   0d,   0d},
-            {0d,   q,    0d,   0d,   0d,   0d},
-            {0d,   0d,   q,    0d,   0d,   0d},
-            {0d,   0d,   0d,   q,    0d,   0d},
-            {0d,   0d,   0d,   0d,   q,    0d},
-            {0d,   0d,   0d,   0d,   0d,   q}
+            {q, 0d, 0d, 0d, 0d, 0d},
+            {0d, q, 0d, 0d, 0d, 0d},
+            {0d, 0d, q, 0d, 0d, 0d},
+            {0d, 0d, 0d, q, 0d, 0d},
+            {0d, 0d, 0d, 0d, q, 0d},
+            {0d, 0d, 0d, 0d, 0d, q}
         };
 
         // slack vector
         s = new double[Q.length];
-        for(int i = 0; i < s.length; i++){
+        for (int i = 0; i < s.length; i++) {
             s[i] = slack;
         }
 
@@ -144,70 +152,37 @@ public class ThrustAllocUSV {
         // u variable vector
         u = new double[W.length];
 
-        // thuster force region linearization start******************************
+        // create polygon of thruster forces (linear approx)
+        Double[][] m1 = getConstrainMatrixForAzimuthThruster(thrusterMaxForce, epsilon, constrainVectorM1);
+        Double[][] m2 = getConstrainMatrixForAzimuthThruster(thrusterMaxForce, epsilon, constrainVectorM2);
+        Double[][] m3 = getConstrainMatrixForAzimuthThruster(thrusterMaxForce, epsilon, constrainVectorM3);
 
+        List<Double[][]> constrainList = new ArrayList<>();
+        constrainList.add(m1);
+        constrainList.add(m2);
+        constrainList.add(m3);
 
-            double R = 10d; // thruster max force
-            double epsilon = R/100; // max percent error = 1%
+        // get A matrix
+        A = getMatrix_A(constrainList);
+        b = getMatrix_B(constrainList);
 
-            Double N = new Double( Math.round(Math.PI/Math.acos(1-(epsilon/R))));
-            r = R*Math.cos(Math.PI/N); // inner radius of thruster region linearized
-
-            // inequality matrix A start **********************************************
-
-
-            // create polygon of thruster forces (linear approx)
-            double[][] m = new double[N.intValue()][2];
-            for(int k = 0; k < N;k++){
-                double phiK = (2*k+1)*Math.PI/N;
-                m[k]= new double[]{Math.cos(phiK),Math.sin(phiK)};
-            }
-            
-            // fill up thuster contstrain matrix with values
-            A = new BlockRealMatrix(new double[N.intValue()*(W.length/2)][W.length]);
-            int row = A.getRowDimension();
-            int column = A.getColumnDimension();
-            int index = 0;
-            for(int i = 1; i <= W.length/2; i++){
-                for(int j = 0; j < N;j++){
-                    ArrayRealVector arv = new ArrayRealVector(W.length);
-                    arv.setSubVector((i-1)*2, m[j]);
-                    A.setRowVector(index, arv);
-
-                    //System.out.println("row nr: " + index + " " +Arrays.toString(A.getRow(index)));
-                    index++;
-                
-                }
-            }
-            
-            // inequality matrix A end ************************************************
-
-            // set b vector values
-            b = new ArrayRealVector(new double[row]);
-            for(int k = 0; k < b.getDimension(); k++){
-                b.setEntry(k, r);
-            }
-
-        // thuster force region linearization end ******************************
 
         // create objective function
-                                                                   //  S    beta*u_max
+        //                                                        S    beta*u_max
         objectiveFunction = new PDQuadraticMultivariateRealFunction(W, null, 0);
 
         // set equality B*u = tau
-
-
         inequalities = new ConvexMultivariateRealFunction[A.getRowDimension()];
         opt = new JOptimizer();
     }
 
     public double[] calculateOutput(double[] tau) throws Exception {
 
-        for(int i = 0; i < A.getRowDimension(); i++){
+        for (int i = 0; i < A.getRowDimension(); i++) {
             // hver ulikhet settes opp
             //System.out.println(Arrays.toString(A.getRow(i))+ "   b = " + b.getEntry(i));
-            
-            inequalities[i] = new LinearMultivariateRealFunction(A.getRow(i),-b.getEntry(i));
+
+            inequalities[i] = new LinearMultivariateRealFunction(A.getRow(i), -b.getEntry(i));
         }
 
         // optimaliserings problemet
@@ -226,19 +201,107 @@ public class ThrustAllocUSV {
 
         // set tolleranse på resultat. lavere tall = større nøyaktighet
         or.setTolerance(1.E-1);
-        
+
         // optimalisering
         opt.setOptimizationRequest(or);
         int returnCode = opt.optimize();
 
-        if(returnCode == OptimizationResponse.FAILED){
+        if (returnCode == OptimizationResponse.FAILED) {
             System.out.println("FAILED");
         }
 
         return opt.getOptimizationResponse().getSolution();
 
+    }
 
+    private Double[][] getConstrainMatrixForAzimuthThruster(double R, double epsilon, double[] constrain) {
+        // constains is valid for thruster
+        int constrainPairs = 0;
+        if (constrain.length % 2 == 0) {
+            constrainPairs = constrain.length / 2;
+        }
 
+        // N number of polygons required for acciving the epsilon error percent
+        Double N = round(PI / acos(1 - (epsilon / R)));
+        double r = R * cos(PI / N); // inner radius of thruster region linearized
+
+        Double[][] m = new Double[N.intValue() + constrain.length][3];
+        int k;
+        for (k = 0;
+                k < N;
+                k++) {
+            double phiK = (2 * k + 1) * PI / N;
+
+            m[k] = new Double[]{cos(phiK), sin(phiK), r};
+        }
+
+        // add constrain angles if present
+        if (constrainPairs > 0) {
+            for (int i = 0; k < m.length && i < constrainPairs; i++) {
+                m[k++] = new Double[]{sin(constrain[2 * i]), -cos(constrain[2 * i]), 0d};
+                m[k++] = new Double[]{-sin(constrain[2 * i + 1]), cos(constrain[2 * i + 1]), 0d};
+
+            }
+        }
+        return m;
+    }
+
+    private BlockRealMatrix getMatrix_A(List<Double[][]> constrains) {
+        int rows = 0;
+        int columns = 2;
+
+        for (Double[][] d : constrains) {
+            rows = rows + d.length;
+        }
+
+        BlockRealMatrix A = new BlockRealMatrix(new double[rows][columns * constrains.size()]);
+        int index = 0;
+        for (int i = 1;
+                i < constrains.size();
+                i++) {
+            Double[][] m = (constrains.get(i));
+            double[][] mm = new double[m.length][columns];
+
+            for (int j = 0; j < mm.length; j++) {
+                mm[j] = new double[]{m[j][0], m[j][1]};
+            }
+
+            for (int k = 0;
+                    k < mm.length;
+                    k++) {
+                ArrayRealVector arv = new ArrayRealVector(constrains.size() * 2);
+                arv.setSubVector((i - 1) * 2, mm[k]);
+                A.setRowVector(index, arv);
+
+                //System.out.println("row nr: " + index + " " +Arrays.toString(A.getRow(index)));
+                index++;
+
+            }
+        }
+        return A;
+    }
+
+    private ArrayRealVector getMatrix_B(List<Double[][]> constrains) {
+        
+        int rows = 0;
+
+        for (Double[][] d : constrains) {
+            rows = rows + d.length;
+        }
+        
+        ArrayRealVector b = new ArrayRealVector(new double[rows]);
+        int i = 0;
+        for(Double[][] d : constrains){
+            for(Double[] dd : d){
+                if(!(dd.length != 3 && i < rows)){
+                b.setEntry(i, dd[2]);
+                i++;
+                } else {
+                    throw new IndexOutOfBoundsException("index not valid in getMatrix_B");
+                }
+            }
+        }
+        return b;
     }
 
     private static double[][] zeros(int rows, int columns) {
@@ -249,14 +312,14 @@ public class ThrustAllocUSV {
         double[][] result = new double[rows][columns];
 
         for (double[] result1 : result) {
-            for (int j = 0; j < result1.length; j++) {
-                result1[j] = 1d;
+            for (double v : result1) {
+                v = 1d;
             }
         }
         return result;
     }
 
-        private static double[][] minusOnes(int rows, int columns) {
+    private static double[][] minusOnes(int rows, int columns) {
         double[][] result = new double[rows][columns];
 
         for (double[] result1 : result) {
@@ -265,5 +328,29 @@ public class ThrustAllocUSV {
             }
         }
         return result;
+    }
+
+    private static double sin(double v) {
+        return Math.sin(v);
+    }
+
+    private static double cos(double v) {
+        return Math.cos(v);
+    }
+
+    private static double acos(double v) {
+        return Math.acos(v);
+    }
+
+    private static double round(double v) {
+        return Math.round(v);
+    }
+
+    private static double rad(double v) {
+        return (PI / 180d) * v;
+    }
+
+    private static double deg(double v) {
+        return (180d / PI) * v;
     }
 }
