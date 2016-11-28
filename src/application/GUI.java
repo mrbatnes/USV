@@ -877,253 +877,203 @@ public class GUI extends javax.swing.JFrame implements Runnable {
 
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed  		
         if (!r.isConnected()) {
-        r.setGUIcommand(3);
-        guiCommand = 3;
-        connectButton.setText("Disconnect");
-    } else {
- 	try {
-            r.setGUIcommand(4);
-            guiCommand = 4;
-            connectButton.setText("Connect");
-            Thread.sleep(1000);
-            // r.setGUIcommand(0);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(GUI.class.getName())
-                    .log(Level.SEVERE, null, ex);
-        }
+            r.setGUIcommand(3);
+            guiCommand = 3;
+            connectButton.setText("Disconnect");
+        } else {
+            try {
+                r.setGUIcommand(4);
+                guiCommand = 4;
+                connectButton.setText("Connect");
+                Thread.sleep(1000);
+                // r.setGUIcommand(0);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(GUI.class.getName())
+                        .log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_connectButtonActionPerformed
 
-private void proportionalSurgeTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proportionalSurgeTextFieldActionPerformed 
- 		r.gainChanged(1, getValueFromTextInput(proportionalSurgeTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_proportionalSurgeTextFieldActionPerformed
- 
- 	private void integralSurgeTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_integralSurgeTextFieldActionPerformed 
- 		r.gainChanged(2, getValueFromTextInput(integralSurgeTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_integralSurgeTextFieldActionPerformed
- 
- 	private void derivativeSurgeTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_derivativeSurgeTextFieldActionPerformed 
- 		r.gainChanged(3, getValueFromTextInput(derivativeSurgeTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_derivativeSurgeTextFieldActionPerformed
- 
- 	private void proportionalSwayTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proportionalSwayTextFieldActionPerformed 
- 		r.gainChanged(4, getValueFromTextInput(proportionalSwayTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_proportionalSwayTextFieldActionPerformed
- 
- 	private void integralSwayTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_integralSwayTextFieldActionPerformed 
- 		r.gainChanged(5, getValueFromTextInput(integralSwayTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_integralSwayTextFieldActionPerformed
- 
- 	private void derivativeSwayTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_derivativeSwayTextFieldActionPerformed 
- 		r.gainChanged(6, getValueFromTextInput(derivativeSwayTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_derivativeSwayTextFieldActionPerformed
- 
- 	private void proportionalYawTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proportionalYawTextFieldActionPerformed 
- 		r.gainChanged(7, getValueFromTextInput(proportionalYawTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_proportionalYawTextFieldActionPerformed
- 
- 	private void integralYawTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_integralYawTextFieldActionPerformed 
- 		r.gainChanged(8, getValueFromTextInput(integralYawTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_integralYawTextFieldActionPerformed
- 
- 	private void derivativeYawTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_derivativeYawTextFieldActionPerformed 
- 		r.gainChanged(9, getValueFromTextInput(derivativeYawTextField.getText()));
- 	this.requestFocus();
- 	}//GEN-LAST:event_derivativeYawTextFieldActionPerformed
- 
- 	private void proportionalSurgeTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_proportionalSurgeTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_proportionalSurgeTextFieldFocusLost
- 
- 	private void integralSurgeTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_integralSurgeTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_integralSurgeTextFieldFocusLost
- 
- 	private void derivativeSurgeTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_derivativeSurgeTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_derivativeSurgeTextFieldFocusLost
- 
- 	private void proportionalSwayTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_proportionalSwayTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_proportionalSwayTextFieldFocusLost
- 
- 	private void integralSwayTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_integralSwayTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_integralSwayTextFieldFocusLost
- 
- 	private void derivativeSwayTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_derivativeSwayTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_derivativeSwayTextFieldFocusLost
- 
- 	private void proportionalYawTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_proportionalYawTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_proportionalYawTextFieldFocusLost
- 
- 	private void integralYawTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_integralYawTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_integralYawTextFieldFocusLost
- 
- 	private void derivativeYawTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_derivativeYawTextFieldFocusLost 
- 
- 	}//GEN-LAST:event_derivativeYawTextFieldFocusLost
- 
- 	private void headingReferenceTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_headingReferenceTextFieldActionPerformed 
- 		headingRef = getValueFromTextInput(headingReferenceTextField.getText());
- 	r.setHeadingReference(headingRef);
- 	updateTextFields();
- 	}//GEN-LAST:event_headingReferenceTextFieldActionPerformed
- 
- 	private void headingReferenceTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_headingReferenceTextFieldFocusLost 
- 		updateTextFields();
- 	}//GEN-LAST:event_headingReferenceTextFieldFocusLost
- 
- 	private void refNorthButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refNorthButtonActionPerformed 
- 		r.incrementNorth(1);
- 	updateNavDataFields();
- 	}//GEN-LAST:event_refNorthButtonActionPerformed
- 
- 	private void refEastButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refEastButtonActionPerformed 
- 		r.incrementEast(1);
- 	updateNavDataFields();
- 	}//GEN-LAST:event_refEastButtonActionPerformed
- 
- 	private void refSouthButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refSouthButtonActionPerformed 
- 		r.incrementNorth(-1);
- 	updateNavDataFields();
- 	}//GEN-LAST:event_refSouthButtonActionPerformed
- 
- 	private void refWestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refWestButtonActionPerformed 
- 		r.incrementEast(-1);
- 	updateNavDataFields();
- 
+    private void proportionalSurgeTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proportionalSurgeTextFieldActionPerformed 
+        r.gainChanged(1, getValueFromTextInput(proportionalSurgeTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_proportionalSurgeTextFieldActionPerformed
 
-}//GEN-LAST:event_refWestButtonActionPerformed
- 
- 	//Metode for Ã¥ konvertere string til desimaltall hentet fra java api
- 	
- 	private float getValueFromTextInput(String text) {
- 	final String Digits = "(\\p{Digit}+)";
- 	final String HexDigits = "(\\p{XDigit}+)";
- 	// an exponent is 'e' or 'E' followed by an optionally
- 	// signed decimal integer.
- 	final String Exp = "[eE][+-]?" + Digits;
- 	final String fpRegex
- 		= ("[\\x00-\\x20]*"
- 		+ // Optional leading "whitespace"
- 		"[+-]?("
- 		+ // Optional sign character
- 		"NaN|"
- 		+ // "NaN" string
- 		"Infinity|"
- 		+ // "Infinity" string
- 		// A decimal floating-point string representing a finite positive
- 		// number without a leading sign has at most five basic pieces:
- 		// Digits . Digits ExponentPart FloatTypeSuffix
- 		//
- 		// Since this method allows integer-only strings as input
- 		// in addition to strings of floating-point literals, the
- 		// two sub-patterns below are simplifications of the grammar
- 		// productions from section 3.10.2 of
- 		// The Javaâ„¢ Language Specification.
- 		// Digits ._opt Digits_opt ExponentPart_opt FloatTypeSuffix_opt
- 		"(((" + Digits + "(\\.)?(" + Digits + "?)(" + Exp + ")?)|"
- 		+ // . Digits ExponentPart_opt FloatTypeSuffix_opt
- 		"(\\.(" + Digits + ")(" + Exp + ")?)|"
- 		+ // Hexadecimal strings
- 		
+    private void integralSurgeTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_integralSurgeTextFieldActionPerformed 
+        r.gainChanged(2, getValueFromTextInput(integralSurgeTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_integralSurgeTextFieldActionPerformed
 
-"(("
+    private void derivativeSurgeTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_derivativeSurgeTextFieldActionPerformed 
+        r.gainChanged(3, getValueFromTextInput(derivativeSurgeTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_derivativeSurgeTextFieldActionPerformed
 
- 		
+    private void proportionalSwayTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proportionalSwayTextFieldActionPerformed 
+        r.gainChanged(4, getValueFromTextInput(proportionalSwayTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_proportionalSwayTextFieldActionPerformed
 
-+ // 0[xX] HexDigits ._opt BinaryExponent FloatTypeSuffix_opt
+    private void integralSwayTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_integralSwayTextFieldActionPerformed 
+        r.gainChanged(5, getValueFromTextInput(integralSwayTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_integralSwayTextFieldActionPerformed
 
- 
+    private void derivativeSwayTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_derivativeSwayTextFieldActionPerformed 
+        r.gainChanged(6, getValueFromTextInput(derivativeSwayTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_derivativeSwayTextFieldActionPerformed
 
-		"(0[xX]" + HexDigits + "(\\.)?)|"
+    private void proportionalYawTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proportionalYawTextFieldActionPerformed 
+        r.gainChanged(7, getValueFromTextInput(proportionalYawTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_proportionalYawTextFieldActionPerformed
 
- 		
+    private void integralYawTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_integralYawTextFieldActionPerformed 
+        r.gainChanged(8, getValueFromTextInput(integralYawTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_integralYawTextFieldActionPerformed
 
-+ // 0[xX] HexDigits_opt . HexDigits BinaryExponent FloatTypeSuffix_opt
+    private void derivativeYawTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_derivativeYawTextFieldActionPerformed 
+        r.gainChanged(9, getValueFromTextInput(derivativeYawTextField.getText()));
+        this.requestFocus();
+    }//GEN-LAST:event_derivativeYawTextFieldActionPerformed
 
- 		
+    private void proportionalSurgeTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_proportionalSurgeTextFieldFocusLost 
 
-"(0[xX]" + HexDigits + "?(\\.)" + HexDigits + ")"
+    }//GEN-LAST:event_proportionalSurgeTextFieldFocusLost
 
- 		
+    private void integralSurgeTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_integralSurgeTextFieldFocusLost 
 
-+ ")[pP][+-]?" + Digits + "))"
+    }//GEN-LAST:event_integralSurgeTextFieldFocusLost
 
- 		
+    private void derivativeSurgeTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_derivativeSurgeTextFieldFocusLost 
 
-+ "[fFdD]?))"
+    }//GEN-LAST:event_derivativeSurgeTextFieldFocusLost
 
- 		
+    private void proportionalSwayTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_proportionalSwayTextFieldFocusLost 
 
-+ "[\\x00-\\x20]*");// Optional trailing "whitespace"
+    }//GEN-LAST:event_proportionalSwayTextFieldFocusLost
 
- 
+    private void integralSwayTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_integralSwayTextFieldFocusLost 
 
+    }//GEN-LAST:event_integralSwayTextFieldFocusLost
 
+    private void derivativeSwayTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_derivativeSwayTextFieldFocusLost 
 
- 
+    }//GEN-LAST:event_derivativeSwayTextFieldFocusLost
 
-if (Pattern.matches(fpRegex, text)) {
+    private void proportionalYawTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_proportionalYawTextFieldFocusLost 
 
- 
+    }//GEN-LAST:event_proportionalYawTextFieldFocusLost
 
-return Float.valueOf(text); // Will not throw NumberFormatException
+    private void integralYawTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_integralYawTextFieldFocusLost 
 
- 
+    }//GEN-LAST:event_integralYawTextFieldFocusLost
 
-} else {
+    private void derivativeYawTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_derivativeYawTextFieldFocusLost 
 
- 
+    }//GEN-LAST:event_derivativeYawTextFieldFocusLost
 
-String[] s = text.split(":");
+    private void headingReferenceTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_headingReferenceTextFieldActionPerformed 
+        headingRef = getValueFromTextInput(headingReferenceTextField.getText());
+        r.setHeadingReference(headingRef);
+        updateTextFields();
+    }//GEN-LAST:event_headingReferenceTextFieldActionPerformed
 
- 
+    private void headingReferenceTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_headingReferenceTextFieldFocusLost 
+        updateTextFields();
+    }//GEN-LAST:event_headingReferenceTextFieldFocusLost
 
-return Float.valueOf(s[s.length - 1].trim());
+    private void refNorthButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refNorthButtonActionPerformed 
+        r.incrementNorth(1);
+        updateNavDataFields();
+    }//GEN-LAST:event_refNorthButtonActionPerformed
 
- 
+    private void refEastButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refEastButtonActionPerformed 
+        r.incrementEast(1);
+        updateNavDataFields();
+    }//GEN-LAST:event_refEastButtonActionPerformed
 
-}
+    private void refSouthButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refSouthButtonActionPerformed 
+        r.incrementNorth(-1);
+        updateNavDataFields();
+    }//GEN-LAST:event_refSouthButtonActionPerformed
 
- 
+    private void refWestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refWestButtonActionPerformed 
+        r.incrementEast(-1);
+        updateNavDataFields();
 
+    }//GEN-LAST:event_refWestButtonActionPerformed
 
+    //Metode for Ã¥ konvertere string til desimaltall hentet fra java api
+    private float getValueFromTextInput(String text) {
+        final String Digits = "(\\p{Digit}+)";
+        final String HexDigits = "(\\p{XDigit}+)";
+        // an exponent is 'e' or 'E' followed by an optionally
+        // signed decimal integer.
+        final String Exp = "[eE][+-]?" + Digits;
+        final String fpRegex
+                = ("[\\x00-\\x20]*"
+                + // Optional leading "whitespace"
+                "[+-]?("
+                + // Optional sign character
+                "NaN|"
+                + // "NaN" string
+                "Infinity|"
+                + // "Infinity" string
+                // A decimal floating-point string representing a finite positive
+                // number without a leading sign has at most five basic pieces:
+                // Digits . Digits ExponentPart FloatTypeSuffix
+                //
+                // Since this method allows integer-only strings as input
+                // in addition to strings of floating-point literals, the
+                // two sub-patterns below are simplifications of the grammar
+                // productions from section 3.10.2 of
+                // The Javaâ„¢ Language Specification.
+                // Digits ._opt Digits_opt ExponentPart_opt FloatTypeSuffix_opt
+                "(((" + Digits + "(\\.)?(" + Digits + "?)(" + Exp + ")?)|"
+                + // . Digits ExponentPart_opt FloatTypeSuffix_opt
+                "(\\.(" + Digits + ")(" + Exp + ")?)|"
+                + // Hexadecimal strings
+                "(("
 
- 
-}
+                + // 0[xX] HexDigits ._opt BinaryExponent FloatTypeSuffix_opt
+                "(0[xX]" + HexDigits + "(\\.)?)|"
 
+                + // 0[xX] HexDigits_opt . HexDigits BinaryExponent FloatTypeSuffix_opt
+                "(0[xX]" + HexDigits + "?(\\.)" + HexDigits + ")"
+                + ")[pP][+-]?" + Digits + "))"
+                + "[fFdD]?))"
+                + "[\\x00-\\x20]*");// Optional trailing "whitespace"
 
- 
+        if (Pattern.matches(fpRegex, text)) {
 
+            return Float.valueOf(text); // Will not throw NumberFormatException
 
+        } else {
 
- 
-/**
+            String[] s = text.split(":");
 
+            return Float.valueOf(s[s.length - 1].trim());
 
- 	* @param args the command line arguments 
- 	*/
- 	public static void main(String args[]) { 
- 		/* Set the Nimbus look and feel */
- 	//<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) "> 
- 	/* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel. 
+        }
+
+    }
+
+    /**
+     *
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) "> 
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel. 
  		* For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
- 		*/
- 	try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) { 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
@@ -1158,106 +1108,106 @@ return Float.valueOf(s[s.length - 1].trim());
         // Start gui
         Thread t1 = new Thread(gui);
         t1.start();
-        }
+    }
 
- 	// Variables declaration - do not modify//GEN-BEGIN:variables 
- 	private javax.swing.JButton connectButton;
- 	private javax.swing.JLabel connectedLabel;
- 	private javax.swing.JPanel coordinateSystemFrame; 
- 	private javax.swing.JLabel dGPSlabel;
- 	private javax.swing.JTextField derivativeSurgeTextField;
- 	private javax.swing.JTextField derivativeSwayTextField; 
- 	private javax.swing.JTextField derivativeYawTextField; 
- 	private javax.swing.JButton dynPosButton;
- 	private javax.swing.JButton eastButton; 
- 	private javax.swing.JButton eastButton1;
- 	private javax.swing.JTextField headingReferenceTextField; 
- 	private javax.swing.JButton idleButton;
- 	private javax.swing.JTextField integralSurgeTextField; 
- 	private javax.swing.JTextField integralSwayTextField; 
- 	private javax.swing.JTextField integralYawTextField; 
- 	private javax.swing.JLabel jLabel1;
- 	private javax.swing.JLabel jLabel2; 
- 	private javax.swing.JLabel jLabel3; 
- 	private javax.swing.JLabel jLabel4; 
- 	private javax.swing.JLabel jLabel5; 
- 	private javax.swing.JLabel jLabel7; 
- 	private javax.swing.JPanel jPanel1; 
- 	private javax.swing.JPanel jPanel2; 
- 	private javax.swing.JPanel jPanel3; 
- 	private javax.swing.JPanel jPanel4; 
- 	private javax.swing.JPanel jPanel5; 
- 	private javax.swing.JPanel jPanel7; 
- 	private javax.swing.JLabel latRefLabel; 
- 	private javax.swing.JLabel latitudeLabel; 
- 	private javax.swing.JLabel longRefLabel;
- 	private javax.swing.JLabel longitudeLabel; 
- 	private javax.swing.JLabel navDataLabel; 
- 	private javax.swing.JPanel navDataPanel; 
- 	private javax.swing.JButton northButton;
- 	private javax.swing.JTextField proportionalSurgeTextField; 
- 	private javax.swing.JTextField proportionalSwayTextField; 
- 	private javax.swing.JTextField proportionalYawTextField; 
- 	private javax.swing.JButton refEastButton;
- 	private javax.swing.JButton refNorthButton; 
- 	private javax.swing.JButton refSouthButton; 
- 	private javax.swing.JButton refWestButton; 
- 	private javax.swing.JButton remoteButton; 
- 	private javax.swing.JLabel rotSpeedLabel; 
- 	private javax.swing.JLabel setpointLabel1; 
- 	private javax.swing.JPanel setpointLabel2; 
- 	private javax.swing.JButton southButton; 
- 	private javax.swing.JLabel speedLabel; 
- 	private javax.swing.JLabel statusLabel; 
- 	private javax.swing.JLabel surgeLabel; 
- 	private javax.swing.JLabel swayLabel; 
- 	private javax.swing.JPanel trendPanelSurge; 
- 	private javax.swing.JPanel trendPanelSway; 
- 	private javax.swing.JPanel trendPanelYaw; 
- 	private javax.swing.JLabel windDirLabel; 
- 	private javax.swing.JLabel windSpeedLabel; 
- 	private javax.swing.JLabel yawLabel;
- 	// End of variables declaration//GEN-END:variables 
- 
- 	@Override
-        public void run() { 
-            while (true) {
-                updateNavDataFields();
-                // Hvis GUI har fokus
-                if (this.isFocusOwner()) { 
-                    // Hvis ny data
-                    if (storage.updated()) {
-                        // oppdater tekstfelt
+    // Variables declaration - do not modify//GEN-BEGIN:variables 
+    private javax.swing.JButton connectButton;
+    private javax.swing.JLabel connectedLabel;
+    private javax.swing.JPanel coordinateSystemFrame;
+    private javax.swing.JLabel dGPSlabel;
+    private javax.swing.JTextField derivativeSurgeTextField;
+    private javax.swing.JTextField derivativeSwayTextField;
+    private javax.swing.JTextField derivativeYawTextField;
+    private javax.swing.JButton dynPosButton;
+    private javax.swing.JButton eastButton;
+    private javax.swing.JButton eastButton1;
+    private javax.swing.JTextField headingReferenceTextField;
+    private javax.swing.JButton idleButton;
+    private javax.swing.JTextField integralSurgeTextField;
+    private javax.swing.JTextField integralSwayTextField;
+    private javax.swing.JTextField integralYawTextField;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JLabel latRefLabel;
+    private javax.swing.JLabel latitudeLabel;
+    private javax.swing.JLabel longRefLabel;
+    private javax.swing.JLabel longitudeLabel;
+    private javax.swing.JLabel navDataLabel;
+    private javax.swing.JPanel navDataPanel;
+    private javax.swing.JButton northButton;
+    private javax.swing.JTextField proportionalSurgeTextField;
+    private javax.swing.JTextField proportionalSwayTextField;
+    private javax.swing.JTextField proportionalYawTextField;
+    private javax.swing.JButton refEastButton;
+    private javax.swing.JButton refNorthButton;
+    private javax.swing.JButton refSouthButton;
+    private javax.swing.JButton refWestButton;
+    private javax.swing.JButton remoteButton;
+    private javax.swing.JLabel rotSpeedLabel;
+    private javax.swing.JLabel setpointLabel1;
+    private javax.swing.JPanel setpointLabel2;
+    private javax.swing.JButton southButton;
+    private javax.swing.JLabel speedLabel;
+    private javax.swing.JLabel statusLabel;
+    private javax.swing.JLabel surgeLabel;
+    private javax.swing.JLabel swayLabel;
+    private javax.swing.JPanel trendPanelSurge;
+    private javax.swing.JPanel trendPanelSway;
+    private javax.swing.JPanel trendPanelYaw;
+    private javax.swing.JLabel windDirLabel;
+    private javax.swing.JLabel windSpeedLabel;
+    private javax.swing.JLabel yawLabel;
+    // End of variables declaration//GEN-END:variables 
+
+    @Override
+    public void run() {
+        while (true) {
+            updateNavDataFields();
+            // Hvis GUI har fokus
+            if (this.isFocusOwner()) {
+                // Hvis ny data
+                if (storage.updated()) {
+                    // oppdater tekstfelt
                     updateTextFields();
-                    }
                 }
             }
- 	}
-        
-        /*
+        }
+    }
+
+    /*
  	Sett opp og vis trendplot i gui 
- 	*/
- 	private void showPlot() {
-            ChartPanel p1 = swayPlot.getChartPanel(); 
-            ChartPanel p2 = surgePlot.getChartPanel(); 
-            ChartPanel p3 = yawPlot.getChartPanel(); 
- 
-            trendPanelSway.setBorder(javax.swing.BorderFactory.
-            createLineBorder(new java.awt.Color(0, 0, 0)));
-            trendPanelSurge.setBorder(javax.swing.BorderFactory.
-            createLineBorder(new java.awt.Color(0, 0, 0)));
-            trendPanelYaw.setBorder(javax.swing.BorderFactory.
-            createLineBorder(new java.awt.Color(0, 0, 0)));
- 
-            p1.setDomainZoomable(true);
-            p2.setDomainZoomable(true);
-            p3.setDomainZoomable(true);
-            p1.setSize(trendPanelSurge.getWidth()-1, trendPanelSurge.getHeight());
-            p2.setSize(trendPanelYaw.getWidth()-1, trendPanelYaw.getHeight());
-            p3.setSize(trendPanelSway.getWidth()-1, trendPanelSway.getHeight());
- 
-            trendPanelYaw.add(p3, BorderLayout.CENTER);
-            trendPanelSurge.add(p2, BorderLayout.CENTER);
-            trendPanelSway.add(p1, BorderLayout.CENTER);
- 	}
-  }
+     */
+    private void showPlot() {
+        ChartPanel p1 = swayPlot.getChartPanel();
+        ChartPanel p2 = surgePlot.getChartPanel();
+        ChartPanel p3 = yawPlot.getChartPanel();
+
+        trendPanelSway.setBorder(javax.swing.BorderFactory.
+                createLineBorder(new java.awt.Color(0, 0, 0)));
+        trendPanelSurge.setBorder(javax.swing.BorderFactory.
+                createLineBorder(new java.awt.Color(0, 0, 0)));
+        trendPanelYaw.setBorder(javax.swing.BorderFactory.
+                createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        p1.setDomainZoomable(true);
+        p2.setDomainZoomable(true);
+        p3.setDomainZoomable(true);
+        p1.setSize(trendPanelSurge.getWidth() - 1, trendPanelSurge.getHeight());
+        p2.setSize(trendPanelYaw.getWidth() - 1, trendPanelYaw.getHeight());
+        p3.setSize(trendPanelSway.getWidth() - 1, trendPanelSway.getHeight());
+
+        trendPanelYaw.add(p3, BorderLayout.CENTER);
+        trendPanelSurge.add(p2, BorderLayout.CENTER);
+        trendPanelSway.add(p1, BorderLayout.CENTER);
+    }
+}

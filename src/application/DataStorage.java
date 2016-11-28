@@ -7,27 +7,27 @@ package application;
 
 /**
  *
- * @author vegard Klasse for å mellomlagre data sendt fra USV 
+ * @author vegard Klasse for å mellomlagre data sendt fra USV
  */
-public class DataStorage { 
+public class DataStorage {
 
-    private float[] data; 
+    private float[] data;
     private double[] latLon;
-    private boolean dataUpdated = true; 
-    private boolean egnosEnabled=false; 
-    private boolean latLonUpdated = true; 
+    private boolean dataUpdated = true;
+    private boolean egnosEnabled = false;
+    private boolean latLonUpdated = true;
 
-    public DataStorage() { 
-	data = new float[23];
-	latLon = new double[2];
+    public DataStorage() {
+        data = new float[23];
+        latLon = new double[2];
     }
 
     // Sett data mottatt fra USV
-    public synchronized void setArray(float[] data, double[] latLon) { 
-	dataUpdated = true;
-	latLonUpdated = true;
-	this.data = data;
-	this.latLon = latLon; 
+    public synchronized void setArray(float[] data, double[] latLon) {
+        dataUpdated = true;
+        latLonUpdated = true;
+        this.data = data;
+        this.latLon = latLon;
     }
 
     // Hent all data bortsett fra lengde- og breddegrad
@@ -36,21 +36,21 @@ public class DataStorage {
         dataUpdated = false;
         return data;
     }
-    
+
     // Hent lengde- og breddegrad
     public synchronized double[] getLatLonFromUSV() {
-    latLonUpdated = false;
-    return latLon;
+        latLonUpdated = false;
+        return latLon;
     }
 
     // Sett egnos-status
     public synchronized void setEgnosEnabled(boolean enabled) {
-    egnosEnabled = enabled;
+        egnosEnabled = enabled;
     }
 
     // Hent egnos-status
     public synchronized boolean getEgnosEnabled() {
-    return egnosEnabled;
+        return egnosEnabled;
     }
 
     // Er data oppdatert?
