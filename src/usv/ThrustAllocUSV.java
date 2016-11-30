@@ -103,7 +103,7 @@ public class ThrustAllocUSV {
     private JOptimizer opt;
 
     // illigal thruster angles contercloskwise start-end pairs
-    private double[] constrainVectorM1 = new double[0];//{rad(-20d), rad(-10d), rad(10d), rad(20d)};
+    private double[] constrainVectorM1 = {/*rad(-85d), rad(-95d), */rad(85d), rad(95d)};
     private double[] constrainVectorM2 = new double[0];//{rad(85d), rad(95d)};
     private double[] constrainVectorM3 = new double[0];//{rad(-95), rad(-85)};
 
@@ -166,7 +166,6 @@ public class ThrustAllocUSV {
         A = getMatrix_A(constrainList);
         b = getMatrix_B(constrainList);
 
-
         // create objective function
         //                                                        S    beta*u_max
         objectiveFunction = new PDQuadraticMultivariateRealFunction(W, null, 0);
@@ -194,7 +193,7 @@ public class ThrustAllocUSV {
         // set ulikhet
         or.setFi(inequalities);
 
-        // set likhet
+        // set likhet B*u = tau
         or.setA(B);
         // posisjons matrise skal være lik TAU
         or.setB(tau);
@@ -217,6 +216,7 @@ public class ThrustAllocUSV {
     private Double[][] getConstrainMatrixForAzimuthThruster(double R, double epsilon, double[] constrain) {
         // constains is valid for thruster
         int constrainPairs = 0;
+        int constIndex = 0;
         if (constrain.length % 2 == 0) {
             constrainPairs = constrain.length / 2;
         }
@@ -233,6 +233,7 @@ public class ThrustAllocUSV {
             double phiK = (2 * k + 1) * PI / N;
 
             m[k] = new Double[]{cos(phiK), sin(phiK), r};
+
         }
 
         // add constrain angles if present
@@ -282,20 +283,20 @@ public class ThrustAllocUSV {
     }
 
     private ArrayRealVector getMatrix_B(List<Double[][]> constrains) {
-        
+
         int rows = 0;
 
         for (Double[][] d : constrains) {
             rows = rows + d.length;
         }
-        
+
         ArrayRealVector b = new ArrayRealVector(new double[rows]);
         int i = 0;
-        for(Double[][] d : constrains){
-            for(Double[] dd : d){
-                if(!(dd.length != 3 && i < rows)){
-                b.setEntry(i, dd[2]);
-                i++;
+        for (Double[][] d : constrains) {
+            for (Double[] dd : d) {
+                if (!(dd.length != 3 && i < rows)) {
+                    b.setEntry(i, dd[2]);
+                    i++;
                 } else {
                     throw new IndexOutOfBoundsException("index not valid in getMatrix_B");
                 }

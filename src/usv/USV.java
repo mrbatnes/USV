@@ -22,7 +22,7 @@ public class USV {
         ThrustAllocUSV t = new ThrustAllocUSV();
         
         try {
-            double[] r = t.calculateOutput(new double[]{1,0,0});
+            double[] r = t.calculateOutput(new double[]{0,0,1});
             double u1 = Math.sqrt(r[0]*r[0]+r[1]*r[1]);
             double u2 = Math.sqrt(r[2]*r[2]+r[3]*r[3]);
             double u3 = Math.sqrt(r[4]*r[4]+r[5]*r[5]);
