@@ -281,9 +281,9 @@ public class ThrustAllocUSV {
      */
     private BlockRealMatrix getMatrix_A(List<double[][]> constrains) {
 
-        int columns = 6;
+        int columns = 3;
         int columnsConstraint = 2 * constrains.size();
-        int rows = 12; // initial 12 rows
+        int rows = 0; // initial 12 rows
 
         // add rows for unequalities / constains
         for (double[][] d : constrains) {
@@ -314,7 +314,7 @@ public class ThrustAllocUSV {
         |-I  0  -1| * |s| <= |0|
         | I  0  -1|   |ü|    |0|
         
-         */
+         
         RealMatrix I_6x6 = MatrixUtils.createRealIdentityMatrix(6); // identity 6x6
         RealMatrix minus_I_6x6 = MatrixUtils.createRealIdentityMatrix(6).scalarMultiply(-1d); // identity 6x6 * -1
 
@@ -347,14 +347,14 @@ public class ThrustAllocUSV {
     private double[][] getConfigurationMatrix_B(double Lx1, double Ly1, double Lx2, double Ly2, double Lx3, double Ly3, boolean isInTravelMode) {
         if (isInTravelMode) {
             return new double[][]{
-                {0d, 0d, 1d, 0d, 1d, 0d, -1d, 0d, 0d, 0d, 0d, 0d},
-                {0d, 0d, 0d, -1d, 0d, -1d, 0d, -1d, 0d, 0d, 0d, 0d},
-                {0d, 0d, -Lx2, -Ly2, -Lx3, -Ly3, 0d, 0d, -1d, 0d, 0d, 0d}};
+                {0d, 0d,  1d,   0d,   1d,   0d, -1d,  0d,  0d},
+                {0d, 0d,  0d,  -1d,   0d,  -1d,  0d, -1d,  0d},
+                {0d, 0d, -Lx2, -Ly2, -Lx3, -Ly3, 0d,  0d, -1d}};
         } else {
             return new double[][]{
-                {1d, 0d, 1d, 0d, 1d, 0d, -1d, 0d, 0d, 0d, 0d, 0d},
-                {0d, -1d, 0d, -1d, 0d, -1d, 0d, -1d, 0d, 0d, 0d, 0d},
-                {-Lx1, -Ly1, -Lx2, -Ly2, -Lx3, -Ly3, 0d, 0d, -1d, 0d, 0d, 0d}};
+                {1d,    0d,   1d,   0d,   1d,   0d,  -1d,  0d, 0d},
+                {0d,   -1d,   0d,  -1d,   0d,  -1d,   0d, -1d, 0d},
+                {-Lx1, -Ly1, -Lx2, -Ly2, -Lx3, -Ly3,  0d,  0d, -1d}};
         }
     }
 
