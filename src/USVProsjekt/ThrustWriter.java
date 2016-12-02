@@ -39,7 +39,12 @@ public class ThrustWriter {
         }
     }
 
-    public void setThrustForAll(double[] newton) {
+    public void setThrustForAll(double[] r) {
+        double[] newton = {0, 0, 0};
+        int i = 0;
+        for(int x = 0; x < 3; x++, i += 2){
+            newton[x] = Math.sqrt(r[i] * r[i] + r[i+1] * r[i+1]);
+        }
         pulseWidth1 = newtonToPulseWidth(newton[0]);
         pulseWidth2 = newtonToPulseWidth(newton[1]);
         pulseWidth3 = newtonToPulseWidth(newton[2]);

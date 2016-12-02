@@ -33,12 +33,13 @@ public class DynamicPositioning extends TimerTask {
     private float headingReference;
     private double[] position;
     
-    private ThrustAllocator thrustAllocator;
+    private ThrustAllocUSV thrustAllocator;
     
     private RotationMatrix Rz;
     private double[] forceOutputNewton;
     
     private ThrustWriter thrustWriter;
+    private RotationWriter rotationWriter;
     private float xNorthReference;
     private float yEastReference;
     private PrintWriter nedWriter;
@@ -47,7 +48,7 @@ public class DynamicPositioning extends TimerTask {
     
     
     
-    public DynamicPositioning(ThrustWriter thrustWriter, NorthEastPositionStorageBox northEast, IMUreader imu) {
+    public DynamicPositioning(ThrustWriter thrustWriter, RotationWriter rotationWriter, NorthEastPositionStorageBox northEast, IMUreader imu) {
         xNorthPID = new PIDController();
         yEastPID = new PIDController();
         headingPID = new PIDController();
@@ -58,9 +59,10 @@ public class DynamicPositioning extends TimerTask {
         outputN = 0.0f;
         position = new double[2];
         headingReference = 0.0f;
-        thrustAllocator = new ThrustAllocator();
+        thrustAllocator = new ThrustAllocUSV();
         forceOutputNewton = new double[4];
         this.thrustWriter = thrustWriter;
+        this.rotationWriter = rotationWriter;
     }
     
     public void setPreviousGains(float[][] a) {
@@ -104,6 +106,8 @@ public class DynamicPositioning extends TimerTask {
             forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed);
             thrustWriter.setThrustForAll(forceOutputNewton);
             thrustWriter.writeThrust();
+            rotationWriter.setRotationForAll(forceOutputNewton);
+            rotationWriter.writeRotation();
         } catch (Exception ex) {
             System.out.println("exception dp");
         }

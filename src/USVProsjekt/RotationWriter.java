@@ -34,10 +34,16 @@ public class RotationWriter {
         }
     }
     
-    public void setRotationForAll(int[] pos){
-        rotation1 = pos[0];
-        rotation2 = pos[1];
-        rotation3 = pos[2];
+    public void setRotationForAll(double[] r){
+        int[] rot = {0, 0, 0};
+        int i = 0;
+        for(int x = 0; x < 3; x++, i += 2){
+            double phi = Math.atan2(r[i+1],r[i]);
+            rot[x] = (int) (phi * 360./(2*Math.PI));
+        }
+        rotation1 = rot[0];
+        rotation2 = rot[1];
+        rotation3 = rot[2];
     }
     
     public void closeSerialConn(){

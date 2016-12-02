@@ -125,7 +125,7 @@ public class Application extends Thread {
                 northEastPositionStorage.setPosition(new double[]{0,0});
                 float[][] a = dynamicPositioning.getAllControllerTunings();
                 storeControllerTunings(a);
-                dynamicPositioning = new DynamicPositioning(thrustWriter, northEastPositionStorage, imu);
+                dynamicPositioning = new DynamicPositioning(thrustWriter, rotationWriter, northEastPositionStorage, imu);
                 dynamicPositioning.setPreviousGains(a);
                 System.out.println("timer cancelled and flag reset");
             }
@@ -163,9 +163,9 @@ public class Application extends Thread {
 
     private void idle() {
         dynamicPositioning.stopWriter();
-        thrustWriter.setThrustForAll(new double[]{0d, 0d, 0d, 0d});
+        thrustWriter.setThrustForAll(new double[]{0d, 0d, 0d, 0d, 0d, 0d});
         thrustWriter.writeThrust();
-        rotationWriter.setRotationForAll(new int[]{0, 0, 0});
+        rotationWriter.setRotationForAll(new double[]{0d, 0d, 0d, 0d, 0d, 0d});
         rotationWriter.writeRotation();
         updateBasicFields();
         // System.out.println("Idle");
@@ -240,13 +240,13 @@ public class Application extends Thread {
         if (windows) {
             comPortGPS = "COM4";
             comPortIMU = "COM5";
-            comPortWind = "COM6";
+            //comPortWind = "COM6"; Not in use
             comPortThrust = "COM7";
             comPortRotation = "COM8";
         } else {
             comPortGPS = "ttyACM0";
             comPortIMU = "ttyACM1";
-            comPortWind = "ttyACM3";
+            //comPortWind = "ttyACM3"; Not in use
             comPortThrust = "ttyACM2";
             comPortRotation = "ttyACM3";
         }
@@ -266,9 +266,10 @@ public class Application extends Thread {
 
         serialIMU = new SerialConnection(comPortIMU,
                 baudRateIMU);
-
-        serialWind = new SerialConnection(comPortWind,
-                baudRateWind);
+        
+        // Not in use
+        //serialWind = new SerialConnection(comPortWind, 
+        //        baudRateWind);
 
         serialThrust = new SerialConnection(comPortThrust,
                 baudRateThrust);
@@ -296,16 +297,19 @@ public class Application extends Thread {
         imu.connectToSerialPortAndDisplayIMUInfo();
         imu.setName("IMU Reader Thread");
         imu.start();
-
+        
+        // Not in use
+        /*
         windReader = new WindReader(serialWind, Identifier.WIND);
         windReader.connectToSerialPortAndDisplayWindInfo();
         windReader.setName("Wind Reader Thread");
         windReader.start();
+        */
 
         thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
         rotationWriter = new RotationWriter(serialRotation, Identifier.ROTATION);
-        dynamicPositioning = new DynamicPositioning(thrustWriter, northEastPositionStorage, imu);
-        remoteOperation = new RemoteOperation(thrustWriter);
+        dynamicPositioning = new DynamicPositioning(thrustWriter, rotationWriter, northEastPositionStorage, imu);
+        remoteOperation = new RemoteOperation(thrustWriter, rotationWriter);
     }
 
     public static void main(String[] args) throws Exception {
