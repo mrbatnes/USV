@@ -101,7 +101,7 @@ public class DynamicPositioning extends TimerTask {
             Rz = new RotationMatrix(headingInput);
             //Rz'*Tau
             double[] XYNtransformed = Rz.multiplyRzwithV(outputX, outputY, outputN);
-            forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed);
+            forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed,false);
             thrustWriter.setThrustForAll(forceOutputNewton);
             thrustWriter.writeThrust();
         } catch (Exception ex) {

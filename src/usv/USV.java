@@ -19,11 +19,12 @@ public class USV {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         ThrustAllocUSV t = new ThrustAllocUSV();
-        org.apache.log4j.BasicConfigurator.configure();
+        //org.apache.log4j.BasicConfigurator.configure();
 
         try {
-            double[] r = t.calculateOutput(new double[]{1, 0, 0}, false);
+            double[] r = t.calculateOutput(new double[]{100, 70, 0}, false);
             if (r != null) {
                 System.out.println(Arrays.toString(r));
             } else {
@@ -33,7 +34,8 @@ public class USV {
         } catch (Exception ex) {
             Logger.getLogger(USV.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        System.out.println((System.currentTimeMillis()-start)/1000.);
+        
     }
 
 }

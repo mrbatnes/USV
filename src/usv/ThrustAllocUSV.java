@@ -119,7 +119,7 @@ public class ThrustAllocUSV {
 
     public ThrustAllocUSV() {
         //    x1   y1    x2     y2    x3    y3  slack   q weight
-        setup(0d, 1.5d, -.5d, -.5d, .5d, -.5d, new double[]{10d, 10d, 10d});
+        setup(-0.3, 1.5d, -.5, -.5, .5, -.5, new double[]{100d, 100d, 1000d});
     }
 
     private void setup(double Lx1, double Ly1, double Lx2, double Ly2, double Lx3, double Ly3, double[] q) {
@@ -133,11 +133,7 @@ public class ThrustAllocUSV {
 
         // initial position matrix
         B = getConfigurationMatrix_B(this.Lx1, this.Ly1, this.Lx2, this.Ly2, this.Lx3, this.Ly3, false);
-        
-        System.out.println("********** B MATRIX");
-        for(double[] b : B){
-            System.out.println(Arrays.toString(b));
-        }
+       
         // power weight matrix (identity matrix because identical motors)
         W = MatrixUtils.createRealIdentityMatrix(6).getData();
 
@@ -148,10 +144,7 @@ public class ThrustAllocUSV {
         P.setSubMatrix(W, 0, 0);
         P.setSubMatrix(Q, 6, 6);
         
-        System.out.println("************* P MATRIX");
-        for(double[] p : P.getData()){
-            System.out.println(Arrays.toString(p));
-        }
+ 
 
         
 
@@ -168,16 +161,9 @@ public class ThrustAllocUSV {
         // get A matrix
         // unequalities A*u <= b
         A = getMatrix_A(constrainList);
-        System.out.println("********** A MATRIX");
-        for(double[] a : A.getData()){
-            System.out.println(Arrays.toString(a));
-        }
         
-        System.out.println("********** b VECTOR");
         b = getConstrainVector_b(constrainList);
-        for(double B : b.toArray()){
-            System.out.println(B);
-        }
+
         beta = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1};
 
         // create objective function
@@ -193,10 +179,6 @@ public class ThrustAllocUSV {
 
         //  set the configuration matrix from travelmode or not
         B = getConfigurationMatrix_B(Lx1, Ly1, Lx2, Ly2, Lx3, Ly3, travelMode);
-        System.out.println("****** B POS MATRIX");
-        for(double[] b : B){
-            System.out.println(Arrays.toString(b));
-        }
 
         for (int i = 0; i < A.getRowDimension(); i++) {
             // hver ulikhet settes opp
@@ -234,7 +216,7 @@ public class ThrustAllocUSV {
             System.out.println("FAILED");
             return null;
         } else {
-            return opt.getOptimizationResponse().getSolution();
+            return this.getThrustAndAnglesDeg(opt.getOptimizationResponse().getSolution(), travelMode);
         }
 
     }
@@ -347,13 +329,13 @@ public class ThrustAllocUSV {
     private double[][] getConfigurationMatrix_B(double Lx1, double Ly1, double Lx2, double Ly2, double Lx3, double Ly3, boolean isInTravelMode) {
         if (isInTravelMode) {
             return new double[][]{
-                {0d, 0d,  1d,   0d,   1d,   0d, -1d,  0d,  0d},
-                {0d, 0d,  0d,  -1d,   0d,  -1d,  0d, -1d,  0d},
-                {0d, 0d, -Lx2, -Ly2, -Lx3, -Ly3, 0d,  0d, -1d}};
+                {0d,   0d,   1d,    0d,   1d,   0d,  -1d,  0d,  0d},
+                {0d,   0d,   0d,   -1d,   0d,  -1d,   0d, -1d,  0d},
+                {0d,   0d,  -Lx2,  -Ly2, -Lx3, -Ly3,  0d,  0d, -1d}};
         } else {
             return new double[][]{
-                {1d,    0d,   1d,   0d,   1d,   0d,  -1d,  0d, 0d},
-                {0d,   -1d,   0d,  -1d,   0d,  -1d,   0d, -1d, 0d},
+                {1d,    0d,   1d,   0d,   1d,   0d,  -1d,  0d,  0d},
+                {0d,   -1d,   0d,  -1d,   0d,  -1d,   0d, -1d,  0d},
                 {-Lx1, -Ly1, -Lx2, -Ly2, -Lx3, -Ly3,  0d,  0d, -1d}};
         }
     }
@@ -366,7 +348,7 @@ public class ThrustAllocUSV {
      */
     private ArrayRealVector getConstrainVector_b(List<double[][]> constrains) {
 
-        int rows = 12; // initial 12 rows
+        int rows = 0; // initial 12 rows
 
         for (double[][] d : constrains) {
             rows = rows + d.length;
@@ -411,7 +393,7 @@ public class ThrustAllocUSV {
      * @param r input vector length 6
      * @return force - angle pairs of thruster in degrees
      */
-    private double[] getThrustAndAnglesDeg(double[] r) {
+    private double[] getThrustAndAnglesDeg(double[] r, boolean travelMode) {
         double u1 = Math.sqrt(r[0] * r[0] + r[1] * r[1]);
         double u2 = Math.sqrt(r[2] * r[2] + r[3] * r[3]);
         double u3 = Math.sqrt(r[4] * r[4] + r[5] * r[5]);
@@ -419,8 +401,12 @@ public class ThrustAllocUSV {
         double phi1 = Math.atan2(r[1], r[0]);
         double phi2 = Math.atan2(r[3], r[2]);
         double phi3 = Math.atan2(r[5], r[4]);
-
-        return new double[]{u1, deg(phi1), u2, deg(phi2), u3, deg(phi3)};
+        if(travelMode){
+            return new double[]{u1, 0d, u2, deg(phi2), u3, deg(phi3)};
+        } else {
+            return new double[]{u1, deg(phi1), u2, deg(phi2), u3, deg(phi3)};
+        }
+        
     }
 
     private static double[][] matrix(int rows, int columns, double value) {
