@@ -26,7 +26,7 @@ public class RemoteOperation {
     public void remoteOperate(double[] remoteCommand) {
         System.out.println("Remote command: " + Arrays.toString(remoteCommand));
         try {
-            double[] r = thrustAllocator.calculateOutput(remoteCommand);
+            double[] r = thrustAllocator.calculateOutput(remoteCommand, false);
             System.out.println(Arrays.toString(r));
             thrustWrite.setThrustForAll(r);
             thrustWrite.writeThrust();

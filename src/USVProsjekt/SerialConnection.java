@@ -70,6 +70,9 @@ public class SerialConnection {
         int[] rotations = {rotation1, rotation2, rotation3};
         String writeString;
         writeString = getWriteString(rotations, Identifier.ROTATION);
+        PrintWriter output = new PrintWriter(comPort.getOutputStream());
+        output.write(writeString);
+        output.flush();
     }
 
     private String getWriteString(int[] in, Identifier ID) {
