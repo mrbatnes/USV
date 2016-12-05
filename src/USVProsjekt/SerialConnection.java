@@ -58,12 +58,12 @@ public class SerialConnection {
         output.write(writeString);
         output.flush();
         //Leser tilbake dataene fra arduino
-        try {
+        /*try {
             BufferedReader br = new BufferedReader(new InputStreamReader(comPort.getInputStream(), "UTF-8"));
             System.out.println(br.readLine());
         } catch (IOException e) {
             System.out.println("ioex writeThrustMicros() in SerialConnection");
-        }
+        }*/
     }
 
     void writeRotationPos(int rotation1, int rotation2, int rotation3) {

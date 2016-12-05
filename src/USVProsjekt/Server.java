@@ -115,6 +115,7 @@ public class Server extends Thread {
     @Override
     public void run() {
         try {
+            System.out.println("Run server");
 
             printStream = new PrintStream(csocket.getOutputStream(), true);
 
@@ -144,6 +145,7 @@ public class Server extends Thread {
             System.out.println("Server thread run() exit:");
         } catch (IOException ex) {
             //Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println(ex.toString());
             System.out.println("IO ex server");
 
         }

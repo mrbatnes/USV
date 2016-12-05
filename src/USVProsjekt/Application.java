@@ -201,9 +201,9 @@ public class Application extends Thread {
         }
         latitudeBody = gpsPosition.lat;
         longitudeBody = gpsPosition.lon;
-        windSpeed = windReader.getWindSpeed();
-        windDirection = windReader.getWindDirection();
-        temperature = windReader.getTemperature();
+        //windSpeed = windReader.getWindSpeed();
+        //windDirection = windReader.getWindDirection();
+        //temperature = windReader.getTemperature();
         heading = imu.getHeading();
         yawSpeed = imu.getYawSpeedValue();
         speed = gpsPosition.velocity;
@@ -239,10 +239,10 @@ public class Application extends Thread {
         //communication parameters
         if (windows) {
             comPortGPS = "COM4";
-            comPortIMU = "COM5";
+            comPortIMU = "COM3";
             //comPortWind = "COM6"; Not in use
-            comPortThrust = "COM7";
-            comPortRotation = "COM8";
+            comPortThrust = "COM10";
+            comPortRotation = "COM7";
         } else {
             comPortGPS = "ttyACM0";
             comPortIMU = "ttyACM1";
@@ -254,7 +254,7 @@ public class Application extends Thread {
 
         int baudRateIMU = 57600;
 
-        int baudRateWind = 57600;
+        //int baudRateWind = 57600;
 
         int baudRateThrust = 115200;
         
@@ -276,7 +276,6 @@ public class Application extends Thread {
         
         serialRotation = new SerialConnection(comPortRotation, 
                 baudRateRotation);
-
         northEastPositionStorage = new NorthEastPositionStorageBox();
         // Create and start threads
         gpsPositionStorage = new GPSPositionStorageBox();
@@ -347,7 +346,7 @@ public class Application extends Thread {
     private void stopThreads() {
         gps.stopThread();
         imu.stopThread();
-        windReader.stopThread();
+        //windReader.stopThread();
         thrustWriter.closeSerialConn();
         rotationWriter.closeSerialConn();
         server.stopThread();

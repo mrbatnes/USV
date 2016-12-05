@@ -5,9 +5,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.TimerTask;
-import org.seventytwomiles.springframework.io.FileUtils;
+//import org.seventytwomiles.springframework.io.FileUtils;
 
 /**
  *
@@ -104,6 +105,9 @@ public class DynamicPositioning extends TimerTask {
             //Rz'*Tau
             double[] XYNtransformed = Rz.multiplyRzwithV(outputX, outputY, outputN);
             forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed);
+            
+            System.out.println(Arrays.toString(forceOutputNewton));
+            
             thrustWriter.setThrustForAll(forceOutputNewton);
             thrustWriter.writeThrust();
             rotationWriter.setRotationForAll(forceOutputNewton);
