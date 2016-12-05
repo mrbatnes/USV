@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  *
@@ -32,6 +33,8 @@ public class Server extends Thread {
     private boolean gainChanged;
     private boolean available;
     private boolean stop;
+    
+    private ArrayList<String> route;
 
     public Server(ServerSocket ssocket) {
 
@@ -39,6 +42,8 @@ public class Server extends Thread {
         gainChanged = false;
         stop = false;
         this.ssocket = ssocket;
+        
+        route = new ArrayList<>();
     }
 
     public void acceptConnection() throws IOException {
@@ -115,37 +120,58 @@ public class Server extends Thread {
     @Override
     public void run() {
         try {
-            System.out.println("Run server");
-
             printStream = new PrintStream(csocket.getOutputStream(), true);
-
             while (csocket.isConnected() && !stop) {
-                BufferedReader r = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
-                String line = r.readLine();//
+                BufferedReader r = new BufferedReader(
+                        new InputStreamReader(csocket.getInputStream()));
+                String line = r.readLine();//linjen for mottatt data
                 String[] lineData;
                 // System.out.println(line);
                 if (line !=null && !line.isEmpty()) {
                     //System.out.println("Server received data");
-                   lineData = line.split(" ");
-                    setGuiCommand(Integer.parseInt(lineData[0]));
-                    if (guiCommand == 2) {
+                    
+                    // If line starts with "[$" it is a NMEA sentence and should
+                    // therefore not be parsed
+                    if(!line.startsWith("[$"))
+                    {
+                        lineData = line.split(" ");
+                        setGuiCommand(Integer.parseInt(lineData[0]));
+                        
+                        if (guiCommand == 2) {
+                        //setter denne linjen dersom det er fjernstyring
                         setRemoteCommand(lineData);
-                    } else {
+                        } else {
+                        //setter variablene i synkroniserte metoder
                         setHeadingReference(Float.parseFloat(lineData[2]));
-                        setControllerGain(Integer.parseInt(lineData[1]), Float.parseFloat(lineData[3]));
+                        setControllerGain(Integer.parseInt(lineData[1]), 
+                                Float.parseFloat(lineData[3]));
                         setNorthIncDecRequest(Integer.parseInt(lineData[4]));
                         setEastIncDecRequest(Integer.parseInt(lineData[5]));
+                        }
                     }
                     
+                    else if (guiCommand == 5) {
+                        // Makes a new string out of the received line to remove
+                        // the "[" at the beginning and the "]" at the end
+                        String newLine = line.substring(1, line.length() - 1);
+                        
+                        // Removes every "," and spaces and put it in a string array
+                        lineData = newLine.split(", ");
+                        
+                        for(int i = 0; i < lineData.length; i++)
+                        {
+                            route.add(lineData[i]);
+                            System.out.println(route.get(i));
+                        }
+                    }  
                 }
+                //returnerer data til klient
                 printStream.println(getDataFields());
             }
             printStream.close();
             csocket.close();
             System.out.println("Server thread run() exit:");
         } catch (IOException ex) {
-            //Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            System.err.println(ex.toString());
             System.out.println("IO ex server");
 
         }
