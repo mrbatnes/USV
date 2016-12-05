@@ -24,7 +24,7 @@ public class USV {
         //org.apache.log4j.BasicConfigurator.configure();
 
         try {
-            double[] r = t.calculateOutput(new double[]{100, 70, 0}, false);
+            double[] r = t.calculateOutput(new double[]{1000, 70, 0}, false);
             if (r != null) {
                 System.out.println(Arrays.toString(r));
             } else {
