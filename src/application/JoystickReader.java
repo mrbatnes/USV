@@ -10,7 +10,6 @@ import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
-//import net.wimpi.modbus.msg.ReadMultipleRegistersResponse;
 
 /**
  *
@@ -19,7 +18,7 @@ import net.java.games.input.ControllerEnvironment;
  */
 public class JoystickReader extends TimerTask {
 
-    private final double[] axisValues;
+    private double[] axisValues;
     private Controller controller;
 
     public JoystickReader() {
@@ -27,7 +26,7 @@ public class JoystickReader extends TimerTask {
 
         searchForController();
         if (controller == null) {
-            //System.exit(1);
+            System.out.println("No joystick controller found");
         }
     }
 
@@ -45,36 +44,39 @@ public class JoystickReader extends TimerTask {
     @Override
     public void run() {
 
-        // Poll data fra controlleren.
-        controller.poll();
-        // Returnerer et array av Component-objekter, som inneholder 
-        // data fra joystick
-        Component[] components = controller.getComponents();
-        // Gå gjennom hver komponent, for å hente ut ønsket data 
-        for (int i = 0; i < components.length; i++) {
-            Component comp = components[i];
-            Identifier componentIdentifier = comp.getIdentifier();
+        // Poll data fra controlleren hvis det finnes en gyldig joystick tilkoblet
+        if (controller != null) {
+            if (controller.poll()) {
+                // Returnerer et array av Component-objekter, som inneholder 
+                // data fra joystick
+                Component[] components = controller.getComponents();
+                // Gå gjennom hver komponent, for å hente ut ønsket data 
+                for (int i = 0; i < components.length; i++) {
+                    Component comp = components[i];
+                    Identifier componentIdentifier = comp.getIdentifier();
 
-            // Leser kun analogverdier.
-            // Hvis ikke analog, gå til neste komponent
-            if (comp.isAnalog()) {
-                float axisValue = comp.getPollData();
+                    // Leser kun analogverdier.
+                    // Hvis ikke analog, gå til neste komponent
+                    if (comp.isAnalog()) {
+                        float axisValue = comp.getPollData();
 
-                // X akse
-                if (componentIdentifier == Component.Identifier.Axis.X) {
-                    setXaxisValue(axisValue);
-                    continue; // gå til neste komponent
+                        // X akse
+                        if (componentIdentifier == Component.Identifier.Axis.X) {
+                            setXaxisValue(axisValue);
+                            continue; // gå til neste komponent
+                        }
+                        // Y akse
+                        if (componentIdentifier == Component.Identifier.Axis.Y) {
+                            setYaxisValue(axisValue);
+                            continue; // Gå til neste komponent
+                        }
+                        // Vridning
+                        if (componentIdentifier == Component.Identifier.Axis.RZ) {
+                            setZaxisValue(axisValue);
+                        }
+                        //printValues();
+                    }
                 }
-                // Y akse
-                if (componentIdentifier == Component.Identifier.Axis.Y) {
-                    setYaxisValue(axisValue);
-                    continue; // Gå til neste komponent
-                }
-                // Vridning
-                if (componentIdentifier == Component.Identifier.Axis.RZ) {
-                    setZaxisValue(axisValue);
-                }
-                //printValues();
             }
         }
     }
@@ -86,9 +88,9 @@ public class JoystickReader extends TimerTask {
      */
     private synchronized void setXaxisValue(double axisValue) {
         if (axisValue < -0.05f) {
-            axisValues[1] = axisValue * 58;
+            axisValues[1] = axisValue * 200;
         } else if (axisValue > 0.05f) {
-            axisValues[1] = axisValue * 68;
+            axisValues[1] = axisValue * 200;
         } else {
             axisValues[1] = 0.0f;
         }
@@ -101,9 +103,9 @@ public class JoystickReader extends TimerTask {
      */
     private synchronized void setYaxisValue(double axisValue) {
         if (axisValue < -0.05f) {
-            axisValues[0] = -axisValue * 68;
+            axisValues[0] = -axisValue * 200;
         } else if (axisValue > 0.05f) {
-            axisValues[0] = -axisValue * 58;
+            axisValues[0] = -axisValue * 200;
         } else {
             axisValues[0] = 0.0f;
         }
@@ -116,15 +118,10 @@ public class JoystickReader extends TimerTask {
 
     // Mapper akseverdier fra z-aksen til antatt maksimale verdier for moment 
     private synchronized void setZaxisValue(double axisValue) {
-        float len1 = 0.8f;
-        float len2 = 0.87f;
-        float lenB = 0.2f;
         if (axisValue < -0.05f) {
-            axisValues[2] = (-34.0f * len1 - 29.0f * len2 - 2 * 34.0f
-                    - (34.0f + 29.0f) * lenB) * (-axisValue);
+            axisValues[2] = axisValue * 200;
         } else if (axisValue > 0.05f) {
-            axisValues[2] = (34.0f * len1 + 29.0f * len2 + 2 * 34.0f
-                    + (34.0f + 29.0f) * lenB) * axisValue;
+            axisValues[2] = axisValue * 200;
         } else {
             axisValues[2] = 0;
         }
