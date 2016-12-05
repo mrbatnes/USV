@@ -1,2 +1,2 @@
 50.0 0.0 0.0 50.0 0.0 0.0 1.0 0.0 0.0 
-Tunings stored at Tue Jan 01 11:56:53 ACDT 2013 by root
+Tunings stored at Mon Dec 05 13:06:04 CET 2016 by RobinBergseth
