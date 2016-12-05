@@ -86,7 +86,7 @@ public class DynamicPositioning extends TimerTask {
     
     @Override
     public void run() {
-        try {//XYN from SNAME notation
+            //XYN from SNAME notation
             if (northEast.isNewPosition()) {
                 position = northEast.getPosition();
             }
@@ -97,7 +97,7 @@ public class DynamicPositioning extends TimerTask {
             
             float X = xNorthPID.computeOutput(xNorthInput, xNorthReference, false);
             float Y = yEastPID.computeOutput(yEastInput, yEastReference, false);
-            float N = headingPID.computeOutput(imu.getHeading(), headingReference, true);
+            float N = headingPID.computeOutput(headingInput, headingReference, true);
             setPIDOutputVector(X, Y, N);//synchronized
             nedWriter.println((xNorthReference - xNorthInput) + " " + (yEastReference - yEastInput) + " " + (headingReference - headingInput));
             
@@ -112,9 +112,7 @@ public class DynamicPositioning extends TimerTask {
             thrustWriter.writeThrust();
             rotationWriter.setRotationForAll(forceOutputNewton);
             rotationWriter.writeRotation();
-        } catch (Exception ex) {
-            System.out.println("exception dp");
-        }
+
     }
 
     public synchronized void setPIDOutputVector(float X, float Y, float N) {

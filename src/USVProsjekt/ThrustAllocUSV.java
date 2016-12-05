@@ -175,7 +175,7 @@ public class ThrustAllocUSV {
         opt = new JOptimizer();
     }
 
-    public double[] calculateOutput(double[] tau, boolean travelMode) throws Exception {
+    public double[] calculateOutput(double[] tau, boolean travelMode) {
 
         //  set the configuration matrix from travelmode or not
         B = getConfigurationMatrix_B(Lx1, Ly1, Lx2, Ly2, Lx3, Ly3, travelMode);
