@@ -119,7 +119,7 @@ public class ThrustAllocUSV {
 
     public ThrustAllocUSV() {
         //    x1   y1    x2     y2    x3    y3  slack   q weight
-        setup(-0.3, 1.5d, -.5, -.5, .5, -.5, new double[]{100d, 100d, 1000d});
+        setup(1.4, -0.34, -1.04, -.4, -1.4, .4, new double[]{100d, 100d, 1000d});
     }
 
     private void setup(double Lx1, double Ly1, double Lx2, double Ly2, double Lx3, double Ly3, double[] q) {
@@ -133,7 +133,7 @@ public class ThrustAllocUSV {
 
         // initial position matrix
         B = getConfigurationMatrix_B(this.Lx1, this.Ly1, this.Lx2, this.Ly2, this.Lx3, this.Ly3, false);
-       
+
         // power weight matrix (identity matrix because identical motors)
         W = MatrixUtils.createRealIdentityMatrix(6).getData();
 
@@ -143,10 +143,6 @@ public class ThrustAllocUSV {
         P = new BlockRealMatrix(new double[9][9]);
         P.setSubMatrix(W, 0, 0);
         P.setSubMatrix(Q, 6, 6);
-        
- 
-
-        
 
         // create polygon of thruster forces (linear approx)
         double[][] m1 = getConstrainMatrixForAzimuthThruster(thrusterMaxForce, epsilon, constrainVectorM1);
@@ -161,7 +157,7 @@ public class ThrustAllocUSV {
         // get A matrix
         // unequalities A*u <= b
         A = getMatrix_A(constrainList);
-        
+
         b = getConstrainVector_b(constrainList);
 
         beta = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1};
@@ -205,7 +201,7 @@ public class ThrustAllocUSV {
         // optimalisering
         opt.setOptimizationRequest(or);
         int returnCode = 0;
-                
+
         try {
             returnCode = opt.optimize();
         } catch (Exception e) {
@@ -243,7 +239,7 @@ public class ThrustAllocUSV {
             m[k] = new double[]{cos(phiK), sin(phiK), r};
 
         }
-/*
+        /*
         // add constrain angles if present
         if (constrainPairs > 0) {
             for (int i = 0; k < m.length && i < constrainPairs; i++) {
@@ -329,14 +325,14 @@ public class ThrustAllocUSV {
     private double[][] getConfigurationMatrix_B(double Lx1, double Ly1, double Lx2, double Ly2, double Lx3, double Ly3, boolean isInTravelMode) {
         if (isInTravelMode) {
             return new double[][]{
-                {0d,   0d,   1d,    0d,   1d,   0d,  -1d,  0d,  0d},
-                {0d,   0d,   0d,   -1d,   0d,  -1d,   0d, -1d,  0d},
-                {0d,   0d,  -Lx2,  -Ly2, -Lx3, -Ly3,  0d,  0d, -1d}};
+                {0d, 0d, 1d, 0d, 1d, 0d, -1d, 0d, 0d},
+                {0d, 0d, 0d, -1d, 0d, -1d, 0d, -1d, 0d},
+                {0d, 0d, -Lx2, -Ly2, -Lx3, -Ly3, 0d, 0d, -1d}};
         } else {
             return new double[][]{
-                {1d,    0d,   1d,   0d,   1d,   0d,  -1d,  0d,  0d},
-                {0d,   -1d,   0d,  -1d,   0d,  -1d,   0d, -1d,  0d},
-                {-Lx1, -Ly1, -Lx2, -Ly2, -Lx3, -Ly3,  0d,  0d, -1d}};
+                {1d, 0d, 1d, 0d, 1d, 0d, -1d, 0d, 0d},
+                {0d, -1d, 0d, -1d, 0d, -1d, 0d, -1d, 0d},
+                {-Lx1, -Ly1, -Lx2, -Ly2, -Lx3, -Ly3, 0d, 0d, -1d}};
         }
     }
 
@@ -394,6 +390,17 @@ public class ThrustAllocUSV {
      * @return force - angle pairs of thruster in degrees
      */
     private double[] getThrustAndAnglesDeg(double[] r, boolean travelMode) {
+        boolean zero = true;
+        int x = 0;
+        for(double d : r){
+            System.out.println("R" + x + " = " + d);
+            if(d > 1E-10){
+                zero = false;
+            }
+        }
+        if(zero){
+            return new double[]{0, 0, 0, 0, 0, 0};
+        }
         double u1 = Math.sqrt(r[0] * r[0] + r[1] * r[1]);
         double u2 = Math.sqrt(r[2] * r[2] + r[3] * r[3]);
         double u3 = Math.sqrt(r[4] * r[4] + r[5] * r[5]);
@@ -401,12 +408,12 @@ public class ThrustAllocUSV {
         double phi1 = Math.atan2(r[1], r[0]);
         double phi2 = Math.atan2(r[3], r[2]);
         double phi3 = Math.atan2(r[5], r[4]);
-        if(travelMode){
+        if (travelMode) {
             return new double[]{u1, 0d, u2, deg(phi2), u3, deg(phi3)};
         } else {
             return new double[]{u1, deg(phi1), u2, deg(phi2), u3, deg(phi3)};
         }
-        
+
     }
 
     private static double[][] matrix(int rows, int columns, double value) {

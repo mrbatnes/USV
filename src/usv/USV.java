@@ -6,6 +6,8 @@
 package usv;
 
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,12 +16,22 @@ import java.util.logging.Logger;
  * @author lars-harald
  */
 public class USV {
+    private Timer timer;
+    public USV(){
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Timer task");
+            }
+        }, 0, 5000);
+    }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        ThrustAllocUSV t = new ThrustAllocUSV();
+        /*ThrustAllocUSV t = new ThrustAllocUSV();
 
         try {
             double[] r = t.calculateOutput(new double[]{0, 0, 10});
@@ -36,8 +48,8 @@ public class USV {
             System.out.println(" phi1: " + phi1 * 360. / (2 * Math.PI) + " phi2: " + phi2 * 360. / (2 * Math.PI) + " phi3: " + phi3 * 360. / (2 * Math.PI));
         } catch (Exception ex) {
             Logger.getLogger(USV.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+        }*/
+        new USV();
     }
 
 }

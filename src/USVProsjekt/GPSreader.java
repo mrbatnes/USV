@@ -7,6 +7,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Requires an Adafruit Ultimate GPS device connected to an Arduino Uno.
@@ -36,9 +39,13 @@ public class GPSreader extends Thread {
     private GPSPositionStorageBox gpsStorage;
     private NorthEastPositionStorageBox northEastStorage;
 
+    private Scanner scan;
+    private boolean simulate = true;
+
     private PrintWriter nmeaWriter;
 
     private boolean writerStarted;
+    private boolean timerStarted;
 
     /**
      *
@@ -62,13 +69,31 @@ public class GPSreader extends Thread {
         yEast = 0.0f;
         this.ID = ID;
         stop = false;
-
+        if (simulate) {
+            try {
+                scan = new Scanner(new File("route.txt"));
+            } catch (FileNotFoundException e) {
+                System.err.println(e.toString());
+            }
+        }
     }
 
     @Override
     public void run() {
         String line;
         String[] lineData;
+        while (simulate) {
+            if (!timerStarted) {
+                Timer t = new Timer();
+                t.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        setReference();
+                    }
+                }, 0, 500);
+                timerStarted = true;
+            }
+        }
         while (serialConnection.isConnected() && !stop) {
             setReference();
             if (!writerStarted) {
@@ -122,28 +147,50 @@ public class GPSreader extends Thread {
     }
 
     private void setReference() {
-        while (!dynamicPositioning && !stop) {
-            if (writerStarted) {
-                nmeaWriter.close();
-                writerStarted = false;
-            }
-            //init period for å forhindre å parse korrupte data
-            while (initPeriod < 10 && serialConnection.isConnected()) {
-                serialConnection.getSerialLine();
-                initPeriod++;
-            }
-            String line = serialConnection.getSerialLine();
-            String[] lineData = line.split("\r\n");
-            if (lineData[0].startsWith("$") && lineData[1].startsWith("$") && checkEmpty(lineData[0])) {
-                String NMEA1 = lineData[0];
-                String NMEA2 = lineData[1];
+        if (simulate) {
+            if (scan.hasNextLine()) {
+                String NMEA1 = scan.nextLine();
+                String NMEA2 = scan.nextLine();
                 nmea.parse(NMEA1);
                 nmea.parse(NMEA2);
                 latReference = (nmea.position.lat * Math.PI / 180.0);
                 lonReference = (nmea.position.lon * Math.PI / 180.0);
                 gpsStorage.setPosition(nmea.position);
+            } else {
+                try {
+                    scan = new Scanner(new File("route.txt"));
+                } catch (FileNotFoundException e) {
+                    System.err.println(e.toString());
+                }
+                System.out.println("reset scanner");
             }
 
+        } else {
+            while (!dynamicPositioning && !stop) {
+                if (writerStarted) {
+                    nmeaWriter.close();
+                    writerStarted = false;
+                }
+
+                //init period for å forhindre å parse korrupte data
+                while (initPeriod < 10 && serialConnection.isConnected()) {
+                    serialConnection.getSerialLine();
+                    initPeriod++;
+                }
+                String line = serialConnection.getSerialLine();
+                String[] lineData = line.split("\r\n");
+
+                if (lineData[0].startsWith("$") && lineData[1].startsWith("$") && checkEmpty(lineData[0])) {
+                    String NMEA1 = lineData[0];
+                    String NMEA2 = lineData[1];
+                    nmea.parse(NMEA1);
+                    nmea.parse(NMEA2);
+                    latReference = (nmea.position.lat * Math.PI / 180.0);
+                    lonReference = (nmea.position.lon * Math.PI / 180.0);
+                    gpsStorage.setPosition(nmea.position);
+                }
+
+            }
         }
     }
 
@@ -181,5 +228,4 @@ public class GPSreader extends Thread {
     void setReferencePositionOff() {
         dynamicPositioning = false;
     }
-
 }

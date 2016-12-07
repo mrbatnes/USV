@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
 import org.apache.commons.io.FileUtils;
@@ -29,6 +30,10 @@ public class Application extends Thread {
     private RotationWriter rotationWriter;
     private GPSPositionStorageBox gpsPositionStorage;
     private GPSPosition gpsPosition;
+    private NMEAparser nmea;
+
+    private ArrayList<String> route;
+    private int routeIndex;
 
     private double latitudeBody;
     private double longitudeBody;
@@ -50,8 +55,10 @@ public class Application extends Thread {
     private Server server;
 
     private boolean dpStarted;
+    private boolean travelStarted;
     private DynamicPositioning dynamicPositioning;
     private RemoteOperation remoteOperation;
+    private AutonomousTravel autonomousTravel;
     private double[] northEastPosition;
 
     private Timer timer;
@@ -97,6 +104,7 @@ public class Application extends Thread {
 
     @Override
     public void run() {
+
         readPreviousTuningsFromFile();
         while (guiCommand != 4) {
             //************************************************
@@ -122,12 +130,16 @@ public class Application extends Thread {
                 dpStarted = false;
                 incrementAmountX = 0;
                 incrementAmountY = 0;
-                northEastPositionStorage.setPosition(new double[]{0,0});
+                northEastPositionStorage.setPosition(new double[]{0, 0});
                 float[][] a = dynamicPositioning.getAllControllerTunings();
                 storeControllerTunings(a);
                 dynamicPositioning = new DynamicPositioning(thrustWriter, rotationWriter, northEastPositionStorage, imu);
                 dynamicPositioning.setPreviousGains(a);
                 System.out.println("timer cancelled and flag reset");
+            }
+            if (guiCommand != 5 && travelStarted) {
+                autonomousTravel.setTravel(false);
+                System.out.println("Travel stoped");
             }
             //Edits the gains if change is detected
             if (gainChanged != 0) {
@@ -151,6 +163,9 @@ public class Application extends Thread {
                     break;
                 case 2:
                     remoteOperation();
+                    break;
+                case 5:
+                    autonomousTravel();
                     break;
             }
             server.setDataFields(getDataLine());
@@ -193,6 +208,41 @@ public class Application extends Thread {
         remoteOperation.remoteOperate(remoteCommand);
 //        System.out.println("X: " + remoteCommand[0] + ""
 //                + " Y: " + remoteCommand[1] + " Heading: " + remoteCommand[2]);
+    }
+
+    private void autonomousTravel() {
+        updateBasicFields();
+        if (!travelStarted && server.isRouteReceived()) {
+            routeIndex = 0;
+            autonomousTravel.startWriter();
+            autonomousTravel.resetControllerErrors();
+            autonomousTravel.start();
+            route = server.getRoute();
+            setPosition(route.get(routeIndex), true);
+            travelStarted = true;
+        } else if (travelStarted) {
+            if (autonomousTravel.getDistanceToNextPoint() < 5) {
+                if (routeIndex < (route.size() - 1)) {
+                    routeIndex += 2;
+                    setPosition(route.get(routeIndex), true);
+                } else {
+                    autonomousTravel.setTravel(false);
+                    dynamicPositioning();
+                    dpStarted = true;
+                }
+            } else {
+                setPosition(route.get(routeIndex), false);
+            }
+        }
+    }
+
+    private void setPosition(String nmeaIn, boolean update) {
+        GPSPosition pointPos = nmea.parse(nmeaIn);
+        double pointLat = pointPos.lat;
+        double pointLng = pointPos.lon;
+        NEDtransform transf = new NEDtransform();
+        double[] pos = transf.getFlatEarthCoordinates(pointLat, pointLng, gps.getLatRef(), gps.getLonRef());
+        autonomousTravel.setPosition(pos, update);
     }
 
     private void updateBasicFields() {
@@ -242,7 +292,7 @@ public class Application extends Thread {
             comPortIMU = "COM3";
             //comPortWind = "COM6"; Not in use
             comPortThrust = "COM10";
-            comPortRotation = "COM7";
+            comPortRotation = "COM12";
         } else {
             comPortGPS = "ttyACM0";
             comPortIMU = "ttyACM1";
@@ -255,9 +305,8 @@ public class Application extends Thread {
         int baudRateIMU = 57600;
 
         //int baudRateWind = 57600;
-
         int baudRateThrust = 115200;
-        
+
         int baudRateRotation = 115200;
 
         //One serial connection for each sensor/port
@@ -266,28 +315,25 @@ public class Application extends Thread {
 
         serialIMU = new SerialConnection(comPortIMU,
                 baudRateIMU);
-        
+
         // Not in use
         //serialWind = new SerialConnection(comPortWind, 
         //        baudRateWind);
-
         serialThrust = new SerialConnection(comPortThrust,
                 baudRateThrust);
-        
-        serialRotation = new SerialConnection(comPortRotation, 
+
+        serialRotation = new SerialConnection(comPortRotation,
                 baudRateRotation);
         northEastPositionStorage = new NorthEastPositionStorageBox();
         // Create and start threads
         gpsPositionStorage = new GPSPositionStorageBox();
         gps = new GPSreader(serialGPS, Identifier.GPS, northEastPositionStorage);
-                // Set gps position storage box, and initialize with values
+        // Set gps position storage box, and initialize with values
         gps.setStorageBox(gpsPositionStorage);
         gps.connectToSerialPortAndDisplayGPSInfo();
         gps.setName("GPS Reader Thread");
         gps.start();
 
-        
-        
         northEastPosition = northEastPositionStorage.getPosition();
 
         gpsPosition = gpsPositionStorage.getPosition();
@@ -296,19 +342,20 @@ public class Application extends Thread {
         imu.connectToSerialPortAndDisplayIMUInfo();
         imu.setName("IMU Reader Thread");
         imu.start();
-        
+
         // Not in use
         /*
         windReader = new WindReader(serialWind, Identifier.WIND);
         windReader.connectToSerialPortAndDisplayWindInfo();
         windReader.setName("Wind Reader Thread");
         windReader.start();
-        */
-
+         */
         thrustWriter = new ThrustWriter(serialThrust, Identifier.THRUSTERS);
         rotationWriter = new RotationWriter(serialRotation, Identifier.ROTATION);
         dynamicPositioning = new DynamicPositioning(thrustWriter, rotationWriter, northEastPositionStorage, imu);
         remoteOperation = new RemoteOperation(thrustWriter, rotationWriter);
+        autonomousTravel = new AutonomousTravel(thrustWriter, rotationWriter, northEastPositionStorage, gpsPositionStorage, imu);
+        nmea = new NMEAparser();
     }
 
     public static void main(String[] args) throws Exception {

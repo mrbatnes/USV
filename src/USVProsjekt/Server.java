@@ -33,6 +33,7 @@ public class Server extends Thread {
     private boolean gainChanged;
     private boolean available;
     private boolean stop;
+    private boolean routeReceived;
     
     private ArrayList<String> route;
 
@@ -162,6 +163,7 @@ public class Server extends Thread {
                         {
                             route.add(lineData[i]);
                             System.out.println(route.get(i));
+                            routeReceived = true;
                         }
                     }  
                 }
@@ -208,5 +210,13 @@ public class Server extends Thread {
 
     public boolean isClosed() {
         return csocket.isClosed();
+    }
+    
+    public ArrayList getRoute(){
+        return route;
+    }
+    
+    public boolean isRouteReceived(){
+        return routeReceived;
     }
 }

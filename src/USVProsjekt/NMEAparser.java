@@ -37,7 +37,12 @@ public class NMEAparser {
 			position.lat = Latitude2Decimal(tokens[2], tokens[3]);
 			position.lon = Longitude2Decimal(tokens[4], tokens[5]);
 			position.quality = Integer.parseInt(tokens[6]);
-			position.satNum = Integer.parseInt(tokens[7]);
+                        if(tokens[7] == null){
+                            position.satNum = Integer.parseInt(tokens[7]);
+                        }
+                        else{
+                            position.satNum = 3; 
+                        }
 			position.altitude = Double.parseDouble(tokens[9]);
 			return true;
 		}
@@ -57,8 +62,16 @@ public class NMEAparser {
 			position.time = Double.parseDouble(tokens[1]);
 			position.lat = Latitude2Decimal(tokens[3], tokens[4]);
 			position.lon = Longitude2Decimal(tokens[5], tokens[6]);
-			position.velocity = (0.51444*Double.parseDouble(tokens[7]));
-			position.dir = Double.parseDouble(tokens[8]);
+                        if(tokens[7] == null || tokens[7].isEmpty()){
+                            position.velocity = 2;
+                        }else{
+                            position.velocity = (0.51444*Double.parseDouble(tokens[7]));
+                        }
+                        if(tokens[8] == null || tokens[8].isEmpty()){
+                            position.dir = 0;
+                        }else{
+                            position.dir = Double.parseDouble(tokens[8]);
+                        }
 			return true;
 		}
 	}

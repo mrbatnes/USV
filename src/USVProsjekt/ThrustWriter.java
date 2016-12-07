@@ -46,11 +46,8 @@ public class ThrustWriter {
             newton[x] = Math.sqrt(r[i] * r[i] + r[i+1] * r[i+1]);
         }
         pulseWidth1 = newtonToPulseWidth(newton[0]);
-        System.out.println("PWM1 = " + pulseWidth1);
         pulseWidth2 = newtonToPulseWidth(newton[1]);
-        System.out.println("PWM2 = " + pulseWidth2);
         pulseWidth3 = newtonToPulseWidth(newton[2]);
-        System.out.println("PWM3 = " + pulseWidth3);
     }
 
     public int newtonToPulseWidth(double xNewton) {
