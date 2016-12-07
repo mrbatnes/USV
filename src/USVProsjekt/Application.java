@@ -138,7 +138,12 @@ public class Application extends Thread {
                 System.out.println("timer cancelled and flag reset");
             }
             if (guiCommand != 5 && travelStarted) {
-                autonomousTravel.setTravel(false);
+                timer.cancel();
+                travelStarted = false;
+                float[][] a = autonomousTravel.getAllControllerTunings();
+                storeControllerTunings(a);
+                autonomousTravel = new AutonomousTravel(thrustWriter, rotationWriter, northEastPositionStorage, gpsPositionStorage, imu);
+                autonomousTravel.setPreviousGains(a);
                 System.out.println("Travel stoped");
             }
             //Edits the gains if change is detected
@@ -213,22 +218,27 @@ public class Application extends Thread {
     private void autonomousTravel() {
         updateBasicFields();
         if (!travelStarted && server.isRouteReceived()) {
+            System.out.println("start travel");
             routeIndex = 0;
+            autonomousTravel.setTravel(true);
             autonomousTravel.startWriter();
             autonomousTravel.resetControllerErrors();
-            autonomousTravel.start();
+            timer = new Timer();
+            timer.scheduleAtFixedRate(autonomousTravel, 0, 200);
             route = server.getRoute();
             setPosition(route.get(routeIndex), true);
             travelStarted = true;
         } else if (travelStarted) {
-            if (autonomousTravel.getDistanceToNextPoint() < 5) {
+            System.out.println("Distance to point = " + autonomousTravel.getDistanceToNextPoint());
+            if (autonomousTravel.getDistanceToNextPoint() < 16) {
                 if (routeIndex < (route.size() - 1)) {
                     routeIndex += 2;
                     setPosition(route.get(routeIndex), true);
+                    System.out.println("New point");
                 } else {
                     autonomousTravel.setTravel(false);
-                    dynamicPositioning();
-                    dpStarted = true;
+                    //dynamicPositioning();
+                    //dpStarted = true;
                 }
             } else {
                 setPosition(route.get(routeIndex), false);

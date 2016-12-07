@@ -11,12 +11,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 import USVProsjekt.NMEAparser.GPSPosition;
+import cern.colt.Arrays;
+import java.util.TimerTask;
 
 /**
  *
  * @author RobinBergseth
  */
-public class AutonomousTravel extends Thread {
+public class AutonomousTravel extends TimerTask {
 
     private PIDController xNorthPID;
     private PIDController yEastPID;
@@ -56,6 +58,8 @@ public class AutonomousTravel extends Thread {
         xNorthPID = new PIDController();
         yEastPID = new PIDController();
         headingPID = new PIDController();
+        
+        thrustAllocator = new ThrustAllocUSV();
         
         this.thrustWriter = thrustWriter;
         this.rotationWriter = rotatationWriter;
@@ -103,12 +107,12 @@ public class AutonomousTravel extends Thread {
 
     @Override
     public void run() {
-        while (travel) {
-            if (newPosition) {
+        
+            /*if (newPosition) {
                 alignHeading();
                 newPosition = false;
                 System.out.println("new postion");
-            }
+            }*/
             xNorthInput = (float) position[0];
             yEastInput = (float) position[1];
             headingInput = imu.getHeading();
@@ -128,7 +132,7 @@ public class AutonomousTravel extends Thread {
             thrustWriter.writeThrust();
             rotationWriter.setRotationForAll(forceOutputNewton);
             rotationWriter.writeRotation();
-        }
+        
     }
 
     public synchronized void setPIDOutputVector(float X, float Y, float N) {
@@ -205,6 +209,7 @@ public class AutonomousTravel extends Thread {
                 Rz = new RotationMatrix(headingInput);
 
                 double[] XYNtransformed = Rz.multiplyRzwithV(outputX, outputY, outputN);
+                
                 forceOutputNewton = thrustAllocator.calculateOutput(XYNtransformed, true);
 
                 thrustWriter.setThrustForAll(forceOutputNewton);
