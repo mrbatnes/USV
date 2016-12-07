@@ -231,7 +231,7 @@ public class Application extends Thread {
         } else if (travelStarted) {
             System.out.println("Distance to point = " + autonomousTravel.getDistanceToNextPoint());
             if (autonomousTravel.getDistanceToNextPoint() < 16) {
-                if (routeIndex < (route.size() - 1)) {
+                if (routeIndex < (route.size() - 2)) {
                     routeIndex += 2;
                     setPosition(route.get(routeIndex), true);
                     System.out.println("New point");

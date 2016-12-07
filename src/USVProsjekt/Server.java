@@ -154,19 +154,19 @@ public class Server extends Thread {
 
                         // Removes every "," and spaces and put it in a string array
                         lineData = newLine.split(", ");
-                        /*
+                        
                         for(int i = 0; i < lineData.length; i++)
                         {
                             route.add(lineData[i]);
                             System.out.println(route.get(i));
                             routeReceived = true;
-                        }*/
-                        for (int i = 1; i < 6; i++) {
+                        }
+                        /*for (int i = 1; i < 6; i++) {
                             route.add("$GPGGA,085954.775,6228.236,N,00614.6" + i + "0,E,7,,,0.0,M,,,,*2C");
                             route.add("$GPRMC,085954.775,,6228.236,N,00614.6" + i + "0,E,,,071216,,,*66");
                         }
 
-                        routeReceived = true;
+                        routeReceived = true;*/
                     }
                 }
                 //returnerer data til klient
