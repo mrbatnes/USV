@@ -13,6 +13,7 @@ import net.sf.marineapi.nmea.sentence.TalkerId;
 import net.sf.marineapi.nmea.util.Position;
 import net.sf.marineapi.nmea.util.Time;
 import net.sf.marineapi.nmea.util.Date;
+import net.sf.marineapi.nmea.util.GpsFixQuality;
 
 /**
  *
@@ -40,6 +41,8 @@ public class NMEASentenceGenerator {
         
         gga.setTime(time);
         gga.setPosition(pos);
+        gga.setFixQuality(GpsFixQuality.MANUAL);
+        gga.setAltitude(0);
         
         //System.out.println(gga.toSentence());
         

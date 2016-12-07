@@ -64,7 +64,7 @@ public class Client extends Thread {
                 try {
                     System.out.println("Should connect");
                     // Opprett ny socket 192.168.0.101
-                    Socket clientSocket = new Socket("localhost", 2345);
+                    Socket clientSocket = new Socket("192.168.43.111", 2345);
                     System.out.println(clientSocket.isConnected());
 
                     BufferedReader inFromServer;

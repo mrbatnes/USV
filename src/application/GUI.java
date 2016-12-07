@@ -1,9 +1,13 @@
 package application;
 
+import cern.colt.Arrays;
 import com.esri.core.geometry.CoordinateConversion;
+import com.esri.core.geometry.Envelope;
+import com.esri.core.geometry.GeometryEngine;
+import com.esri.core.geometry.Point;
+import com.esri.core.geometry.SpatialReference;
 import com.esri.core.gps.FileGPSWatcher;
 import com.esri.core.gps.GPSException;
-import com.esri.core.gps.GPSUncheckedException;
 import com.esri.core.gps.IGPSWatcher;
 import com.esri.core.map.Graphic;
 import com.esri.core.symbol.SimpleMarkerSymbol;
@@ -39,7 +43,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.Timer;
-import javax.swing.BorderFactory;
+import java.util.TimerTask;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JToggleButton;
@@ -74,13 +78,15 @@ public class GUI extends javax.swing.JFrame implements Runnable {
     private String date;
     private JMap map;
     private GraphicsLayer graphicsLayer;
+    private GraphicsLayer plotLayer;
     private int numberOfWaypoints = 0;
-    private DrawingOverlay drawingOverlay;
+    private DrawingOverlay waypointsOverlay;
     private HashMap<String, List<Double>> waypointCoordinates;
     private ArrayList<String> NMEASentences;
     private boolean canSetWaypoints = false;
     private MouseClickedOverlay mco;
     private Symbol waypoint;
+    private Symbol currentLocation;
     private GPSLayer gpsLayer;
     private IGPSWatcher gpsWatcher;
     private LayerList layers;
@@ -92,6 +98,9 @@ public class GUI extends javax.swing.JFrame implements Runnable {
     private boolean mapIsInitialised = false;
     private boolean shouldSendRoute = false;
     private String wp;
+    private boolean removePlot = false;
+    private Graphic location;
+    private Timer plotTimer;
 
     /**
      * Creates new form GUI
@@ -222,6 +231,7 @@ public class GUI extends javax.swing.JFrame implements Runnable {
             NMEASentences = new ArrayList<>();
             mco = new MouseClickedOverlay();
             waypoint = new SimpleMarkerSymbol(Color.RED, 15, SimpleMarkerSymbol.Style.CIRCLE);
+            currentLocation = new SimpleMarkerSymbol(Color.BLUE, 15, SimpleMarkerSymbol.Style.CIRCLE);
             sentenceGenerator = new NMEASentenceGenerator();
             
             sdf = new SimpleDateFormat("HHmmss-ddMMyyyy");
@@ -233,15 +243,13 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         }
     }
     
-    private JComponent addMapToUI() throws Exception
+    private void addMapToUI() throws Exception
     {
         MapPanel.setLayout(new BorderLayout());
         
         this.createMap();
         
         MapPanel.add(map, BorderLayout.CENTER);
-        
-        return MapPanel;
     }
     
     private void createMap()
@@ -254,19 +262,21 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         map.addMapOverlay(navigator);
         
         graphicsLayer = new GraphicsLayer();
+        plotLayer = new GraphicsLayer();
         
         layers = map.getLayers();
         layers.add(graphicsLayer);
+        layers.add(plotLayer);
         
-        drawingOverlay = new DrawingOverlay();
-        map.addMapOverlay(drawingOverlay);
-        drawingOverlay.setActive(true);
-        drawingOverlay.addDrawingCompleteListener(new DrawingCompleteListener()
+        waypointsOverlay = new DrawingOverlay();
+        map.addMapOverlay(waypointsOverlay);
+        waypointsOverlay.setActive(true);
+        waypointsOverlay.addDrawingCompleteListener(new DrawingCompleteListener()
         {
             @Override
             public void drawingCompleted(DrawingCompleteEvent arg0) 
             {
-                Graphic graphic = (Graphic) drawingOverlay.getAndClearFeature();
+                Graphic graphic = (Graphic) waypointsOverlay.getAndClearFeature();
                 graphicsLayer.addGraphic(graphic);
                 
                 if (graphic.getAttributeValue("type").equals("Waypoints")) 
@@ -301,26 +311,23 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         NMEASentences.add(rmc);
     }
     
-    private void startGPS()
+    private void drawCurrentLocation()
     {
-        try {
-            File path = new File("logfiles" + FSP + date + ".txt");
-            if(path.exists())
-            {
-                System.out.println("logfiles" + FSP + date + ".txt");
-                gpsWatcher = new FileGPSWatcher("logfiles" + FSP + date + ".txt", 1000, true);
-                gpsWatcher.setTimeout(20000);
-            
-                gpsLayer = new GPSLayer(gpsWatcher);
-                gpsLayer.setMode(GPSLayer.Mode.OFF);
-                gpsLayer.setNavigationPointHeightFactor(0.3);
-                gpsLayer.setTrackPointSymbol(new SimpleMarkerSymbol(new Color(200, 0, 0, 200), 15, SimpleMarkerSymbol.Style.CIRCLE));
-                
-                layers.add(gpsLayer);
-            }
-        } catch (GPSException ex) {
-            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        if(removePlot)
+            plotLayer.removeAll();
+        
+        double[] latLon = storage.getLatLonFromUSV();
+        double latitude = latLon[1];
+        double longitude = latLon[0];
+        
+        Point point = (Point) GeometryEngine.project(latitude, longitude, map.getSpatialReference());
+        
+        location = new Graphic(point, currentLocation);
+        plotLayer.addGraphic(location);
+        
+        removePlot = true;
+        
+        //map.setExtent(new Envelope(point, 5000, 5000));
     }
     
     private class MouseClickedOverlay extends MapOverlay {
@@ -339,15 +346,10 @@ public class GUI extends javax.swing.JFrame implements Runnable {
             java.awt.Point screenPoint = e.getPoint();
             com.esri.core.geometry.Point mapPoint = map.toMapPoint(screenPoint.x, screenPoint.y);
         
-            //String degreesDecimalMinutes = CoordinateConversion.pointToDegreesDecimalMinutes(mapPoint, map.getSpatialReference(), 4);
             String decimalDegrees = CoordinateConversion.pointToDecimalDegrees(mapPoint, map.getSpatialReference(), 4);
-            //System.out.println(decimalDegrees);
           
             MapPointToDoubleParser parser = new MapPointToDoubleParser(decimalDegrees);
             waypointCoordinates.put(wp + numberOfWaypoints, parser.parseMapPoint());
-        
-            /*System.out.println("Waypoint " + numberOfWaypoints + " "+ waypointCoordinates.get("Waypoint " + numberOfWaypoints).get(northCoordinate) 
-                + "N " + waypointCoordinates.get("Waypoint " + numberOfWaypoints).get(eastCoordinate) + "E");*/
         }
 
       } finally {
@@ -373,7 +375,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         travelModePanel = new javax.swing.JPanel();
         MapPanel = new javax.swing.JPanel();
         ControlPanel = new javax.swing.JPanel();
-        startGPSButton = new javax.swing.JButton();
         resetWaypointsButton = new javax.swing.JButton();
         waypointsButton = new javax.swing.JToggleButton();
         sendRouteButton = new javax.swing.JButton();
@@ -482,13 +483,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
 
         ControlPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Controls", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Dialog", 1, 18))); // NOI18N
 
-        startGPSButton.setText("Start GPS");
-        startGPSButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startGPSButtonActionPerformed(evt);
-            }
-        });
-
         resetWaypointsButton.setText("Reset Waypoints");
         resetWaypointsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -514,7 +508,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         ControlPanel.setLayout(ControlPanelLayout);
         ControlPanelLayout.setHorizontalGroup(
             ControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(startGPSButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(resetWaypointsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
             .addComponent(waypointsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(sendRouteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -527,9 +520,7 @@ public class GUI extends javax.swing.JFrame implements Runnable {
                 .addComponent(waypointsButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resetWaypointsButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(startGPSButton)
-                .addGap(0, 376, Short.MAX_VALUE))
+                .addGap(0, 414, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout travelModePanelLayout = new javax.swing.GroupLayout(travelModePanel);
@@ -552,8 +543,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
                     .addComponent(MapPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-
-        ControlPanel.getAccessibleContext().setAccessibleName("Controls");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1319,10 +1308,15 @@ public class GUI extends javax.swing.JFrame implements Runnable {
             mapIsInitialised = true;
         }
         
-        guiCommand = 5;
-        r.setGUIcommand(guiCommand);
-        
         mapFrame.setVisible(true);
+        
+        plotTimer = new Timer();
+        plotTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                drawCurrentLocation();
+            }
+        }, 10000, 1000);
     }//GEN-LAST:event_travelModeButtonActionPerformed
 
     private void waypointsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_waypointsButtonActionPerformed
@@ -1332,7 +1326,7 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         if (tBtn.isSelected()) {
             canSetWaypoints = true;
             attributes.put("type", "Waypoints");
-            drawingOverlay.setUp(DrawingOverlay.DrawingMode.POINT, waypoint, attributes);
+            waypointsOverlay.setUp(DrawingOverlay.DrawingMode.POINT, waypoint, attributes);
             map.addMapOverlay(mco);
 
             d = new Date();
@@ -1347,7 +1341,7 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         } else {
             canSetWaypoints = false;
             attributes.clear();
-            drawingOverlay.setUp(DrawingOverlay.DrawingMode.NONE, waypoint, attributes);
+            waypointsOverlay.setUp(DrawingOverlay.DrawingMode.NONE, waypoint, attributes);
             map.removeMapOverlay(mco);
         }
     }//GEN-LAST:event_waypointsButtonActionPerformed
@@ -1368,10 +1362,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_resetWaypointsButtonActionPerformed
 
-    private void startGPSButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startGPSButtonActionPerformed
-        startGPS();
-    }//GEN-LAST:event_startGPSButtonActionPerformed
-
     private void sendRouteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendRouteButtonActionPerformed
         for(int i = 0; i < NMEASentences.size(); i++)
         {
@@ -1380,6 +1370,9 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         fileWriter.close();
         
         r.setNMEASentences(NMEASentences);
+        
+        guiCommand = 5;
+        r.setGUIcommand(guiCommand);
     }//GEN-LAST:event_sendRouteButtonActionPerformed
 /*
     Metode for å konvertere string til desimaltall hentet fra java api
@@ -1525,7 +1518,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
     private javax.swing.JPanel setpointLabel2;
     private javax.swing.JButton southButton;
     private javax.swing.JLabel speedLabel;
-    private javax.swing.JButton startGPSButton;
     private javax.swing.JLabel statusLabel;
     private javax.swing.JLabel surgeLabel;
     private javax.swing.JLabel swayLabel;

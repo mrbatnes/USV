@@ -73,6 +73,7 @@ public class JoystickReader extends TimerTask {
                         // Vridning
                         if (componentIdentifier == Component.Identifier.Axis.RZ) {
                             setZaxisValue(axisValue);
+                            //System.out.println(axisValue);
                         }
                         //printValues();
                     }
@@ -87,10 +88,10 @@ public class JoystickReader extends TimerTask {
      * retninger
      */
     private synchronized void setXaxisValue(double axisValue) {
-        if (axisValue < -0.05f) {
-            axisValues[1] = axisValue * 200;
-        } else if (axisValue > 0.05f) {
-            axisValues[1] = axisValue * 200;
+        if (axisValue < -0.10f) {
+            axisValues[1] = axisValue * 100;
+        } else if (axisValue > 0.10f) {
+            axisValues[1] = axisValue * 100;
         } else {
             axisValues[1] = 0.0f;
         }
@@ -102,10 +103,10 @@ public class JoystickReader extends TimerTask {
     * retninger
      */
     private synchronized void setYaxisValue(double axisValue) {
-        if (axisValue < -0.05f) {
-            axisValues[0] = -axisValue * 200;
-        } else if (axisValue > 0.05f) {
-            axisValues[0] = -axisValue * 200;
+        if (axisValue < -0.10f) {
+            axisValues[0] = -axisValue * 100;
+        } else if (axisValue > 0.10f) {
+            axisValues[0] = -axisValue * 100;
         } else {
             axisValues[0] = 0.0f;
         }
@@ -118,10 +119,10 @@ public class JoystickReader extends TimerTask {
 
     // Mapper akseverdier fra z-aksen til antatt maksimale verdier for moment 
     private synchronized void setZaxisValue(double axisValue) {
-        if (axisValue < -0.05f) {
-            axisValues[2] = axisValue * 200;
-        } else if (axisValue > 0.05f) {
-            axisValues[2] = axisValue * 200;
+        if (axisValue < -0.10f) {
+            axisValues[2] = axisValue * 50;
+        } else if (axisValue > 0.10f) {
+            axisValues[2] = axisValue * 50;
         } else {
             axisValues[2] = 0;
         }
