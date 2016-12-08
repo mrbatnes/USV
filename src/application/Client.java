@@ -125,10 +125,8 @@ public class Client extends Thread {
                             
                             if(shouldSendDataToUSV)
                             {
-                                pstream.println(dataToUSV);
-                                this.shouldSendDataToUSV = false;
-                                    
-                                System.out.println(Arrays.toString(dataToUSV));
+                                pstream.println("@:" + dataToUSV[0]);
+                                this.setShouldSendDataToUSV(false);
                             }
 
                             lastTime = System.currentTimeMillis();
@@ -271,28 +269,33 @@ public class Client extends Thread {
         this.shouldSendRoute = true;
     }
     
+    public void setShouldSendDataToUSV(boolean send)
+    {
+        this.shouldSendDataToUSV = send;
+    }
+    
     public void turnHornOn()
     {
         dataToUSV[0] |= 1 << 0;
-        this.shouldSendDataToUSV = true;
+        this.setShouldSendDataToUSV(true);
     }
     
     public void turnHornOff()
     {
         dataToUSV[0] &= ~(1 << 0);
-        this.shouldSendDataToUSV = true;
+        this.setShouldSendDataToUSV(true);
     }
     
     public void turnLanternOn()
     {
         dataToUSV[0] |= 1 << 1;
-        this.shouldSendDataToUSV = true;
+        this.setShouldSendDataToUSV(true);
     }
     
     public void turnLanternOff()
     {
         dataToUSV[0] &= ~(1 << 1);
-        this.shouldSendDataToUSV = true;
+        this.setShouldSendDataToUSV(true);
     }
 
     int getGuiCommand() {

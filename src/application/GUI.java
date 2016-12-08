@@ -181,7 +181,11 @@ public class GUI extends javax.swing.JFrame implements Runnable {
                 else statusLabel.setText("Status: Idle");
                 break;
             case 4:
-                statusLabel.setText("Status: Disconnected");                
+                statusLabel.setText("Status: Disconnected");  
+                break;
+            case 5:
+                statusLabel.setText("Status: Travel Mode");
+                break;
         }
 
         swayPlot.updatePlot(data[1]);
@@ -257,7 +261,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         MapOptions mapOptions = new MapOptions(MapOptions.MapType.TOPO, 62.4705, 6.2425, 16);
         map = new JMap(mapOptions);
         map.setShowingEsriLogo(false);
-        map.setShowingCopyright(true);
         
         NavigatorOverlay navigator = new NavigatorOverlay();
         map.addMapOverlay(navigator);
@@ -277,7 +280,8 @@ public class GUI extends javax.swing.JFrame implements Runnable {
             @Override
             public void drawingCompleted(DrawingCompleteEvent arg0) 
             {
-                Graphic graphic = (Graphic) waypointsOverlay.getAndClearFeature();
+                Graphic graphic = (Graphic) waypointsOverlay.getFeature();
+                //Graphic graphic = (Graphic) waypointsOverlay.getAndClearFeature();
                 graphicsLayer.addGraphic(graphic);
                 
                 if (graphic.getAttributeValue("type").equals("Waypoints")) 
@@ -327,8 +331,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         plotLayer.addGraphic(location);
         
         removePlot = true;
-        
-        //map.setExtent(new Envelope(point, 5000, 5000));
     }
     
     private class MouseClickedOverlay extends MapOverlay {
@@ -1376,15 +1378,6 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         graphicsLayer.removeAll();
         waypointCoordinates.clear();
         NMEASentences.clear();
-        
-        try {
-            gpsWatcher.stop();
-            gpsWatcher.dispose();
-            gpsLayer.removeAll();
-        } catch (GPSException ex) {
-            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("GPS Exception");
-        }
     }//GEN-LAST:event_resetWaypointsButtonActionPerformed
 
     private void sendRouteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendRouteButtonActionPerformed
