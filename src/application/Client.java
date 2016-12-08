@@ -1,5 +1,6 @@
 package application;
 
+import cern.colt.Arrays;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -31,6 +32,7 @@ public class Client extends Thread {
 
     private float[] dataFromUSV;
     private double[] latLonFromUSV;
+    private byte[] dataToUSV;
 
     private JoystickReader reader;
     private int gainNr;
@@ -41,6 +43,7 @@ public class Client extends Thread {
     
     private ArrayList<String> NMEASentences;
     private boolean shouldSendRoute = false;
+    private boolean shouldSendDataToUSV = false;
 
     public Client(JoystickReader reader, DataStorage storage) {
         this.reader = reader;
@@ -50,6 +53,7 @@ public class Client extends Thread {
         guiCommand = 0;
         latLonFromUSV = new double[2];
         dataFromUSV = new float[23];
+        dataToUSV = new byte[1];
         
         NMEASentences = new ArrayList<>();
     }
@@ -64,7 +68,7 @@ public class Client extends Thread {
                 try {
                     System.out.println("Should connect");
                     // Opprett ny socket 192.168.0.101
-                    Socket clientSocket = new Socket("192.168.43.111", 2345);
+                    Socket clientSocket = new Socket("192.168.43.248", 2345);
                     System.out.println(clientSocket.isConnected());
 
                     BufferedReader inFromServer;
@@ -117,6 +121,14 @@ public class Client extends Thread {
                                     pstream.println(NMEASentences);
                                     this.shouldSendRoute = false;
                                 }
+                            }
+                            
+                            if(shouldSendDataToUSV)
+                            {
+                                pstream.println(dataToUSV);
+                                this.shouldSendDataToUSV = false;
+                                    
+                                System.out.println(Arrays.toString(dataToUSV));
                             }
 
                             lastTime = System.currentTimeMillis();
@@ -252,7 +264,35 @@ public class Client extends Thread {
     public void setNMEASentences(ArrayList<String> sentences)
     {
         this.NMEASentences = sentences;
+    }
+    
+    public void setShouldSendRoute(boolean send)
+    {
         this.shouldSendRoute = true;
+    }
+    
+    public void turnHornOn()
+    {
+        dataToUSV[0] |= 1 << 0;
+        this.shouldSendDataToUSV = true;
+    }
+    
+    public void turnHornOff()
+    {
+        dataToUSV[0] &= ~(1 << 0);
+        this.shouldSendDataToUSV = true;
+    }
+    
+    public void turnLanternOn()
+    {
+        dataToUSV[0] |= 1 << 1;
+        this.shouldSendDataToUSV = true;
+    }
+    
+    public void turnLanternOff()
+    {
+        dataToUSV[0] &= ~(1 << 1);
+        this.shouldSendDataToUSV = true;
     }
 
     int getGuiCommand() {

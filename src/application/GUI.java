@@ -254,9 +254,10 @@ public class GUI extends javax.swing.JFrame implements Runnable {
     
     private void createMap()
     {
-        MapOptions mapOptions = new MapOptions(MapOptions.MapType.TOPO, 62.4698, 6.2365, 14);
+        MapOptions mapOptions = new MapOptions(MapOptions.MapType.TOPO, 62.4705, 6.2425, 16);
         map = new JMap(mapOptions);
         map.setShowingEsriLogo(false);
+        map.setShowingCopyright(true);
         
         NavigatorOverlay navigator = new NavigatorOverlay();
         map.addMapOverlay(navigator);
@@ -378,6 +379,8 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         resetWaypointsButton = new javax.swing.JButton();
         waypointsButton = new javax.swing.JToggleButton();
         sendRouteButton = new javax.swing.JButton();
+        lanternButton = new javax.swing.JToggleButton();
+        hornButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         navDataPanel = new javax.swing.JPanel();
@@ -504,6 +507,23 @@ public class GUI extends javax.swing.JFrame implements Runnable {
             }
         });
 
+        lanternButton.setText("Lantern");
+        lanternButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lanternButtonActionPerformed(evt);
+            }
+        });
+
+        hornButton.setText("Horn");
+        hornButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                hornButtonMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                hornButtonMouseReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout ControlPanelLayout = new javax.swing.GroupLayout(ControlPanel);
         ControlPanel.setLayout(ControlPanelLayout);
         ControlPanelLayout.setHorizontalGroup(
@@ -511,6 +531,8 @@ public class GUI extends javax.swing.JFrame implements Runnable {
             .addComponent(resetWaypointsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
             .addComponent(waypointsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(sendRouteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lanternButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(hornButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         ControlPanelLayout.setVerticalGroup(
             ControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -520,7 +542,10 @@ public class GUI extends javax.swing.JFrame implements Runnable {
                 .addComponent(waypointsButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resetWaypointsButton)
-                .addGap(0, 414, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 344, Short.MAX_VALUE)
+                .addComponent(hornButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lanternButton))
         );
 
         javax.swing.GroupLayout travelModePanelLayout = new javax.swing.GroupLayout(travelModePanel);
@@ -1373,7 +1398,27 @@ public class GUI extends javax.swing.JFrame implements Runnable {
         
         guiCommand = 5;
         r.setGUIcommand(guiCommand);
+        r.setShouldSendRoute(true);
     }//GEN-LAST:event_sendRouteButtonActionPerformed
+
+    private void lanternButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lanternButtonActionPerformed
+        JToggleButton tBtn = (JToggleButton) evt.getSource();
+        
+        if(tBtn.isSelected()) {
+            r.turnLanternOn();
+        }
+        else {
+            r.turnLanternOff();
+        }
+    }//GEN-LAST:event_lanternButtonActionPerformed
+
+    private void hornButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hornButtonMousePressed
+        r.turnHornOn();
+    }//GEN-LAST:event_hornButtonMousePressed
+
+    private void hornButtonMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hornButtonMouseReleased
+        r.turnHornOff();
+    }//GEN-LAST:event_hornButtonMouseReleased
 /*
     Metode for å konvertere string til desimaltall hentet fra java api
     */
@@ -1480,6 +1525,7 @@ public class GUI extends javax.swing.JFrame implements Runnable {
     private javax.swing.JButton eastButton;
     private javax.swing.JButton eastButton1;
     private javax.swing.JTextField headingReferenceTextField;
+    private javax.swing.JButton hornButton;
     private javax.swing.JButton idleButton;
     private javax.swing.JTextField integralSurgeTextField;
     private javax.swing.JTextField integralSwayTextField;
@@ -1496,6 +1542,7 @@ public class GUI extends javax.swing.JFrame implements Runnable {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JToggleButton lanternButton;
     private javax.swing.JLabel latRefLabel;
     private javax.swing.JLabel latitudeLabel;
     private javax.swing.JLabel longRefLabel;
