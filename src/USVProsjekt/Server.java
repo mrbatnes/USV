@@ -34,7 +34,7 @@ public class Server extends Thread {
     private boolean available;
     private boolean stop;
     private boolean routeReceived;
-    
+
     private ArrayList<String> route;
 
     public Server(ServerSocket ssocket) {
@@ -43,7 +43,7 @@ public class Server extends Thread {
         gainChanged = false;
         stop = false;
         this.ssocket = ssocket;
-        
+
         route = new ArrayList<>();
     }
 
@@ -117,7 +117,6 @@ public class Server extends Thread {
         return remoteCommand;
     }
 
-
     @Override
     public void run() {
         try {
@@ -128,34 +127,31 @@ public class Server extends Thread {
                 String line = r.readLine();//linjen for mottatt data
                 String[] lineData;
                 // System.out.println(line);
-                if (line !=null && !line.isEmpty()) {
+                if (line != null && !line.isEmpty()) {
                     //System.out.println("Server received data");
-                    
+
                     // If line starts with "[$" it is a NMEA sentence and should
                     // therefore not be parsed
-                    if(!line.startsWith("[$"))
-                    {
+                    if (!line.startsWith("[$")) {
                         lineData = line.split(" ");
                         setGuiCommand(Integer.parseInt(lineData[0]));
-                        
+
                         if (guiCommand == 2) {
-                        //setter denne linjen dersom det er fjernstyring
-                        setRemoteCommand(lineData);
+                            //setter denne linjen dersom det er fjernstyring
+                            setRemoteCommand(lineData);
                         } else {
-                        //setter variablene i synkroniserte metoder
-                        setHeadingReference(Float.parseFloat(lineData[2]));
-                        setControllerGain(Integer.parseInt(lineData[1]), 
-                                Float.parseFloat(lineData[3]));
-                        setNorthIncDecRequest(Integer.parseInt(lineData[4]));
-                        setEastIncDecRequest(Integer.parseInt(lineData[5]));
+                            //setter variablene i synkroniserte metoder
+                            setHeadingReference(Float.parseFloat(lineData[2]));
+                            setControllerGain(Integer.parseInt(lineData[1]),
+                                    Float.parseFloat(lineData[3]));
+                            setNorthIncDecRequest(Integer.parseInt(lineData[4]));
+                            setEastIncDecRequest(Integer.parseInt(lineData[5]));
                         }
-                    }
-                    
-                    else if (guiCommand == 5) {
+                    } else if (guiCommand == 5) {
                         // Makes a new string out of the received line to remove
                         // the "[" at the beginning and the "]" at the end
                         String newLine = line.substring(1, line.length() - 1);
-                        
+
                         // Removes every "," and spaces and put it in a string array
                         lineData = newLine.split(", ");
                         
@@ -165,7 +161,13 @@ public class Server extends Thread {
                             System.out.println(route.get(i));
                             routeReceived = true;
                         }
-                    }  
+                        /*for (int i = 1; i < 6; i++) {
+                            route.add("$GPGGA,085954.775,6228.236,N,00614.6" + i + "0,E,7,,,0.0,M,,,,*2C");
+                            route.add("$GPRMC,085954.775,,6228.236,N,00614.6" + i + "0,E,,,071216,,,*66");
+                        }
+
+                        routeReceived = true;*/
+                    }
                 }
                 //returnerer data til klient
                 printStream.println(getDataFields());
@@ -211,12 +213,12 @@ public class Server extends Thread {
     public boolean isClosed() {
         return csocket.isClosed();
     }
-    
-    public ArrayList getRoute(){
+
+    public ArrayList getRoute() {
         return route;
     }
-    
-    public boolean isRouteReceived(){
+
+    public boolean isRouteReceived() {
         return routeReceived;
     }
 }

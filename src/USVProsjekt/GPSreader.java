@@ -90,7 +90,7 @@ public class GPSreader extends Thread {
                     public void run() {
                         setReference();
                     }
-                }, 0, 500);
+                }, 0, 1000);
                 timerStarted = true;
             }
         }
